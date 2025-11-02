@@ -1,0 +1,219 @@
+@startuml
+!theme plain
+title Cursor Cloud Agents API Java Client Module - Complete Class Diagram
+
+package "info.jab.cursor" {
+  interface CursorAgentManagement {
+    + launch(String, String, String): AgentResponse
+    + followUp(String, String): FollowUpResponse
+    + delete(String): DeleteAgentResponse
+  }
+
+  class CursorAgentManagementImpl implements CursorAgentManagement {
+    - {static} final Logger logger
+    - {static} final String DEFAULT_BRANCH
+    - final String apiKey
+    - final AgentManagementApi agentManagementApi
+    + CursorAgentManagementImpl(String, String)
+    + launch(String, String, String): AgentResponse
+    + followUp(String, String): FollowUpResponse
+    + delete(String): DeleteAgentResponse
+    - getAuthHeaders(): Map<String, String>
+    - createLaunchAgentRequest(String, String, String): LaunchAgentRequest
+  }
+
+  interface CursorAgentInformation {
+    + getAgents(Integer, String): AgentsList
+    + getStatus(String): AgentResponse
+    + getAgentConversation(String): ConversationResponse
+  }
+
+  class CursorAgentInformationImpl implements CursorAgentInformation {
+    - {static} final Logger logger
+    - final String apiKey
+    - final AgentInformationApi agentInformationApi
+    + CursorAgentInformationImpl(String, String)
+    + getAgents(Integer, String): AgentsList
+    + getStatus(String): AgentResponse
+    + getAgentConversation(String): ConversationResponse
+  }
+
+  interface CursorAgentGeneralEndpoints {
+    + getApiKeyInfo(): ApiKeyInfo
+    + getModels(): ModelsList
+    + getRepositories(): RepositoriesList
+  }
+
+  class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoints {
+    - {static} final Logger logger
+    - final String apiKey
+    - final GeneralEndpointsApi generalEndpointsApi
+    + CursorAgentGeneralEndpointsImpl(String, String)
+    + getApiKeyInfo(): ApiKeyInfo
+    + getModels(): List<String>
+    + getRepositories(): RepositoriesList
+  }
+}
+
+package "info.jab.cursor.client" {
+  class ApiClient {
+    + updateBaseUri(String): void
+    + setApiKey(String): void
+  }
+  
+  package "api" {
+    class AgentManagementApi {
+      + launchAgent(LaunchAgentRequest, Map<String, String>): AgentResponse
+      + addFollowUp(String, FollowUpRequest, Map<String, String>): FollowUpResponse
+      + deleteAgent(String, Map<String, String>): DeleteAgentResponse
+    }
+
+    class AgentInformationApi {
+      + listAgents(Integer, String, Map<String, String>): AgentsList
+      + getAgent(String, Map<String, String>): AgentResponse
+      + getAgentConversation(String, Map<String, String>): ConversationResponse
+    }
+
+    class GeneralEndpointsApi {
+      + getApiKeyInfo(Map<String, String>): ApiKeyInfo
+      + listModels(Map<String, String>): ModelsList
+      + listRepositories(Map<String, String>): RepositoriesList
+    }
+  }
+
+}
+
+package "info.jab.cursor.client.model" {
+  class AgentResponse {
+    + getId(): String
+    + getStatus(): StatusEnum
+    + setStatus(StatusEnum): void
+  }
+  
+  enum StatusEnum {
+    PENDING
+    CREATING
+    RUNNING
+    COMPLETED
+    FAILED
+    CANCELLED
+    EXPIRED
+    FINISHED
+  }
+
+  class FollowUpResponse {
+    + getId(): String
+  }
+
+  class DeleteAgentResponse {
+    + getId(): String
+  }
+
+  class LaunchAgentRequest {
+    + getPrompt(): Prompt
+    + setPrompt(Prompt): void
+    + getSource(): Source
+    + setSource(Source): void
+    + getModel(): String
+    + setModel(String): void
+    + getTarget(): TargetRequest
+    + setTarget(TargetRequest): void
+  }
+
+  class FollowUpRequest {
+    + getPrompt(): Prompt
+    + setPrompt(Prompt): void
+  }
+
+  class Prompt {
+    + getText(): String
+    + setText(String): void
+  }
+
+  class Source {
+    + getRepository(): URI
+    + setRepository(URI): void
+    + getRef(): String
+    + setRef(String): void
+  }
+
+  class TargetRequest {
+    + getAutoCreatePr(): Boolean
+    + setAutoCreatePr(Boolean): void
+  }
+
+  class AgentsList {
+    + getAgents(): List<AgentResponse>
+    + getCursor(): String
+  }
+
+  class ConversationResponse {
+    + getMessages(): List<ConversationMessage>
+  }
+
+  class ConversationMessage {
+    + getText(): String
+    + getRole(): String
+  }
+
+  class ApiKeyInfo {
+    + getKey(): String
+    + getCreatedAt(): LocalDateTime
+  }
+
+  class ModelsList {
+    + getModels(): List<String>
+  }
+
+  class RepositoriesList {
+    + getRepositories(): List<Repository>
+  }
+
+  class Repository {
+    + getName(): String
+    + getUrl(): String
+  }
+}
+
+' Relationships
+CursorAgentManagementImpl --> ApiClient : uses
+CursorAgentManagementImpl --> AgentManagementApi : uses
+CursorAgentManagementImpl --> LaunchAgentRequest : creates
+CursorAgentManagementImpl --> Prompt : creates
+CursorAgentManagementImpl --> Source : creates
+CursorAgentManagementImpl --> TargetRequest : creates
+
+CursorAgentInformationImpl --> ApiClient : uses
+CursorAgentInformationImpl --> AgentInformationApi : uses
+
+CursorAgentGeneralEndpointsImpl --> ApiClient : uses
+CursorAgentGeneralEndpointsImpl --> GeneralEndpointsApi : uses
+
+AgentResponse --> StatusEnum : uses
+
+AgentManagementApi --> LaunchAgentRequest : uses
+AgentManagementApi --> FollowUpRequest : uses
+AgentManagementApi --> AgentResponse : returns
+AgentManagementApi --> FollowUpResponse : returns
+AgentManagementApi --> DeleteAgentResponse : returns
+
+AgentInformationApi --> AgentResponse : returns
+AgentInformationApi --> AgentsList : returns
+AgentInformationApi --> ConversationResponse : returns
+
+LaunchAgentRequest --> Prompt : contains
+LaunchAgentRequest --> Source : contains
+LaunchAgentRequest --> TargetRequest : contains
+
+FollowUpRequest --> Prompt : contains
+
+Source --> URI : uses
+
+ConversationResponse --> ConversationMessage : contains
+
+ModelsList --> String : contains
+
+RepositoriesList --> Repository : contains
+
+@enduml
+

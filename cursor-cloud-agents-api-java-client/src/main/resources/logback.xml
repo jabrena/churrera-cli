@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Minimal configuration for cursor-agent module -->
+    <!-- Suppress all console output, delegate to parent configuration -->
+    <logger name="info.jab.cursor" level="ERROR" additivity="false">
+        <!-- No appenders - suppress all output -->
+    </logger>
+
+    <!-- Root logger - suppress console output -->
+    <root level="ERROR" additivity="false">
+        <!-- No appenders - suppress all output -->
+    </root>
+</configuration>

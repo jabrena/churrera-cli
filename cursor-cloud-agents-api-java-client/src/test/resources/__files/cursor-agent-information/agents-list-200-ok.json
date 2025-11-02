@@ -1,0 +1,21 @@
+{
+  "agents" : [ {
+    "id" : "bc-test-agent-12345",
+    "name" : "Add installation instructions to readme",
+    "status" : "COMPLETED",
+    "source" : {
+      "repository" : "https://github.com/jabrena/churrera",
+      "ref" : "main"
+    },
+    "target" : {
+      "branchName" : "cursor/add-installation-instructions-to-readme-2487",
+      "url" : "https://cursor.com/agents?id=bc-test-agent-12345",
+      "prUrl" : null,
+      "autoCreatePr" : true
+    },
+    "summary" : null,
+    "createdAt" : "2025-10-12T18:11:16.596Z",
+    "updatedAt" : "2025-10-12T18:15:20.123Z"
+  } ],
+  "nextCursor" : "bc-359da03f-3712-490c-9e32-025bef880af7"
+}

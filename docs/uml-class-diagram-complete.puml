@@ -1,0 +1,260 @@
+@startuml
+!theme plain
+title Complete Churrera Project - All Modules Class Diagram
+
+package "Churrera CLI" {
+  class ChurreraCLI implements Runnable {
+    - jobRepository: JobRepository
+    - jobProcessor: JobProcessor
+    - propertyResolver: PropertyResolver
+    - cliAgent: CLIAgent
+    + main(String[]): void
+    + run(): void
+  }
+
+  class JobProcessor {
+    - jobRepository: JobRepository
+    - cliAgent: CLIAgent
+    - workflowParser: WorkflowParser
+    - pollingIntervalSeconds: int
+    + JobProcessor(JobRepository, CLIAgent, WorkflowParser, int)
+    + processJobs(): void
+  }
+
+  class CLIAgent {
+    - cursorAgentManagement: CursorAgentManagement
+    - cursorAgentInformation: CursorAgentInformation
+    - jobRepository: JobRepository
+    - pmlConverter: PmlConverter
+    - propertyResolver: PropertyResolver
+    + launchAgentForJob(Job, String, String, String): String
+    + followUpForPrompt(String, String, String, String): String
+    + monitorAgent(String, int): AgentState
+    + getAgentStatus(String): AgentState
+    + deleteAgent(String): void
+  }
+
+  class JobRepository {
+    + findAll(): List<Job>
+    + findById(String): Optional<Job>
+    + save(Job): void
+    + savePrompt(Prompt): void
+    + findPromptsByJobId(String): List<Prompt>
+  }
+
+  record Job {
+    + jobId: String
+    + path: String
+    + cursorAgentId: String
+    + status: AgentState
+    + type: WorkflowType
+  }
+
+  record Prompt {
+    + promptId: String
+    + jobId: String
+    + pmlFile: String
+    + status: String
+  }
+}
+
+package "Churrera Core" {
+  class WorkflowParser {
+    + parse(File): WorkflowData
+    + {static} determineWorkflowType(File): WorkflowType
+  }
+
+  class WorkflowValidator {
+    + validate(File): ValidationResult
+  }
+
+  class WorkflowData {
+    - launchPrompt: PromptInfo
+    - model: String
+    - repository: String
+    - updatePrompts: List<PromptInfo>
+    - parallelWorkflowData: ParallelWorkflowData
+    + isParallelWorkflow(): boolean
+  }
+
+  class ParallelWorkflowData {
+    - parallelPrompt: PromptInfo
+    - bindResultType: String
+    - sequences: List<SequenceInfo>
+  }
+
+  class SequenceInfo {
+    - model: String
+    - repository: String
+    - prompts: List<PromptInfo>
+  }
+
+  class PromptInfo {
+    - srcFile: String
+    - type: String
+    - bindResultExp: String
+  }
+
+  enum AgentState {
+    PENDING
+    CREATING
+    RUNNING
+    COMPLETED
+    FAILED
+    CANCELLED
+    EXPIRED
+    FINISHED
+    UNKNOWN
+    + isTerminal(): boolean
+    + isSuccessful(): boolean
+    + isFailed(): boolean
+    + isActive(): boolean
+  }
+
+  enum WorkflowType {
+    SEQUENCE
+    PARALLEL
+  }
+
+  class PmlConverter {
+    - resolver: ClasspathResolver
+    + toMarkdownFromContent(String, String): String
+  }
+
+  class PropertyResolver {
+    + getProperty(String, String): Optional<String>
+  }
+
+  class ExpressionEvaluator {
+    + {static} evaluate(String, Object): String
+    + {static} replaceInputPlaceholder(String, String): String
+    + {static} isSupported(String): boolean
+  }
+  
+  class CursorApiKeyResolver {
+    + resolveApiKey(): String
+  }
+  
+  class ConversationJsonDeserializer {
+    + {static} deserialize(String, Class<T>): Optional<T>
+    + {static} deserializeList(String, Class<T>, String): Optional<List<T>>
+  }
+  
+  class ClasspathResolver {
+    + retrieve(String): String
+  }
+
+  class BindResultTypeMapper {
+    + {static} isListType(String): boolean
+    + {static} mapToElementType(String): Class<?>
+  }
+}
+
+package "Cursor API Client" {
+  interface CursorAgentManagement {
+    + launch(String, String, String): AgentResponse
+    + followUp(String, String): FollowUpResponse
+    + delete(String): DeleteAgentResponse
+  }
+
+  class CursorAgentManagementImpl implements CursorAgentManagement {
+    - apiKey: String
+    - agentManagementApi: AgentManagementApi
+    + launch(String, String, String): AgentResponse
+  }
+
+  interface CursorAgentInformation {
+    + getAgents(Integer, String): AgentsList
+    + getStatus(String): AgentResponse
+    + getAgentConversation(String): ConversationResponse
+  }
+
+  class CursorAgentInformationImpl implements CursorAgentInformation {
+    - apiKey: String
+    - agentInformationApi: AgentInformationApi
+    + getAgents(Integer, String): AgentsList
+    + getStatus(String): AgentResponse
+    + getAgentConversation(String): ConversationResponse
+  }
+  
+  interface CursorAgentGeneralEndpoints {
+    + getApiKeyInfo(): ApiKeyInfo
+    + getModels(): List<String>
+    + getRepositories(): RepositoriesList
+  }
+  
+  class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoints {
+    - apiKey: String
+    - generalEndpointsApi: GeneralEndpointsApi
+    + getApiKeyInfo(): ApiKeyInfo
+    + getModels(): List<String>
+    + getRepositories(): RepositoriesList
+  }
+}
+
+' Cross-module relationships
+ChurreraCLI --> JobRepository : uses
+ChurreraCLI --> JobProcessor : uses
+ChurreraCLI --> CLIAgent : uses
+ChurreraCLI --> PropertyResolver : uses
+
+JobProcessor --> JobRepository : uses
+JobProcessor --> CLIAgent : uses
+JobProcessor --> WorkflowParser : uses
+JobProcessor --> WorkflowData : uses
+JobProcessor --> PromptInfo : uses
+JobProcessor --> Job : processes
+JobProcessor --> Prompt : processes
+
+CLIAgent --> JobRepository : uses
+CLIAgent --> CursorAgentManagement : uses
+CLIAgent --> CursorAgentInformation : uses
+CLIAgent --> PmlConverter : uses
+CLIAgent --> PropertyResolver : uses
+CLIAgent --> ExpressionEvaluator : uses
+CLIAgent --> Job : manages
+CLIAgent --> Prompt : manages
+
+JobRepository --> Job : manages
+JobRepository --> Prompt : manages
+JobRepository --> PropertyResolver : uses
+
+WorkflowParser --> WorkflowData : creates
+WorkflowParser --> WorkflowType : uses
+WorkflowParser --> PromptInfo : creates
+WorkflowParser --> SequenceInfo : creates
+WorkflowParser --> ParallelWorkflowData : creates
+
+WorkflowData --> PromptInfo : contains
+WorkflowData --> ParallelWorkflowData : contains
+
+ParallelWorkflowData --> SequenceInfo : contains
+ParallelWorkflowData --> PromptInfo : contains
+
+SequenceInfo --> PromptInfo : contains
+
+Job ..> AgentState : uses
+Job ..> WorkflowType : uses
+
+CLIAgent --> CursorAgentManagementImpl : uses
+CLIAgent --> CursorAgentInformationImpl : uses
+
+CursorAgentManagementImpl --> CursorAgentManagement : implements
+CursorAgentInformationImpl --> CursorAgentInformation : implements
+
+PmlConverter --> ClasspathResolver : uses
+
+ExpressionEvaluator ..> String : processes
+
+ConversationJsonDeserializer ..> ObjectMapper : uses
+
+note right of JobProcessor : Background job processor\nthat automatically processes\nunfinished jobs
+
+note right of CLIAgent : CLI-specific agent service\nthat provides methods for\nlaunching and managing\nCursor agents
+
+note right of WorkflowParser : Parses workflow XML files\nand extracts agent and\nprompt information
+
+note right of CursorAgentManagementImpl : Implementation of\nCursorAgentManagement interface\nfor agent management operations
+
+@enduml
+

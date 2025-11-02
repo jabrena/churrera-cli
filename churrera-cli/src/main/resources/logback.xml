@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- JSON file appender with rotation -->
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/churrera.json</file>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp/>
+                <logLevel/>
+                <loggerName/>
+                <message/>
+                <mdc/>
+                <stackTrace/>
+            </providers>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/churrera.%d{yyyy-MM-dd}.%i.json</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>5</maxHistory>
+            <totalSizeCap>50MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Suppress console output for Cursor integration - only log to file -->
+    <logger name="info.jab.cursor" level="ERROR" additivity="false">
+        <appender-ref ref="JSON_FILE"/>
+    </logger>
+
+    <!-- Suppress console output for background job processor - only log to file -->
+    <logger name="info.jab.churrera.cli.service.JobProcessor" level="INFO" additivity="false">
+        <appender-ref ref="JSON_FILE"/>
+    </logger>
+
+    <!-- Root logger configuration - both console and file output -->
+    <root level="INFO">
+        <appender-ref ref="JSON_FILE"/>
+    </root>
+</configuration>

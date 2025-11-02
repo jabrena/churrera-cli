@@ -1,0 +1,214 @@
+@startuml
+!theme plain
+title Churrera Core Module - Complete Class Diagram
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+left to right direction
+
+package "info.jab.churrera.agent" {
+  enum AgentState {
+    PENDING
+    CREATING
+    RUNNING
+    COMPLETED
+    FAILED
+    CANCELLED
+    EXPIRED
+    FINISHED
+    UNKNOWN
+    --
+    + isTerminal(): boolean
+    + isSuccessful(): boolean
+    + isFailed(): boolean
+    + isActive(): boolean
+    + {static} of(AgentResponse): AgentState
+    - {static} parseStatus(String): AgentState
+  }
+}
+
+package "info.jab.churrera.workflow" {
+  class WorkflowParser {
+    - {static} final Logger logger
+    + parse(File): WorkflowData
+    + parse(Path): WorkflowData
+    + {static} determineWorkflowType(File): WorkflowType
+    - parseV2Workflow(Node): WorkflowData
+    - parseParallelWorkflow(Element): WorkflowData
+    - parseSequenceInfo(Element): SequenceInfo
+  }
+
+  class WorkflowValidator {
+    - {static} final String SCHEMA_URL_PROPERTY
+    - final PropertyResolver propertyResolver
+    + WorkflowValidator()
+    + validate(File): ValidationResult
+    + validate(Path): ValidationResult
+    - loadSchema(): Schema
+    - getSchemaUrl(): String
+  }
+
+  class WorkflowData {
+    - final PromptInfo launchPrompt
+    - final String model
+    - final String repository
+    - final List<PromptInfo> updatePrompts
+    - final ParallelWorkflowData parallelWorkflowData
+    + WorkflowData(PromptInfo, String, String, List<PromptInfo>)
+    + WorkflowData(PromptInfo, String, String, List<PromptInfo>, ParallelWorkflowData)
+    + getLaunchPrompt(): PromptInfo
+    + getModel(): String
+    + getRepository(): String
+    + getUpdatePrompts(): List<PromptInfo>
+    + getParallelWorkflowData(): ParallelWorkflowData
+    + isParallelWorkflow(): boolean
+    + getUpdateAgentCount(): int
+    + hasUpdateAgents(): boolean
+  }
+
+  class ParallelWorkflowData {
+    - final PromptInfo parallelPrompt
+    - final String bindResultType
+    - final List<SequenceInfo> sequences
+    + ParallelWorkflowData(PromptInfo, String, List<SequenceInfo>)
+    + getParallelPrompt(): PromptInfo
+    + getBindResultType(): String
+    + getSequences(): List<SequenceInfo>
+    + hasBindResultType(): boolean
+  }
+
+  class SequenceInfo {
+    - final String model
+    - final String repository
+    - final List<PromptInfo> prompts
+    + SequenceInfo(String, String, List<PromptInfo>)
+    + getModel(): String
+    + getRepository(): String
+    + getPrompts(): List<PromptInfo>
+  }
+
+  class PromptInfo {
+    - final String srcFile
+    - final String type
+    - final String bindResultExp
+    + PromptInfo(String, String)
+    + PromptInfo(String, String, String)
+    + getSrcFile(): String
+    + getType(): String
+    + getBindResultExp(): String
+    + hasBindResultExp(): boolean
+    + isPml(): boolean
+  }
+
+  enum WorkflowType {
+    SEQUENCE
+    PARALLEL
+  }
+
+  class WorkflowParseException extends Exception {
+    + WorkflowParseException(String)
+    + WorkflowParseException(String, Throwable)
+  }
+
+  class ExpressionEvaluator {
+    - {static} final Logger logger
+    + {static} evaluate(String, Object): String
+    + {static} replaceInputPlaceholder(String, String): String
+    + {static} isSupported(String): boolean
+  }
+
+  class BindResultTypeMapper {
+    + {static} isListType(String): boolean
+    + {static} mapToElementType(String): Class<?>
+  }
+}
+
+package "info.jab.churrera.util" {
+  class PmlConverter {
+    - final ClasspathResolver resolver
+    + PmlConverter()
+    + PmlConverter(ClasspathResolver)
+    + toMarkdown(String, String): String
+    + toMarkdown(String): String
+    + toMarkdownFromContent(String, String): String
+    + toMarkdownFromContent(String): String
+  }
+
+  class PropertyResolver {
+    + getProperty(String, String): Optional<String>
+    - loadProperties(String): Properties
+  }
+  
+  class CursorApiKeyResolver {
+    + {static} final String CURSOR_API_KEY
+    + resolveApiKey(): String
+    - resolveFromEnvFile(): Optional<String>
+    - resolveFromSystemEnvironment(): Optional<String>
+  }
+  
+  class ConversationJsonDeserializer {
+    - {static} final Logger logger
+    - {static} final Pattern RESULT_PATTERN
+    - {static} final ObjectMapper OBJECT_MAPPER
+    + {static} deserialize(String, Class<T>): Optional<T>
+    + {static} deserializeList(String, Class<T>): Optional<List<T>>
+    + {static} deserializeList(String, Class<T>, String): Optional<List<T>>
+    - {static} extractJsonFromResult(String): Optional<String>
+    - {static} deserializeJson(String, Class<T>): Optional<T>
+    - {static} deserializeJsonList(String, Class<T>, String): Optional<List<T>>
+    - {static} deserializeDirectArray(JsonNode, Class<T>): Optional<List<T>>
+    - {static} deserializeObjectWithArray(JsonNode, Class<T>, String): Optional<List<T>>
+    - {static} findFirstArray(JsonNode): JsonNode
+  }
+
+  class ClasspathResolver {
+    + retrieve(String): String
+  }
+}
+
+' Workflow Parser relationships
+WorkflowParser --> WorkflowData : creates
+WorkflowParser --> ParallelWorkflowData : creates
+WorkflowParser --> SequenceInfo : creates
+WorkflowParser --> PromptInfo : creates
+WorkflowParser --> WorkflowType : uses
+WorkflowParser --> WorkflowParseException : throws
+
+' Workflow Data relationships
+WorkflowData --> PromptInfo : contains
+WorkflowData --> ParallelWorkflowData : contains
+
+ParallelWorkflowData --> PromptInfo : contains
+ParallelWorkflowData --> SequenceInfo : contains
+
+SequenceInfo --> PromptInfo : contains
+
+' Workflow Validator relationships
+WorkflowValidator --> PropertyResolver : uses
+note right of WorkflowValidator
+  Inner classes:
+  • ValidationResult
+  • ValidationErrorHandler
+end note
+
+' Utility relationships
+PmlConverter --> ClasspathResolver : uses
+
+PropertyResolver ..> Properties : uses
+
+CursorApiKeyResolver ..> Dotenv : uses
+
+ExpressionEvaluator ..> String : processes
+
+BindResultTypeMapper ..> Class : maps
+
+ConversationJsonDeserializer ..> ObjectMapper : uses
+ConversationJsonDeserializer ..> JsonNode : uses
+
+' Note: External dependencies (Properties, Dotenv, ObjectMapper, JsonNode, Class)
+' are from Java standard library or external libraries
+
+@enduml
+

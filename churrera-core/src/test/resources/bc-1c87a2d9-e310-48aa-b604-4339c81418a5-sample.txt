@@ -1,0 +1,156 @@
+# Solve a homework from CIS-194
+
+## Goal
+
+Get access to the page
+https://www.cis.upenn.edu/~cis1940/spring13/lectures.html
+
+to review the different Homeworks available and generate a JSON format with the following information:
+
+```json
+[
+  {
+    "number": 1,
+    "title": "Homework 1",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/01-intro.pdf"
+  },
+  {
+    "number": 2,
+    "title": "Homework 2",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/02-ADTs.pdf",
+    "additionalFiles": [
+      "error.log",
+      "sample.log",
+      "Log.hs"
+    ]
+  },
+  ...
+]
+```
+
+## Output Format
+
+- Replace in the following xml fragment the RESULT with the actual List of Homeworks in JSON format <result>RESULT</result>
+
+# Safeguards
+
+- Not commit anything, just return the data
+- You could consider that the goal is achieved if you are able to print the list of Homeworks
+- not create any PR
+I'll help you scrape the CIS-194 homework details and generate the JSON format. Let me start by setting up a plan and then accessing the webpage to extract the homework information.
+Let me fetch the webpage content to analyze the homework structure:
+Perfect! I can see the HTML structure. Now let me create a Python script to parse this HTML and extract the homework information in the required JSON format:
+Let me fix the parsing script by taking a simpler and more direct approach:
+Perfect! Now let me clean up the temporary script file and provide the final result:
+Great! I have successfully scraped the CIS-194 homework details from the webpage and generated the JSON format as requested. Here's the result:
+
+<result>
+[
+  {
+    "number": 1,
+    "title": "Homework 1",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/01-intro.pdf"
+  },
+  {
+    "number": 2,
+    "title": "Homework 2",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/02-ADTs.pdf",
+    "additionalFiles": [
+      "error.log",
+      "sample.log",
+      "Log.hs"
+    ]
+  },
+  {
+    "number": 3,
+    "title": "Homework 3",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/03-rec-poly.pdf"
+  },
+  {
+    "number": 4,
+    "title": "Homework 4",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/04-higher-order.pdf"
+  },
+  {
+    "number": 5,
+    "title": "Homework 5",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/05-type-classes.pdf",
+    "additionalFiles": [
+      "ExprT.hs",
+      "Parser.hs",
+      "StackVM.hs"
+    ]
+  },
+  {
+    "number": 6,
+    "title": "Homework 6",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/06-laziness.pdf"
+  },
+  {
+    "number": 7,
+    "title": "Homework 7",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/07-folds-monoids.pdf",
+    "additionalFiles": [
+      "Editor.hs",
+      "Buffer.hs",
+      "Sized.hs",
+      "StringBuffer.hs",
+      "StringBufEditor.hs",
+      "carol.txt"
+    ]
+  },
+  {
+    "number": 8,
+    "title": "Homework 8",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/08-IO.pdf",
+    "additionalFiles": [
+      "Employee.hs",
+      "company.txt"
+    ]
+  },
+  {
+    "number": 9,
+    "title": "Homework 9",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/09-functors.pdf"
+  },
+  {
+    "number": 10,
+    "title": "Homework 10",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/10-applicative.pdf",
+    "additionalFiles": [
+      "AParser.hs"
+    ]
+  },
+  {
+    "number": 11,
+    "title": "Homework 11",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/11-applicative2.pdf",
+    "additionalFiles": [
+      "AParser.hs",
+      "SExpr.hs"
+    ]
+  },
+  {
+    "number": 12,
+    "title": "Homework 12",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/12-monads.pdf",
+    "additionalFiles": [
+      "Risk.hs"
+    ]
+  }
+]
+</result>
+
+I successfully extracted all 12 homework assignments from the CIS-194 Spring 2013 course webpage. The JSON includes:
+
+- **Homework number and title** for each assignment
+- **PDF URLs** pointing to the actual homework documents
+- **Additional files** where available (such as starter code, data files, etc.)
+
+The data shows that:
+- Some homeworks (1, 3, 4, 6, 9) only have PDF files
+- Others include various supporting files like Haskell source files (.hs), log files, and text files
+- Homework 7 has the most additional files (6 total)
+- All PDF URLs follow the consistent pattern: `https://www.cis.upenn.edu/~cis1940/spring13/hw/{number}-{topic}.pdf`
+
+The extraction was completed without committing any changes to the repository, as requested in the safeguards.

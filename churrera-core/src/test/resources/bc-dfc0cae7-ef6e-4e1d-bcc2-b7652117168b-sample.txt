@@ -1,0 +1,153 @@
+# Solve a homework from CIS-194
+
+## Goal
+
+Get access to the page
+https://www.cis.upenn.edu/~cis1940/spring13/lectures.html
+
+to review the different Homeworks available and generate a JSON format with the following information:
+
+```json
+[
+  {
+    "number": 1,
+    "title": "Homework 1",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/01-intro.pdf"
+  },
+  {
+    "number": 2,
+    "title": "Homework 2",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/02-ADTs.pdf",
+    "additionalFiles": [
+      "error.log",
+      "sample.log",
+      "Log.hs"
+    ]
+  },
+  ...
+]
+```
+
+## Output Format
+
+- Replace in the following xml fragment the RESULT with the actual List of Homeworks in JSON format <result>RESULT</result>
+
+# Safeguards
+
+- Not commit anything, just return the data
+- You could consider that the goal is achieved if you are able to print the list of Homeworks
+- not create any PR
+I'll help you scrape the CIS-194 homework information from the webpage and generate the JSON format. Let me start by creating a plan and then accessing the webpage to extract the homework details.
+Let me start by accessing the webpage to see its structure and content:
+Great! I can see the webpage structure. Now let me update my progress and parse the homework information from the HTML content:
+Now let me run the Python script to extract the homework information:
+I notice that the additional files weren't extracted properly. Let me fix the parsing logic to correctly capture the additional files:
+Now let me run the updated script:
+Perfect! Now let me update the todos and clean up by removing the temporary script:
+Perfect! I have successfully scraped the CIS-194 homework information from the webpage and extracted all the details in the requested JSON format. Here's the complete result:
+
+<result>
+[
+  {
+    "number": 1,
+    "title": "Homework 1",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/01-intro.pdf"
+  },
+  {
+    "number": 2,
+    "title": "Homework 2",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/02-ADTs.pdf",
+    "additionalFiles": [
+      "error.log",
+      "sample.log",
+      "Log.hs"
+    ]
+  },
+  {
+    "number": 3,
+    "title": "Homework 3",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/03-rec-poly.pdf"
+  },
+  {
+    "number": 4,
+    "title": "Homework 4",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/04-higher-order.pdf"
+  },
+  {
+    "number": 5,
+    "title": "Homework 5",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/05-type-classes.pdf",
+    "additionalFiles": [
+      "ExprT.hs",
+      "Parser.hs",
+      "StackVM.hs"
+    ]
+  },
+  {
+    "number": 6,
+    "title": "Homework 6",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/06-laziness.pdf"
+  },
+  {
+    "number": 7,
+    "title": "Homework 7",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/07-folds-monoids.pdf",
+    "additionalFiles": [
+      "Editor.hs",
+      "Buffer.hs",
+      "Sized.hs",
+      "StringBuffer.hs",
+      "StringBufEditor.hs",
+      "carol.txt"
+    ]
+  },
+  {
+    "number": 8,
+    "title": "Homework 8",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/08-IO.pdf",
+    "additionalFiles": [
+      "Employee.hs",
+      "company.txt"
+    ]
+  },
+  {
+    "number": 9,
+    "title": "Homework 9",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/09-functors.pdf"
+  },
+  {
+    "number": 10,
+    "title": "Homework 10",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/10-applicative.pdf",
+    "additionalFiles": [
+      "AParser.hs"
+    ]
+  },
+  {
+    "number": 11,
+    "title": "Homework 11",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/11-applicative2.pdf",
+    "additionalFiles": [
+      "AParser.hs",
+      "SExpr.hs"
+    ]
+  },
+  {
+    "number": 12,
+    "title": "Homework 12",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/12-monads.pdf",
+    "additionalFiles": [
+      "Risk.hs"
+    ]
+  }
+]
+</result>
+
+The task has been completed successfully! I've extracted all 12 homework assignments from the CIS-194 Spring 2013 course webpage, including:
+
+- **Homework numbers** (1-12)
+- **Titles** (e.g., "Homework 1", "Homework 2", etc.)
+- **PDF URLs** (complete URLs pointing to the homework PDFs)
+- **Additional files** (where applicable, such as `.hs` files, `.log` files, and `.txt` files)
+
+The JSON format matches exactly what you requested, with `additionalFiles` arrays included only for homeworks that have supplementary files. As requested, no commits were made and no pull requests were created - just the data extraction and formatting.

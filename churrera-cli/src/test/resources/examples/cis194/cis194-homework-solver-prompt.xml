@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.2.0-SNAPSHOT/pml.xsd">
+
+    <title>Solve a homework from CIS-194 for the week: <![CDATA[<input>INPUT</input>]]></title>
+
+    <role>You are a Senior software engineer with extensive experience in Java software development</role>
+
+    <goal>Solve the Homework for the week: <![CDATA[<input>INPUT</input>]]>
+
+        To achieve this goal, you need to follow the following steps:
+
+        Get access to the page
+        https://www.cis.upenn.edu/~cis1940/spring13/lectures.html
+
+        to review the different Homeworks and check in the repository in
+        sandbox/src/main/java/info/jab/cis194/
+
+        a new package named homeworkX with a range from 1 to 12
+        where X represent the week provided in the <![CDATA[<input>INPUT</input>]]> value.
+
+        if in the repository doesn't exist a homeworkX, X represent the week,
+        in that case take the minimum one which is not solved in the repository.
+
+        In other case, continue with the next Homework if exist a previous one.
+        If you are in Homework 9, jump to Homework 10 or higher.
+
+        Every homework has associated a Lecture, a Homework document and maybe some associated
+        documents.
+
+        Process all documents associated to the Homework.
+        Every week has 2 PDF documents, the first one to take the context about the ideas behind and
+        later implement the Exercises associated to the Homework.
+
+        Understand the problem do a good analysis to implement the solution.
+
+        Before start, update the VM to Java 25 using the following commands:
+
+        ```bash
+        sudo apt update
+        sudo apt install -y openjdk-25-jdk
+        ```
+
+        Apply TDD so, create in tests the new package:
+        sandbox/src/test/java/info/jab/cis194/homeworkX
+        where X represent the week provided in the <![CDATA[<input>INPUT</input>]]> value.
+
+        Once you have the initial test, execute:
+
+        ```bash
+        ./mvnw clean test -pl sandbox
+        ```
+
+        and it will fail but this is something normal because you don't have the implementation.
+        and it represents the TDD red phase.
+
+        After that, Implement the solution in:
+
+        sandbox/src/main/java/info/jab/cis194/homeworkX/
+
+        where X represent the week provided in the <![CDATA[<input>INPUT</input>]]> value.
+
+        and execute:
+
+        ```bash
+        ./mvnw clean test -pl sandbox
+        ```
+
+        This time it should pass the test, in order case, review the implementation and commit and push the changes to the branch to create the PR.
+
+        Follow this steps for all Exercises included in the Homework
+    </goal>
+
+    <safeguards>
+        <safeguards-list>
+            <safeguards-item>verify the changes only with `./mvnw clean verify`</safeguards-item>
+            <safeguards-item>Only commit java sources (*.java) and not any type files</safeguards-item>
+        </safeguards-list>
+    </safeguards>
+
+    <acceptance-criteria>
+        <acceptance-criteria-list>
+            <acceptance-criteria-item>The solution is tested successfully with `./mvnw clean test -pl sandbox`</acceptance-criteria-item>
+            <acceptance-criteria-item>The solution is committed and pushed to the branch to create the PR</acceptance-criteria-item>
+            <acceptance-criteria-item>Only commit java sources only and push the changes to the branch to create the PR</acceptance-criteria-item>
+        </acceptance-criteria-list>
+    </acceptance-criteria>
+</prompt>

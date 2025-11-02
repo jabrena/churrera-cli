@@ -1,0 +1,75 @@
+{
+  "repositories" : [ {
+    "owner" : "jabrena",
+    "name" : "101-cursor",
+    "repository" : "https://github.com/jabrena/101-cursor"
+  }, {
+    "owner" : "jabrena",
+    "name" : "101-kafka",
+    "repository" : "https://github.com/jabrena/101-kafka"
+  }, {
+    "owner" : "jabrena",
+    "name" : "churrera",
+    "repository" : "https://github.com/jabrena/churrera"
+  }, {
+    "owner" : "jabrena",
+    "name" : "cis-194",
+    "repository" : "https://github.com/jabrena/cis-194"
+  }, {
+    "owner" : "jabrena",
+    "name" : "cursor-admin-api",
+    "repository" : "https://github.com/jabrena/cursor-admin-api"
+  }, {
+    "owner" : "jabrena",
+    "name" : "cursor-agents-aoc-demo",
+    "repository" : "https://github.com/jabrena/cursor-agents-aoc-demo"
+  }, {
+    "owner" : "jabrena",
+    "name" : "cursor-agents-api-java-client",
+    "repository" : "https://github.com/jabrena/cursor-agents-api-java-client"
+  }, {
+    "owner" : "jabrena",
+    "name" : "cursor-agents-api-java-hello-world",
+    "repository" : "https://github.com/jabrena/cursor-agents-api-java-hello-world"
+  }, {
+    "owner" : "jabrena",
+    "name" : "cursor-rules-agile",
+    "repository" : "https://github.com/jabrena/cursor-rules-agile"
+  }, {
+    "owner" : "jabrena",
+    "name" : "cursor-rules-examples",
+    "repository" : "https://github.com/jabrena/cursor-rules-examples"
+  }, {
+    "owner" : "jabrena",
+    "name" : "cursor-rules-java",
+    "repository" : "https://github.com/jabrena/cursor-rules-java"
+  }, {
+    "owner" : "jabrena",
+    "name" : "cursor-rules-methodology",
+    "repository" : "https://github.com/jabrena/cursor-rules-methodology"
+  }, {
+    "owner" : "jabrena",
+    "name" : "cursor-rules-scope-cli",
+    "repository" : "https://github.com/jabrena/cursor-rules-scope-cli"
+  }, {
+    "owner" : "jabrena",
+    "name" : "cursor-rules-spring-boot",
+    "repository" : "https://github.com/jabrena/cursor-rules-spring-boot"
+  }, {
+    "owner" : "jabrena",
+    "name" : "cursor-rules-strategic-ddd",
+    "repository" : "https://github.com/jabrena/cursor-rules-strategic-ddd"
+  }, {
+    "owner" : "jabrena",
+    "name" : "dvbe25-demos",
+    "repository" : "https://github.com/jabrena/dvbe25-demos"
+  }, {
+    "owner" : "jabrena",
+    "name" : "java-crawler-demo",
+    "repository" : "https://github.com/jabrena/java-crawler-demo"
+  }, {
+    "owner" : "jabrena",
+    "name" : "setup-cli",
+    "repository" : "https://github.com/jabrena/setup-cli"
+  } ]
+}

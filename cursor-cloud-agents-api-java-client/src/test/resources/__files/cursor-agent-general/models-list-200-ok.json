@@ -1,0 +1,3 @@
+{
+  "models" : [ "claude-4.5-sonnet-thinking", "default", "gpt-5", "gpt-5-high", "code-supernova-1-million" ]
+}
