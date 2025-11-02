@@ -1,0 +1,103 @@
+name: Verify OpenAPI Specification
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'cursor-cloud-agents-openapi/src/main/resources/cloud-agents-openapi.yaml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'cursor-cloud-agents-openapi/src/main/resources/cloud-agents-openapi.yaml'
+  schedule:
+    # Run daily at 9:00 AM UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  verify-openapi:
+    name: Verify OpenAPI Specification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download remote OpenAPI specification
+        run: |
+          echo "Downloading remote OpenAPI specification..."
+          curl -s -o remote-openapi.yaml https://cursor.com/docs-static/cloud-agents-openapi.yaml
+
+          if [ ! -f remote-openapi.yaml ]; then
+            echo "❌ Failed to download remote OpenAPI specification"
+            exit 1
+          fi
+
+          echo "✅ Successfully downloaded remote OpenAPI specification"
+
+      - name: Compare OpenAPI specifications
+        run: |
+          LOCAL_FILE="cursor-cloud-agents-openapi/src/main/resources/cloud-agents-openapi.yaml"
+          REMOTE_FILE="remote-openapi.yaml"
+
+          if [ ! -f "$LOCAL_FILE" ]; then
+            echo "❌ Local OpenAPI file not found: $LOCAL_FILE"
+            exit 1
+          fi
+
+          echo "Comparing OpenAPI specifications..."
+          echo "Local file: $LOCAL_FILE"
+          echo "Remote file: $REMOTE_FILE"
+          echo ""
+
+          # Remove any trailing whitespace and normalize line endings for comparison
+          sed 's/[[:space:]]*$//' "$LOCAL_FILE" | tr -d '\r' > local-normalized.yaml
+          sed 's/[[:space:]]*$//' "$REMOTE_FILE" | tr -d '\r' > remote-normalized.yaml
+
+          if diff -u local-normalized.yaml remote-normalized.yaml > diff-output.txt; then
+            echo "✅ OpenAPI specifications are identical!"
+            echo "The local file matches the remote specification exactly."
+          else
+            echo "❌ OpenAPI specifications differ!"
+            echo ""
+            echo "Differences found:"
+            echo "=================="
+            cat diff-output.txt
+            echo "=================="
+            echo ""
+            echo "Please update the local OpenAPI specification to match the remote version."
+            echo "Remote URL: https://cursor.com/docs-static/cloud-agents-openapi.yaml"
+            echo "Local file: $LOCAL_FILE"
+            exit 1
+          fi
+
+      - name: Show file information
+        if: always()
+        run: |
+          LOCAL_FILE="cursor-agent-openapi/src/main/resources/cloud-agents-openapi.yaml"
+          REMOTE_FILE="remote-openapi.yaml"
+
+          echo "File information:"
+          echo "================="
+
+          if [ -f "$LOCAL_FILE" ]; then
+            echo "Local file size: $(wc -c < "$LOCAL_FILE") bytes"
+            echo "Local file lines: $(wc -l < "$LOCAL_FILE") lines"
+          fi
+
+          if [ -f "$REMOTE_FILE" ]; then
+            echo "Remote file size: $(wc -c < "$REMOTE_FILE") bytes"
+            echo "Remote file lines: $(wc -l < "$REMOTE_FILE") lines"
+          fi
+
+      - name: Upload diff as artifact
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-diff-${{ github.run_id }}
+          path: |
+            diff-output.txt
+            local-normalized.yaml
+            remote-normalized.yaml
+            remote-openapi.yaml
+          retention-days: 30
