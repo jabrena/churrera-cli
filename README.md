@@ -19,7 +19,7 @@ Cursor Cloud Agents API (Beta) allows you to programmatically create and manage 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:noNamespaceSchemaLocation="../../schema/pml-workflow.xsd">
+              xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.2.0-SNAPSHOT/pml-workflow.xsd">
     <sequence model="default" repository="https://github.com/jabrena/dvbe25-demos">
         <prompt src="prompt1.xml" type="pml" />
         <prompt src="prompt2.md" type="md" />
@@ -77,6 +77,7 @@ jobs pr     <job-id>    # Show PR link
 
 ## References
 
+- https://github.com/jabrena/pml
 - https://cursor.com/docs/cloud-agent/api/overview
 - https://status.cursor.com/
 - https://discord.com/channels/1074847526655643750/1074847527708393565
