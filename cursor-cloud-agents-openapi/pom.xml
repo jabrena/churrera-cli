@@ -21,7 +21,7 @@
         <openapi-generator-maven-plugin.version>7.15.0</openapi-generator-maven-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <swagger-ui.version>5.28.1</swagger-ui.version>
-        <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
+        <maven-dependency-plugin.version>3.9.0</maven-dependency-plugin.version>
     </properties>
     <!-- Dependencies for OpenAPI-generated code -->
     <dependencies>

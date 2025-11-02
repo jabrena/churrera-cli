@@ -52,7 +52,7 @@
         <maven-plugin-versions.version>2.19.1</maven-plugin-versions.version>
         <maven-plugin-exec.version>3.5.1</maven-plugin-exec.version>
         <maven-plugin-openapi-generator.version>7.16.0</maven-plugin-openapi-generator.version>
-        <maven-plugin-dependency.version>3.8.1</maven-plugin-dependency.version>
+        <maven-plugin-dependency.version>3.9.0</maven-plugin-dependency.version>
         <maven-plugin-build-helper.version>3.6.1</maven-plugin-build-helper.version>
         <maven-plugin-failsafe.version>3.5.4</maven-plugin-failsafe.version>
         <maven-plugin-resources.version>3.3.1</maven-plugin-resources.version>
