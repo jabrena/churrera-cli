@@ -33,7 +33,7 @@
         <!-- Testing dependencies -->
         <junit-jupiter.version>6.0.0</junit-jupiter.version>
         <assertj-core.version>3.26.3</assertj-core.version>
-        <mockito.version>5.14.2</mockito.version>
+        <mockito.version>5.20.0</mockito.version>
 
         <!-- Additional dependencies for churrera modules -->
         <swagger.version>2.2.37</swagger.version>
