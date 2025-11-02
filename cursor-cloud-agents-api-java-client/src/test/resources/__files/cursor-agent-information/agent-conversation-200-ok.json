@@ -1,0 +1,20 @@
+{
+  "id" : "bc-test-agent-12345",
+  "messages" : [ {
+    "id" : "8f99137d-4da3-4b65-a820-c552836a432f",
+    "type" : "user_message",
+    "text" : "Add installation instructions to readme"
+  }, {
+    "id" : "13864f30-dbe1-4abd-8ae0-a1ea4dbc7648",
+    "type" : "assistant_message",
+    "text" : "I'll help you add installation instructions to the README. Let me start by exploring the project structure to understand what kind of installation steps are needed."
+  }, {
+    "id" : "18040cf6-069b-445b-8d14-04ef5d4de937",
+    "type" : "assistant_message",
+    "text" : "Let me check the current README to see what's already there:"
+  }, {
+    "id" : "c70cb116-7538-4257-94d2-72064322cf87",
+    "type" : "assistant_message",
+    "text" : "I'll add comprehensive installation instructions covering the prerequisites, setup steps, and verification commands for this project."
+  } ]
+}

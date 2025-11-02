@@ -1,0 +1,162 @@
+# Java 25 Installation in Cursor Backgroun Agent
+
+## Role
+
+System Administrator with expertise in Java development environments and package management for Linux systems
+
+## Goal
+
+Update the VM to Java 25 using the command `sudo apt install -y openjdk-25-jdk`
+
+## Output Format
+
+- not invest time in planning
+- only install the component with the given command
+- not explain anything
+
+## Safeguards
+
+- verify that java is configured for java 25 executing `java -version`
+- if the java installation and the verification is successful, then the goal is achieved
+I'll install Java 25 and verify the installation as requested.
+Java 25 has been successfully installed and configured. The verification confirms that Java version 25-ea is now the active version.
+# Solve a homework from CIS-194
+
+## Goal
+
+Get access to the page
+https://www.cis.upenn.edu/~cis1940/spring13/lectures.html
+
+to review the different Homeworks available and generate a JSON format with the following information:
+
+```json
+[
+  {
+    "number": 1,
+    "title": "Homework 1",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/01-intro.pdf"
+  },
+  {
+    "number": 2,
+    "title": "Homework 2",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/02-ADTs.pdf",
+    "additionalFiles": [
+      "error.log",
+      "sample.log",
+      "Log.hs"
+    ]
+  },
+  ...
+]
+```
+
+## Output Format
+
+- Replace in the following xml fragment the RESULT with the actual List of Homeworks in JSON format <result>RESULT</result>
+
+# Safeguards
+
+- Verify the changes only with `./mvnw clean verify -pl sandbox`
+- Not commit anything, just return the data
+- You could consider that the goal is achieved if you are able to print the list of Homeworks
+I'll access the CIS-194 lectures page and extract the homework information to generate the JSON format you requested.
+Now I'll parse this HTML content and extract the homework information to generate the JSON format. Let me create a simple script to process this data:
+I need to improve the parsing to capture additional files. Let me update the script:
+Now let me verify the changes by running the Maven command as specified in the safeguards:
+Perfect! Now let me clean up the temporary file and present the final result:
+<result>
+[
+  {
+    "number": 1,
+    "title": "Homework 1",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/01-intro.pdf"
+  },
+  {
+    "number": 2,
+    "title": "Homework 2",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/02-ADTs.pdf",
+    "additionalFiles": [
+      "error.log",
+      "sample.log",
+      "Log.hs"
+    ]
+  },
+  {
+    "number": 3,
+    "title": "Homework 3",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/03-rec-poly.pdf"
+  },
+  {
+    "number": 4,
+    "title": "Homework 4",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/04-higher-order.pdf"
+  },
+  {
+    "number": 5,
+    "title": "Homework 5",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/05-type-classes.pdf",
+    "additionalFiles": [
+      "ExprT.hs",
+      "Parser.hs",
+      "StackVM.hs"
+    ]
+  },
+  {
+    "number": 6,
+    "title": "Homework 6",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/06-laziness.pdf"
+  },
+  {
+    "number": 7,
+    "title": "Homework 7",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/07-folds-monoids.pdf",
+    "additionalFiles": [
+      "Editor.hs",
+      "Buffer.hs",
+      "Sized.hs",
+      "StringBuffer.hs",
+      "StringBufEditor.hs",
+      "carol.txt"
+    ]
+  },
+  {
+    "number": 8,
+    "title": "Homework 8",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/08-IO.pdf",
+    "additionalFiles": [
+      "Employee.hs",
+      "company.txt"
+    ]
+  },
+  {
+    "number": 9,
+    "title": "Homework 9",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/09-functors.pdf"
+  },
+  {
+    "number": 10,
+    "title": "Homework 10",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/10-applicative.pdf",
+    "additionalFiles": [
+      "AParser.hs"
+    ]
+  },
+  {
+    "number": 11,
+    "title": "Homework 11",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/11-applicative2.pdf",
+    "additionalFiles": [
+      "AParser.hs",
+      "SExpr.hs"
+    ]
+  },
+  {
+    "number": 12,
+    "title": "Homework 12",
+    "pdfUrl": "https://www.cis.upenn.edu/~cis1940/spring13/hw/12-monads.pdf",
+    "additionalFiles": [
+      "Risk.hs"
+    ]
+  }
+]
+</result>
