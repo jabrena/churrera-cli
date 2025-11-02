@@ -48,7 +48,7 @@
         <!-- Maven plugin versions -->
         <maven-plugin-compiler.version>3.14.0</maven-plugin-compiler.version>
         <maven-plugin-surefire.version>3.5.4</maven-plugin-surefire.version>
-        <maven-plugin-enforcer.version>3.6.1</maven-plugin-enforcer.version>
+        <maven-plugin-enforcer.version>3.6.2</maven-plugin-enforcer.version>
         <maven-plugin-versions.version>2.19.1</maven-plugin-versions.version>
         <maven-plugin-exec.version>3.5.1</maven-plugin-exec.version>
         <maven-plugin-openapi-generator.version>7.16.0</maven-plugin-openapi-generator.version>
