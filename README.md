@@ -90,6 +90,8 @@ jobs pr     <job-id>    # Show PR link
 </pml-workflow>
 ```
 
+**Note:** [Review examples to get inspiration](./churrera-cli/src/test/resources/examples/).
+
 ## Changelog
 
 - Review the [CHANGELOG](./CHANGELOG.md) for further details
