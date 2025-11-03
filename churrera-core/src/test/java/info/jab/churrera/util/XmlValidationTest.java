@@ -120,7 +120,7 @@ class XmlValidationTest {
             // Given
             String invalidXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                     "<prompt xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                    "        xsi:noNamespaceSchemaLocation=\"https://jabrena.github.io/pml/schemas/0.2.0-SNAPSHOT/pml.xsd\">\n" +
+                    "        xsi:noNamespaceSchemaLocation=\"https://jabrena.github.io/pml/schemas/0.2.0/pml.xsd\">\n" +
                     "    <invalid-element>This should not be here</invalid-element>\n" +
                     "</prompt>";
             String schemaUrl = "https://jabrena.github.io/pml/schemas/0.1.0/pml.xsd";
@@ -182,7 +182,7 @@ class XmlValidationTest {
             // When & Then
             assertTrue(xmlContent.contains("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""),
                 "prompt1.xml should declare xsi namespace");
-            assertTrue(xmlContent.contains("xsi:noNamespaceSchemaLocation=\"https://jabrena.github.io/pml/schemas/0.2.0-SNAPSHOT/pml.xsd\""),
+            assertTrue(xmlContent.contains("xsi:noNamespaceSchemaLocation=\"https://jabrena.github.io/pml/schemas/0.2.0/pml.xsd\""),
                 "prompt1.xml should reference PML schema");
         }
 

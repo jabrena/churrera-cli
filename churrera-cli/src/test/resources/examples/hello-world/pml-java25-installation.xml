@@ -8,7 +8,12 @@
 
     ```bash
     sudo apt update
-    sudo apt install -y openjdk-25-jdk
+    # Install SDKMAN
+    curl -s "https://get.sdkman.io" | bash
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+    sdk install java 25.0.1-graalce
+    sdk default java 25.0.1-graalce
+    java -version
     ```
     </goal>
 
