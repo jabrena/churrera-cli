@@ -10,7 +10,7 @@ Cursor Cloud Agents API (Beta) allows you to programmatically create and manage 
 
 **OpenAPI:** https://editor-next.swagger.io/?url=https://cursor.com/docs-static/cloud-agents-openapi.yaml
 
-![](./docs/solution.png)
+![](./documentation/solution.png)
 
 ## How to use the tool?
 
@@ -98,9 +98,18 @@ jobs pr     <job-id>    # Show PR link
 
 ## References
 
-- https://github.com/jabrena/pml
 - https://cursor.com/docs/cloud-agent/api/overview
 - https://status.cursor.com/
 - https://discord.com/channels/1074847526655643750/1074847527708393565
+
+## Cursor rules ecosystem
+
+- https://github.com/jabrena/101-cursor
+- https://github.com/jabrena/pml
+- https://github.com/jabrena/cursor-rules-agile
+- https://github.com/jabrena/cursor-rules-java
+- https://github.com/jabrena/cursor-rules-spring-boot
+- https://github.com/jabrena/plantuml-to-png-cli
+- https://github.com/jabrena/setup-cli
 
 Powered by [Cursor](https://www.cursor.com/) with ❤️ from [Madrid](https://www.google.com/maps/place/Community+of+Madrid,+Madrid/@40.4983324,-6.3162283,8z/data=!3m1!4b1!4m6!3m5!1s0xd41817a40e033b9:0x10340f3be4bc880!8m2!3d40.4167088!4d-3.5812692!16zL20vMGo0eGc?entry=ttu&g_ep=EgoyMDI1MDgxOC4wIKXMDSoASAFQAw%3D%3D)
