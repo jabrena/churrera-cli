@@ -36,7 +36,7 @@
         <mockito.version>5.20.0</mockito.version>
 
         <!-- Additional dependencies for churrera modules -->
-        <swagger.version>2.2.37</swagger.version>
+        <swagger.version>2.2.40</swagger.version>
         <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
         <wiremock.version>3.13.1</wiremock.version>
         <dotenv-java.version>3.2.0</dotenv-java.version>
