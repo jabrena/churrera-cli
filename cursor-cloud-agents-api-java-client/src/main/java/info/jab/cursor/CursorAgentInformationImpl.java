@@ -5,6 +5,7 @@ import info.jab.cursor.client.ApiClient;
 import info.jab.cursor.client.api.AgentInformationApi;
 import info.jab.cursor.client.model.AgentsList;
 import info.jab.cursor.client.model.ConversationResponse;
+import info.jab.cursor.client.ApiException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +40,17 @@ public class CursorAgentInformationImpl implements CursorAgentInformation {
     }
 
     /**
+     * Creates authentication headers with the API key.
+     *
+     * @return Map containing the Authorization header with Bearer token
+     */
+    private Map<String, String> getAuthHeaders() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + apiKey);
+        return headers;
+    }
+
+    /**
      * Gets a list of agents with optional pagination.
      *
      * @param limit Maximum number of agents to return (optional, can be null)
@@ -47,14 +59,10 @@ public class CursorAgentInformationImpl implements CursorAgentInformation {
      */
     @Override
     public AgentsList getAgents(Integer limit, String cursor) {
-        // Prepare authentication headers
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer " + apiKey);
-
         try {
-            return agentInformationApi.listAgents(limit, cursor, headers);
-        } catch (Exception e) {
-            logger.error("Failed to get agents: {}", e.getMessage());
+            return agentInformationApi.listAgents(limit, cursor, getAuthHeaders());
+        } catch (ApiException e) {
+            logger.error("Failed to get agents: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to get agents: " + e.getMessage(), e);
         }
     }
@@ -72,14 +80,11 @@ public class CursorAgentInformationImpl implements CursorAgentInformation {
             throw new IllegalArgumentException("Agent ID cannot be null or empty");
         }
 
-        // Prepare authentication headers
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer " + apiKey);
-
         try {
             // Get current agent status - single API call
-            return agentInformationApi.getAgent(agentId, headers);
+            return agentInformationApi.getAgent(agentId, getAuthHeaders());
         } catch (Exception statusException) {
+            logger.error("Failed to get agent status: {}", statusException.getMessage(), statusException);
             // If status parsing fails due to unknown enum value, try to handle gracefully
             if (statusException.getMessage() != null && statusException.getMessage().contains("Unexpected value")) {
                 // For now, re-throw the exception. The calling layer can handle unknown statuses
@@ -102,15 +107,11 @@ public class CursorAgentInformationImpl implements CursorAgentInformation {
             throw new IllegalArgumentException("Agent ID cannot be null or empty");
         }
 
-        // Prepare authentication headers
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer " + apiKey);
-
         try {
-            return agentInformationApi.getAgentConversation(agentId, headers);
-        } catch (Exception e) {
-            //info.jab.cursor.client.ApiException;
-            throw new RuntimeException(e);
+            return agentInformationApi.getAgentConversation(agentId, getAuthHeaders());
+        } catch (ApiException e) {
+            logger.error("Failed to get agent conversation: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to get agent conversation: " + e.getMessage(), e);
         }
     }
 }

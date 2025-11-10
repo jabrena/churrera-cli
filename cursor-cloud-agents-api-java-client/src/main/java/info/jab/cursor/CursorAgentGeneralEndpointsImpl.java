@@ -4,6 +4,7 @@ import info.jab.cursor.client.ApiClient;
 import info.jab.cursor.client.api.GeneralEndpointsApi;
 import info.jab.cursor.client.model.ApiKeyInfo;
 import info.jab.cursor.client.model.RepositoriesList;
+import info.jab.cursor.client.ApiException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,47 +39,44 @@ public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoi
         this.generalEndpointsApi = new GeneralEndpointsApi(apiClient);
     }
 
-    @Override
-    public ApiKeyInfo getApiKeyInfo() {
-        // Prepare authentication headers
+    /**
+     * Creates authentication headers with the API key.
+     *
+     * @return Map containing the Authorization header with Bearer token
+     */
+    private Map<String, String> getAuthHeaders() {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + apiKey);
+        return headers;
+    }
 
+    @Override
+    public ApiKeyInfo getApiKeyInfo() {
         try {
-           return generalEndpointsApi.getApiKeyInfo(headers);
-        } catch (Exception e) {
-            //info.jab.cursor.client.ApiException;
-            throw new RuntimeException(e);
+           return generalEndpointsApi.getApiKeyInfo(getAuthHeaders());
+        } catch (ApiException e) {
+            logger.error("Failed to get API key info: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to get API key info: " + e.getMessage(), e);
         }
     }
 
     @Override
     public List<String> getModels() {
-
-        // Prepare authentication headers
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer " + apiKey);
-
         try {
-            return generalEndpointsApi.listModels(headers).getModels();
-        } catch (Exception e) {
-            //info.jab.cursor.client.ApiException;
-            throw new RuntimeException(e);
+            return generalEndpointsApi.listModels(getAuthHeaders()).getModels();
+        } catch (ApiException e) {
+            logger.error("Failed to get models: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to get models: " + e.getMessage(), e);
         }
     }
 
     @Override
     public RepositoriesList getRepositories() {
-
-        // Prepare authentication headers
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer " + apiKey);
-
         try {
-            return generalEndpointsApi.listRepositories(headers);
-        } catch (Exception e) {
-            //info.jab.cursor.client.ApiException;
-            throw new RuntimeException(e);
+            return generalEndpointsApi.listRepositories(getAuthHeaders());
+        } catch (ApiException e) {
+            logger.error("Failed to get repositories: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to get repositories: " + e.getMessage(), e);
         }
     }
 }
