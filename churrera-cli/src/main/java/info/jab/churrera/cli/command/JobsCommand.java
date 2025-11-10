@@ -1,11 +1,11 @@
-package info.jab.churrera.cli.commands;
+package info.jab.churrera.cli.command;
 
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.workflow.WorkflowType;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.workflow.WorkflowParser;
-import info.jab.churrera.cli.commands.TableFormatter;
+import info.jab.churrera.cli.command.TableFormatter;
 import info.jab.churrera.agent.AgentState;
 import org.basex.core.BaseXException;
 import org.basex.query.QueryException;

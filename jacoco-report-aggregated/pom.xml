@@ -27,7 +27,7 @@
         </dependency>
         <dependency>
             <groupId>info.jab</groupId>
-            <artifactId>cursor-cloud-agents-api-java-client</artifactId>
+            <artifactId>cursor-cloud-agents-client</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

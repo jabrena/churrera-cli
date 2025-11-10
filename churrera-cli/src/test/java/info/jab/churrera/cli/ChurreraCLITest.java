@@ -1,6 +1,6 @@
 package info.jab.churrera.cli;
 
-import info.jab.churrera.cli.commands.ChurreraCLICommand;
+import info.jab.churrera.cli.command.ChurreraCLICommand;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.service.JobProcessor;
 import info.jab.churrera.cli.service.CLIAgent;

@@ -165,7 +165,7 @@ package "info.jab.churrera.cli.service" {
   }
 }
 
-package "info.jab.churrera.cli.commands" {
+package "info.jab.churrera.cli.command" {
   class JobsCommand implements Runnable {
     - {static} final Logger logger
     - {static} final int JOB_ID_PREFIX_LENGTH

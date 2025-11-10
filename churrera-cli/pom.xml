@@ -172,7 +172,7 @@
                                     </excludes>
                                 </filter>
                                 <filter>
-                                    <artifact>info.jab:cursor-cloud-agents-api-java-client</artifact>
+                                    <artifact>info.jab:cursor-cloud-agents-client</artifact>
                                     <excludes>
                                         <exclude>logback.xml</exclude>
                                     </excludes>

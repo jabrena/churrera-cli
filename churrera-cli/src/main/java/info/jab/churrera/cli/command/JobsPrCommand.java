@@ -1,4 +1,4 @@
-package info.jab.churrera.cli.commands;
+package info.jab.churrera.cli.command;
 
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.repository.JobRepository;
