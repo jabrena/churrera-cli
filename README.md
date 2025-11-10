@@ -47,7 +47,7 @@ export CURSOR_API_KEY=your_key_xxx
 # Build
 ./mvnw clean package
 # Run
-java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar cli
 
 # Using the commands
 jobs                    # List all jobs
@@ -78,10 +78,10 @@ jbang churrera@jabrena
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.2.0/pml-workflow.xsd">
+    xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.3.0/pml-workflow.xsd">
     <sequence model="default" repository="https://github.com/jabrena/wjax25-demos">
-        <prompt src="prompt1.xml" type="pml" />
-        <prompt src="prompt2.xml" type="pml" />
+        <prompt src="pml-java25-installation-v5.xml" />
+        <prompt src="pml-hello-world-java-v2.xml" />
     </sequence>
 </pml-workflow>
 ```
@@ -91,11 +91,10 @@ jbang churrera@jabrena
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.2.0/pml-workflow.xsd">
-    <parallel src="prompt-toc.xml" type="pml" bindResultType="List_Integer">
+    xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.3.0/pml-workflow.xsd">
+    <parallel src="euler-problem-extractor-prompt.xml" bindResultType="List_Integer">
         <sequence model="default" repository="https://github.com/jabrena/wjax25-demos">
-            <prompt src="prompt1.xml" type="pml" bindResultExp="$get()" />
-            <prompt src="prompt2.xml" type="pml" />
+            <prompt src="euler-problem-solver-prompt.xml" bindResultExp="$get()"/>
         </sequence>
     </parallel>
 </pml-workflow>
@@ -117,6 +116,7 @@ jbang churrera@jabrena
 
 - https://github.com/jabrena/101-cursor
 - https://github.com/jabrena/pml
+- https://github.com/jabrena/churrera
 - https://github.com/jabrena/cursor-rules-agile
 - https://github.com/jabrena/cursor-rules-java
 - https://github.com/jabrena/cursor-rules-spring-boot
