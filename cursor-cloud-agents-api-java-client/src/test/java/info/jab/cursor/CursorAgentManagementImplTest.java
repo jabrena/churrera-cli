@@ -5,6 +5,8 @@ import info.jab.cursor.client.api.AgentManagementApi;
 import info.jab.cursor.client.model.AgentResponse;
 import info.jab.cursor.client.model.DeleteAgentResponse;
 import info.jab.cursor.client.model.FollowUpResponse;
+import info.jab.cursor.client.model.LaunchAgentRequest;
+import info.jab.cursor.client.model.TargetRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -60,7 +62,7 @@ class CursorAgentManagementImplTest {
             String repository = "https://github.com/jabrena/churrera";
 
             // When & Then
-            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository))
+            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository, true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prompt cannot be null or empty");
 
@@ -76,7 +78,7 @@ class CursorAgentManagementImplTest {
             String repository = "https://github.com/jabrena/churrera";
 
             // When & Then
-            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository))
+            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository, true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prompt cannot be null or empty");
 
@@ -92,7 +94,7 @@ class CursorAgentManagementImplTest {
             String repository = "https://github.com/jabrena/churrera";
 
             // When & Then
-            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository))
+            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository, true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prompt cannot be null or empty");
 
@@ -108,7 +110,7 @@ class CursorAgentManagementImplTest {
             String repository = "https://github.com/jabrena/churrera";
 
             // When & Then
-            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository))
+            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository, true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Model cannot be null or empty");
 
@@ -124,7 +126,7 @@ class CursorAgentManagementImplTest {
             String repository = "https://github.com/jabrena/churrera";
 
             // When & Then
-            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository))
+            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository, true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Model cannot be null or empty");
 
@@ -140,7 +142,7 @@ class CursorAgentManagementImplTest {
             String repository = "https://github.com/jabrena/churrera";
 
             // When & Then
-            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository))
+            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository, true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Model cannot be null or empty");
 
@@ -156,7 +158,7 @@ class CursorAgentManagementImplTest {
             String repository = null;
 
             // When & Then
-            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository))
+            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository, true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Repository cannot be null or empty");
 
@@ -172,7 +174,7 @@ class CursorAgentManagementImplTest {
             String repository = "";
 
             // When & Then
-            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository))
+            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository, true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Repository cannot be null or empty");
 
@@ -188,7 +190,7 @@ class CursorAgentManagementImplTest {
             String repository = "  ";
 
             // When & Then
-            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository))
+            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository, true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Repository cannot be null or empty");
 
@@ -354,7 +356,7 @@ class CursorAgentManagementImplTest {
             when(agentManagementApi.launchAgent(any(), any())).thenThrow(apiException);
 
             // When & Then
-            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository))
+            assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository, true))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Failed to launch agent")
                 .hasCause(apiException);
@@ -391,6 +393,59 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Failed to delete agent")
                 .hasCause(apiException);
+        }
+    }
+
+    @Nested
+    @DisplayName("PR Flag Tests")
+    class PRFlagTests {
+
+        @Test
+        @DisplayName("Should set autoCreatePr to true when pr is true")
+        void should_setAutoCreatePrToTrue_when_prIsTrue() throws ApiException {
+            // Given
+            String prompt = "Add installation instructions";
+            String model = "claude-4.5-sonnet-thinking";
+            String repository = "https://github.com/jabrena/churrera";
+            boolean pr = true;
+
+            AgentResponse mockResponse = new AgentResponse();
+            mockResponse.setId(TEST_AGENT_ID);
+            when(agentManagementApi.launchAgent(any(), any())).thenReturn(mockResponse);
+
+            // When
+            cursorAgentManagement.launch(prompt, model, repository, pr);
+
+            // Then
+            ArgumentCaptor<LaunchAgentRequest> requestCaptor = ArgumentCaptor.forClass(LaunchAgentRequest.class);
+            verify(agentManagementApi).launchAgent(requestCaptor.capture(), any());
+            LaunchAgentRequest capturedRequest = requestCaptor.getValue();
+            assertThat(capturedRequest.getTarget()).isNotNull();
+            assertThat(capturedRequest.getTarget().getAutoCreatePr()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should set autoCreatePr to false when pr is false")
+        void should_setAutoCreatePrToFalse_when_prIsFalse() throws ApiException {
+            // Given
+            String prompt = "Add installation instructions";
+            String model = "claude-4.5-sonnet-thinking";
+            String repository = "https://github.com/jabrena/churrera";
+            boolean pr = false;
+
+            AgentResponse mockResponse = new AgentResponse();
+            mockResponse.setId(TEST_AGENT_ID);
+            when(agentManagementApi.launchAgent(any(), any())).thenReturn(mockResponse);
+
+            // When
+            cursorAgentManagement.launch(prompt, model, repository, pr);
+
+            // Then
+            ArgumentCaptor<LaunchAgentRequest> requestCaptor = ArgumentCaptor.forClass(LaunchAgentRequest.class);
+            verify(agentManagementApi).launchAgent(requestCaptor.capture(), any());
+            LaunchAgentRequest capturedRequest = requestCaptor.getValue();
+            assertThat(capturedRequest.getTarget()).isNotNull();
+            assertThat(capturedRequest.getTarget().getAutoCreatePr()).isFalse();
         }
     }
 }

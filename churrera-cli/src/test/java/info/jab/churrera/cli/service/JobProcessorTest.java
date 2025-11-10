@@ -368,7 +368,7 @@ class JobProcessorTest {
         when(jobRepository.findJobWithDetails("test-job-id"))
             .thenReturn(Optional.of(new JobWithDetails(testJob, testPrompts)));
         when(workflowParser.parse(any(Path.class))).thenReturn(testWorkflowData);
-        when(cliAgent.launchAgentForJob(any(Job.class), anyString(), anyString(), any())).thenReturn("new-agent-123");
+        when(cliAgent.launchAgentForJob(any(Job.class), anyString(), anyString(), any(), anyBoolean())).thenReturn("new-agent-123");
 
         // Create temporary files for testing
         Path tempDir = Files.createTempDirectory("test-workflow");
@@ -402,7 +402,7 @@ class JobProcessorTest {
         jobProcessor.processJobs();
 
         // Then
-        verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), eq("pml"), any());
+        verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), eq("pml"), any(), anyBoolean());
         verify(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("new-agent-123"), eq(AgentState.CREATING));
 
         // Cleanup
@@ -433,7 +433,7 @@ class JobProcessorTest {
         when(jobRepository.findJobWithDetails("test-job-id"))
             .thenReturn(Optional.of(new JobWithDetails(jobWithRealPath, testPrompts)));
         when(workflowParser.parse(any(Path.class))).thenReturn(testWorkflowData);
-        when(cliAgent.launchAgentForJob(any(Job.class), anyString(), anyString(), any()))
+        when(cliAgent.launchAgentForJob(any(Job.class), anyString(), anyString(), any(), anyBoolean()))
             .thenThrow(new RuntimeException("Launch failed"));
 
         // When
@@ -447,7 +447,7 @@ class JobProcessorTest {
         jobProcessor.processJobs();
 
         // Then
-        verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), anyString(), any());
+        verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), anyString(), any(), anyBoolean());
         verify(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.FAILED));
 
         // Cleanup
@@ -732,7 +732,7 @@ class JobProcessorTest {
         when(jobRepository.findJobWithDetails("parallel-job-id"))
             .thenReturn(Optional.of(new JobWithDetails(parallelJob, testPrompts)));
         when(workflowParser.parse(any(Path.class))).thenReturn(parallelWorkflowData);
-        when(cliAgent.launchAgentForJob(any(Job.class), anyString(), anyString(), any())).thenReturn("parallel-agent-123");
+        when(cliAgent.launchAgentForJob(any(Job.class), anyString(), anyString(), any(), anyBoolean())).thenReturn("parallel-agent-123");
 
         Job updatedJob = parallelJob.withCursorAgentId("parallel-agent-123").withStatus(AgentState.CREATING);
         when(jobRepository.findById("parallel-job-id")).thenReturn(Optional.of(updatedJob));
@@ -748,7 +748,7 @@ class JobProcessorTest {
         jobProcessor.processJobs();
 
         // Then - Verify agent was launched for parallel workflow
-        verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), eq("pml"), any());
+        verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), eq("pml"), any(), anyBoolean());
         verify(workflowParser).parse(any(Path.class));
 
         // Cleanup
@@ -801,7 +801,7 @@ class JobProcessorTest {
         jobProcessor.processJobs();
 
         // Then
-        verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any());
+        verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any(), anyBoolean());
         verify(cliAgent).getAgentStatus(eq("parallel-agent-123"));
         verify(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.FINISHED));
 
@@ -905,7 +905,7 @@ class JobProcessorTest {
         jobProcessor.processJobs();
 
         // Then - Should not launch because parent workflow is not parallel
-        verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any());
+        verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any(), anyBoolean());
 
         // Cleanup
         Files.deleteIfExists(prompt1File);
@@ -949,7 +949,7 @@ class JobProcessorTest {
         jobProcessor.processJobs();
 
         // Then
-        verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any());
+        verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any(), anyBoolean());
 
         // Cleanup
         Files.deleteIfExists(prompt1File);
@@ -1001,7 +1001,7 @@ class JobProcessorTest {
         jobProcessor.processJobs();
 
         // Then
-        verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any());
+        verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any(), anyBoolean());
 
         // Cleanup
         Files.deleteIfExists(prompt1File);
@@ -1045,7 +1045,7 @@ class JobProcessorTest {
         when(jobRepository.findJobWithDetails("child-job-id"))
             .thenReturn(Optional.of(new JobWithDetails(childJob, testPrompts)));
         when(workflowParser.parse(any(Path.class))).thenReturn(parallelWorkflowData);
-        when(cliAgent.launchAgentForJob(any(Job.class), anyString(), anyString(), anyString())).thenReturn("child-agent-123");
+        when(cliAgent.launchAgentForJob(any(Job.class), anyString(), anyString(), anyString(), anyBoolean())).thenReturn("child-agent-123");
 
         Job updatedChildJob = childJob.withCursorAgentId("child-agent-123");
         when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(updatedChildJob));
@@ -1061,7 +1061,7 @@ class JobProcessorTest {
         jobProcessor.processJobs();
 
         // Then
-        verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), eq("pml"), eq("bound-value"));
+        verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), eq("pml"), eq("bound-value"), anyBoolean());
         verify(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("child-agent-123"), eq(AgentState.CREATING));
 
         // Cleanup
@@ -1115,7 +1115,7 @@ class JobProcessorTest {
         jobProcessor.processJobs();
 
         // Then
-        verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any());
+        verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any(), anyBoolean());
         verify(cliAgent).getAgentStatus(eq("child-agent-123"));
         verify(cliAgent).updateJobStatusInDatabase(eq(childJob), eq(AgentState.FINISHED));
 
@@ -1483,7 +1483,7 @@ class JobProcessorTest {
             .thenReturn(Optional.of(new JobWithDetails(jobWithResult, testPrompts)));
         when(workflowParser.parse(any(Path.class))).thenReturn(workflowData);
         CountDownLatch launchLatch = new CountDownLatch(1);
-        when(cliAgent.launchAgentForJob(any(Job.class), anyString(), eq("pml"), isNull()))
+        when(cliAgent.launchAgentForJob(any(Job.class), anyString(), eq("pml"), isNull(), anyBoolean()))
             .thenAnswer(invocation -> {
                 launchLatch.countDown();
                 return "new-agent-123";
@@ -1495,7 +1495,7 @@ class JobProcessorTest {
         jobProcessor.processJobs();
 
         // Then - Launch should be called without bindValue
-        verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), eq("pml"), isNull());
+        verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), eq("pml"), isNull(), anyBoolean());
 
         // Cleanup
         Files.deleteIfExists(prompt1File);

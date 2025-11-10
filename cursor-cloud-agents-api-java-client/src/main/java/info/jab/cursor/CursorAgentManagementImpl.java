@@ -64,10 +64,11 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
      * @param prompt The prompt/instructions for the agent to execute
      * @param model The LLM model to use (e.g., "claude-4-sonnet")
      * @param repository The repository URL where the agent should work
+     * @param pr Whether to automatically create a pull request when the agent completes
      * @return Agent instance representing the launched agent
      */
     @Override
-    public AgentResponse launch(String prompt, String model, String repository) {
+    public AgentResponse launch(String prompt, String model, String repository, boolean pr) {
         // Preconditions
         if (prompt == null || prompt.trim().isEmpty()) {
             throw new IllegalArgumentException("Prompt cannot be null or empty");
@@ -80,8 +81,7 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
         }
 
         // Create the launch request
-        // TODO: Increase flexibility by adding more options. Example: target.setAutoCreatePr(true);
-        LaunchAgentRequest request = createLaunchAgentRequest(prompt, model, repository);
+        LaunchAgentRequest request = createLaunchAgentRequest(prompt, model, repository, pr);
 
         // Launch the agent
         try {
@@ -101,9 +101,10 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
      * @param prompt     The prompt/instructions for the agent to execute
      * @param model      The LLM model to use
      * @param repository The repository URL where the agent should work
+     * @param pr         Whether to automatically create a pull request when the agent completes
      * @return LaunchAgentRequest instance configured with the provided parameters
      */
-    private LaunchAgentRequest createLaunchAgentRequest(String prompt, String model, String repository) {
+    private LaunchAgentRequest createLaunchAgentRequest(String prompt, String model, String repository, boolean pr) {
         // Create the prompt
         Prompt promptObj = new Prompt();
         promptObj.setText(prompt);
@@ -115,7 +116,7 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
 
         // Create the target configuration (optional)
         TargetRequest target = new TargetRequest();
-        target.setAutoCreatePr(true); // Automatically create PR when agent completes
+        target.setAutoCreatePr(pr);
 
         // Create the launch request
         LaunchAgentRequest request = new LaunchAgentRequest();

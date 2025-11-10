@@ -64,7 +64,7 @@ class CursorAgentManagementIT {
                     .withBodyFile("cursor-agent-management/agent-launch-201-ok.json")));
 
             // When
-            AgentResponse response = cursorAgentManagement.launch(prompt, model, repository);
+            AgentResponse response = cursorAgentManagement.launch(prompt, model, repository, true);
 
             // Then
             assertThat(response).isNotNull();
@@ -95,7 +95,7 @@ class CursorAgentManagementIT {
                     .withBodyFile("cursor-agent-management/agent-launch-400-model-validation-error.json")));
 
             // When
-            Throwable thrown = catchThrowable(() -> cursorAgentManagement.launch(prompt, model, repository));
+            Throwable thrown = catchThrowable(() -> cursorAgentManagement.launch(prompt, model, repository, true));
 
             // Then
             assertThat(thrown)
@@ -120,7 +120,7 @@ class CursorAgentManagementIT {
                     .withBodyFile("cursor-agent-management/agent-launch-400-repository-validation-error.json")));
 
             // When
-            Throwable thrown = catchThrowable(() -> cursorAgentManagement.launch(prompt, model, repository));
+            Throwable thrown = catchThrowable(() -> cursorAgentManagement.launch(prompt, model, repository, true));
 
             // Then
             assertThat(thrown)
@@ -145,7 +145,7 @@ class CursorAgentManagementIT {
                     .withBodyFile("cursor-agent-management/agent-launch-401-unauthorized.json")));
 
             // When
-            Throwable thrown = catchThrowable(() -> cursorAgentManagement.launch(prompt, model, repository));
+            Throwable thrown = catchThrowable(() -> cursorAgentManagement.launch(prompt, model, repository, true));
 
             // Then
             assertThat(thrown)

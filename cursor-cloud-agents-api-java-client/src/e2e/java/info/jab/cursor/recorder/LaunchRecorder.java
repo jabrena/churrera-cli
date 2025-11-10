@@ -67,7 +67,8 @@ public class LaunchRecorder {
             Agent response = agentManagement.launch(
                 "Add a README.md file with installation instructions",
                 TEST_MODEL,
-                TEST_REPOSITORY
+                TEST_REPOSITORY,
+                true
             );
 
             saveResponseToFile(response, "agent-launch-ok.json");
@@ -106,7 +107,8 @@ public class LaunchRecorder {
                 agentManagement.launch(
                     "Test prompt for invalid model",
                     "invalid-model-that-does-not-exist",
-                    TEST_REPOSITORY
+                    TEST_REPOSITORY,
+                    true
                 );
                 throw new AssertionError("Expected 400 error but request succeeded");
             } catch (RuntimeException e) {
@@ -153,7 +155,8 @@ public class LaunchRecorder {
                 agentManagement.launch(
                     "Test prompt for invalid repository",
                     TEST_MODEL,
-                    "https://github.com/this-is-not-a-valid-repo-12345/definitely-does-not-exist"
+                    "https://github.com/this-is-not-a-valid-repo-12345/definitely-does-not-exist",
+                    true
                 );
                 throw new AssertionError("Expected 400 error but request succeeded");
             } catch (RuntimeException e) {
@@ -199,7 +202,8 @@ public class LaunchRecorder {
                 agentManagement.launch(
                     "Test prompt",
                     TEST_MODEL,
-                    TEST_REPOSITORY
+                    TEST_REPOSITORY,
+                    true
                 );
                 throw new AssertionError("Expected 401 error but request succeeded");
             } catch (RuntimeException e) {

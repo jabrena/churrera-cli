@@ -523,8 +523,14 @@ public class JobProcessor {
                 logger.info("Prompt has bindResultExp, will apply value: {}", bindValue);
             }
 
-            // Launch the agent with type information and optional bind value
-            String cursorAgentId = cliAgent.launchAgentForJob(job, promptContent, launchPrompt.getType(), bindValue);
+            // Determine PR flag: parallel workflow parent jobs should not create PR (only generate list),
+            // sequence workflows (standard and child jobs) should create PR)
+            boolean createPr = !workflowData.isParallelWorkflow();
+            logger.info("Launching agent with PR flag: {} (workflow type: {})", createPr,
+                workflowData.isParallelWorkflow() ? "parallel" : "sequence");
+
+            // Launch the agent with type information, optional bind value, and PR flag
+            String cursorAgentId = cliAgent.launchAgentForJob(job, promptContent, launchPrompt.getType(), bindValue, createPr);
 
             // Update job in database with cursorAgentId and CREATING status
             cliAgent.updateJobCursorIdInDatabase(job, cursorAgentId, AgentState.CREATING);

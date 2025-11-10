@@ -75,7 +75,8 @@ public class AgentConversationRecorder {
             Agent launchedAgent = agentManagement.launch(
                 "Create a simple test file and explain what you did",
                 TEST_MODEL,
-                TEST_REPOSITORY
+                TEST_REPOSITORY,
+                true
             );
 
             String agentId = launchedAgent.getId();

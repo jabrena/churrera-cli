@@ -69,7 +69,8 @@ public class FollowUpRecorder {
                 launchedAgent = agentManagement.launch(
                     "Create a simple Java class with basic methods",
                     TEST_MODEL,
-                    TEST_REPOSITORY
+                    TEST_REPOSITORY,
+                    true
                 );
             } catch (RuntimeException launchEx) {
                 // If repository access fails, create a template

@@ -49,11 +49,12 @@ public class CLIAgent {
      * @param promptContent the prompt content to use as the initial prompt
      * @param type the type of prompt ("pml" or "md")
      * @param bindValue optional value to replace <input>INPUT</input> placeholder (can be null)
+     * @param pr whether to automatically create a pull request when the agent completes
      * @return the Cursor agent ID
      */
-    public String launchAgentForJob(Job job, String promptContent, String type, String bindValue) {
+    public String launchAgentForJob(Job job, String promptContent, String type, String bindValue, boolean pr) {
         try {
-            logger.info("🚀 launchAgentForJob - type: {}, bindValue: {}", type, bindValue);
+            logger.info("🚀 launchAgentForJob - type: {}, bindValue: {}, pr: {}", type, bindValue, pr);
 
             // Convert to Markdown if needed
             String markdownContent = convertToMarkdown(promptContent, type);
@@ -73,7 +74,7 @@ public class CLIAgent {
 
             logger.debug("Prepared prompt content for agent launch (type: {})", type);
 
-            AgentResponse cursorAgentResult = cursorAgentManagement.launch(markdownContent, job.model(), job.repository());
+            AgentResponse cursorAgentResult = cursorAgentManagement.launch(markdownContent, job.model(), job.repository(), pr);
             return cursorAgentResult.getId();
         } catch (Exception e) {
             logger.error("Failed to launch agent: {}", e.getMessage());

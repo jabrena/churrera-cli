@@ -24,9 +24,10 @@ public interface CursorAgentManagement {
      * @param prompt The prompt/instructions for the agent to execute
      * @param model The LLM model to use (e.g., "claude-4-sonnet")
      * @param repository The repository URL where the agent should work
+     * @param pr Whether to automatically create a pull request when the agent completes
      * @return Agent instance representing the launched agent
      */
-    AgentResponse launch(String prompt, String model, String repository);
+    AgentResponse launch(String prompt, String model, String repository, boolean pr);
 
     /**
      * Gets the current status of an agent.

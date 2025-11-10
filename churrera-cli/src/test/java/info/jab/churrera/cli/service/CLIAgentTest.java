@@ -87,15 +87,15 @@ class CLIAgentTest {
 
         cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
 
-            when(cursorAgentManagement.launch(anyString(), anyString(), anyString())).thenReturn(mockAgent);
+            when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(mockAgent);
         when(mockAgent.getId()).thenReturn("new-agent-id");
 
             // When
-            String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", null);
+            String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", null, true);
 
             // Then
             assertEquals("new-agent-id", result);
-            verify(cursorAgentManagement).launch("converted markdown", "test-model", "test-repo");
+            verify(cursorAgentManagement).launch("converted markdown", "test-model", "test-repo", true);
     }
 
     @Test
@@ -111,15 +111,15 @@ class CLIAgentTest {
 
         cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
 
-            when(cursorAgentManagement.launch(anyString(), anyString(), anyString())).thenReturn(mockAgent);
+            when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(mockAgent);
         when(mockAgent.getId()).thenReturn("new-agent-id");
 
             // When
-            String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", null);
+            String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", null, true);
 
             // Then
             assertEquals("new-agent-id", result);
-            verify(cursorAgentManagement).launch("fallback markdown", "test-model", "test-repo");
+            verify(cursorAgentManagement).launch("fallback markdown", "test-model", "test-repo", true);
     }
 
     @Test
@@ -135,15 +135,15 @@ class CLIAgentTest {
 
         cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
 
-            when(cursorAgentManagement.launch(anyString(), anyString(), anyString())).thenReturn(mockAgent);
+            when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(mockAgent);
         when(mockAgent.getId()).thenReturn("new-agent-id");
 
             // When
-            String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", null);
+            String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", null, true);
 
             // Then
             assertEquals("new-agent-id", result);
-            verify(cursorAgentManagement).launch("pml content", "test-model", "test-repo");
+            verify(cursorAgentManagement).launch("pml content", "test-model", "test-repo", true);
     }
 
     @Test
@@ -155,12 +155,12 @@ class CLIAgentTest {
 
         cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
 
-            when(cursorAgentManagement.launch(anyString(), anyString(), anyString()))
+            when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean()))
                 .thenThrow(new RuntimeException("Launch failed"));
 
             // When & Then
             RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> cliAgent.launchAgentForJob(testJob, "pml content", "pml", null));
+                () -> cliAgent.launchAgentForJob(testJob, "pml content", "pml", null, true));
             assertTrue(exception.getMessage().contains("Failed to launch agent"));    }
 
     @Test
@@ -469,15 +469,15 @@ class CLIAgentTest {
 
         cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
 
-        when(cursorAgentManagement.launch(anyString(), anyString(), anyString())).thenReturn(mockAgent);
+        when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(mockAgent);
         when(mockAgent.getId()).thenReturn("new-agent-id");
 
         // When
-        String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", "test-value");
+        String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", "test-value", true);
 
         // Then
         assertEquals("new-agent-id", result);
-        verify(cursorAgentManagement).launch("converted markdown with <input>test-value</input>", "test-model", "test-repo");
+        verify(cursorAgentManagement).launch("converted markdown with <input>test-value</input>", "test-model", "test-repo", true);
     }
 
     @Test
@@ -488,15 +488,15 @@ class CLIAgentTest {
 
         cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
 
-            when(cursorAgentManagement.launch(anyString(), anyString(), anyString())).thenReturn(mockAgent);
+            when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(mockAgent);
         when(mockAgent.getId()).thenReturn("new-agent-id");
 
             // When - empty bindValue should skip replacement
-            String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", "");
+            String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", "", true);
 
             // Then
             assertEquals("new-agent-id", result);
-            verify(cursorAgentManagement).launch("converted markdown", "test-model", "test-repo");
+            verify(cursorAgentManagement).launch("converted markdown", "test-model", "test-repo", true);
     }
 
     @Test
@@ -506,15 +506,15 @@ class CLIAgentTest {
 
         cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
 
-            when(cursorAgentManagement.launch(anyString(), anyString(), anyString())).thenReturn(mockAgent);
+            when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(mockAgent);
         when(mockAgent.getId()).thenReturn("new-agent-id");
 
             // When - md type should not trigger PML conversion
-            String result = cliAgent.launchAgentForJob(testJob, "markdown content", "md", null);
+            String result = cliAgent.launchAgentForJob(testJob, "markdown content", "md", null, true);
 
             // Then
             assertEquals("new-agent-id", result);
-            verify(cursorAgentManagement).launch("markdown content", "test-model", "test-repo");
+            verify(cursorAgentManagement).launch("markdown content", "test-model", "test-repo", true);
     }
 
     @Test

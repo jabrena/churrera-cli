@@ -44,7 +44,7 @@
 
     <safeguards>
         <safeguards-list>
-            <safeguards-item>Only return the first 10 Euler problems numbers</safeguards-item>
+            <safeguards-item>Only return the first 3 Euler problems numbers</safeguards-item>
             <safeguards-item>Not commit anything, just return the data</safeguards-item>
             <safeguards-item>You could consider that the goal is achieved if you are able to print the list of Homeworks</safeguards-item>
             <safeguards-item>not create any PR</safeguards-item>

@@ -69,7 +69,8 @@ public class DeleteRecorder {
             Agent launchedAgent = agentManagement.launch(
                 "Create a test file for deletion",
                 TEST_MODEL,
-                TEST_REPOSITORY
+                TEST_REPOSITORY,
+                true
             );
 
             String agentId = launchedAgent.getId();
