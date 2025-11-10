@@ -22,7 +22,8 @@ import java.util.regex.Pattern;
  */
 @CommandLine.Command(
     name = "cli",
-    description = "Start interactive REPL mode for managing jobs"
+    description = "Start interactive REPL mode for managing jobs",
+    mixinStandardHelpOptions = true
 )
 public class ChurreraCLICommand implements Runnable {
 
