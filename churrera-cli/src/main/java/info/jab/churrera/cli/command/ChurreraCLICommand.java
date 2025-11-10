@@ -1,4 +1,4 @@
-package info.jab.churrera.cli.commands;
+package info.jab.churrera.cli.command;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.workflow.WorkflowValidator;
 import info.jab.churrera.workflow.WorkflowParser;
