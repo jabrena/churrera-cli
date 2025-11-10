@@ -4,29 +4,30 @@
 
     <role>System Administrator with expertise in Java development environments and package management for Linux systems</role>
 
-    <goal>Update the VM to Java 25 using the following commands:
+    <goal>Install Jbang and test the AOC CLI. Follow the next step to achieve the goal.</goal>
 
-        ```bash
-        sdk install jbang
-        jbang --version
+    <steps>
+        <step number="1">
+            <step-title>Install Jbang and test the AOC CLI</step-title>
+            <step-content>
+                ```bash
+                sdk install jbang
+                jbang --version
 
-        jbang trust add https://github.com/jabrena/
-        jbang aoc@jabrena test
-        ```
-    </goal>
+                jbang trust add https://github.com/jabrena/
+                jbang aoc@jabrena test
+                ```
+            </step-content>
+            <step-constraints>
+                <step-constraint-list>
+                    <step-constraint>Do not invest time in planning</step-constraint>
+                    <step-constraint>Only install the component with the given command</step-constraint>
+                </step-constraint-list>
+            </step-constraints>
+        </step>
+    </steps>
 
-    <constraints>
-        <constraint-list>
-            <constraint>Do not invest time in planning</constraint>
-            <constraint>Only install the component with the given command</constraint>
-        </constraint-list>
-    </constraints>
-
-    <output-format>
-        <output-format-list>
-            <output-format-item>Do not explain anything</output-format-item>
-        </output-format-list>
-    </output-format>
+    <output-format>Do not explain anything</output-format>
 
     <safeguards>
         <safeguards-list>
