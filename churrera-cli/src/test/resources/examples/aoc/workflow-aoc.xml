@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.3.0/pml-workflow.xsd">
+    <sequence model="default" repository="https://github.com/jabrena/cursor-agents-aoc-demo">
+        <prompt src="pml-java25-installation.xml" />
+        <prompt src="pml-aoc-test.xml" />
+        <prompt src="prompt2.md" /> <!-- Part 1 -->
+    </sequence>
+</pml-workflow>

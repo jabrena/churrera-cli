@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.2.0/pml-workflow.xsd">
-    <parallel src="cis194-homeworks-extractor-prompt.xml" type="pml" bindResultType="List_Integer">
+    xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.3.0/pml-workflow.xsd">
+    <parallel src="cis194-homeworks-extractor-prompt.xml" bindResultType="List_Integer">
         <sequence model="default" repository="https://github.com/jabrena/wjax25-demos">
-            <prompt src="cis194-homework-solver-prompt.xml" type="pml" bindResultExp="$get()"/>
+            <prompt src="cis194-homework-solver-prompt.xml" bindResultExp="$get()"/>
         </sequence>
     </parallel>
 </pml-workflow>

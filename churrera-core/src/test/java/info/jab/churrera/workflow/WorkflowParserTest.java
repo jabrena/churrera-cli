@@ -39,9 +39,9 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
                 <sequence model="test-model" repository="test-repo">
-                    <prompt src="prompt1.pml" type="pml"/>
-                    <prompt src="prompt2.pml" type="pml"/>
-                    <prompt src="prompt3.pml" type="pml"/>
+                    <prompt src="prompt1.xml"/>
+                    <prompt src="prompt2.xml"/>
+                    <prompt src="prompt3.xml"/>
                 </sequence>
             </pml-workflow>
             """;
@@ -52,12 +52,12 @@ class WorkflowParserTest {
 
         // Then
         assertNotNull(result);
-        assertEquals("prompt1.pml", result.getLaunchPrompt().getSrcFile());
+        assertEquals("prompt1.xml", result.getLaunchPrompt().getSrcFile());
         assertEquals("test-model", result.getModel());
         assertEquals("test-repo", result.getRepository());
         assertEquals(2, result.getUpdatePrompts().size());
-        assertEquals("prompt2.pml", result.getUpdatePrompts().get(0).getSrcFile());
-        assertEquals("prompt3.pml", result.getUpdatePrompts().get(1).getSrcFile());
+        assertEquals("prompt2.xml", result.getUpdatePrompts().get(0).getSrcFile());
+        assertEquals("prompt3.xml", result.getUpdatePrompts().get(1).getSrcFile());
         assertTrue(result.hasUpdateAgents());
         assertEquals(2, result.getUpdateAgentCount());
     }
@@ -69,8 +69,8 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
                 <sequence model="test-model" repository="test-repo">
-                    <prompt src="prompt1.pml" type="pml"/>
-                    <prompt src="prompt2.pml" type="pml"/>
+                    <prompt src="prompt1.xml"/>
+                    <prompt src="prompt2.xml"/>
                 </sequence>
             </pml-workflow>
             """;
@@ -81,11 +81,11 @@ class WorkflowParserTest {
 
         // Then
         assertNotNull(result);
-        assertEquals("prompt1.pml", result.getLaunchPrompt().getSrcFile());
+        assertEquals("prompt1.xml", result.getLaunchPrompt().getSrcFile());
         assertEquals("test-model", result.getModel());
         assertEquals("test-repo", result.getRepository());
         assertEquals(1, result.getUpdatePrompts().size());
-        assertEquals("prompt2.pml", result.getUpdatePrompts().get(0).getSrcFile());
+        assertEquals("prompt2.xml", result.getUpdatePrompts().get(0).getSrcFile());
     }
 
     @Test
@@ -95,7 +95,7 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
                 <sequence>
-                    <prompt src="prompt1.pml" type="pml"/>
+                    <prompt src="prompt1.xml"/>
                 </sequence>
             </pml-workflow>
             """;
@@ -106,7 +106,7 @@ class WorkflowParserTest {
 
         // Then
         assertNotNull(result);
-        assertEquals("prompt1.pml", result.getLaunchPrompt().getSrcFile());
+        assertEquals("prompt1.xml", result.getLaunchPrompt().getSrcFile());
         assertEquals("", result.getModel());
         assertEquals("", result.getRepository());
         assertFalse(result.hasUpdateAgents());
@@ -120,7 +120,7 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
                 <sequence model="test-model" repository="test-repo">
-                    <prompt src="prompt1.pml" type="pml"/>
+                    <prompt src="prompt1.xml"/>
                 </sequence>
             </pml-workflow>
             """;
@@ -131,7 +131,7 @@ class WorkflowParserTest {
 
         // Then
         assertNotNull(result);
-        assertEquals("prompt1.pml", result.getLaunchPrompt().getSrcFile());
+        assertEquals("prompt1.xml", result.getLaunchPrompt().getSrcFile());
         assertEquals("test-model", result.getModel());
         assertEquals("test-repo", result.getRepository());
         assertFalse(result.hasUpdateAgents());
@@ -145,7 +145,7 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <invalid-root>
                 <sequence model="test-model" repository="test-repo">
-                    <prompt pml="prompt1.pml"/>
+                    <prompt pml="prompt1.xml"/>
                 </sequence>
             </invalid-root>
             """;
@@ -162,7 +162,7 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
                 <invalid-element>
-                    <prompt pml="prompt1.pml"/>
+                    <prompt pml="prompt1.xml"/>
                 </invalid-element>
             </pml-workflow>
             """;
@@ -257,8 +257,8 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
                 <sequence model="test-model" repository="test-repo">
-                    <prompt src="prompt1.pml" type="pml"/>
-                    <prompt src="prompt2.pml" type="pml"/>
+                    <prompt src="prompt1.xml"/>
+                    <prompt src="prompt2.xml"/>
                 </sequence>
             </pml-workflow>
             """;
@@ -270,9 +270,9 @@ class WorkflowParserTest {
 
         // Then
         // Verify that the returned list is a copy and modifications don't affect the original
-        updatePrompts.add(new PromptInfo("new-file.pml", "pml"));
+        updatePrompts.add(new PromptInfo("new-file.xml", "pml"));
         assertEquals(1, result.getUpdatePrompts().size());
-        assertEquals("prompt2.pml", result.getUpdatePrompts().get(0).getSrcFile());
+        assertEquals("prompt2.xml", result.getUpdatePrompts().get(0).getSrcFile());
     }
 
     @Test
@@ -282,7 +282,7 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
                 <sequence model="test-model" repository="test-repo">
-                    <prompt src="prompt1.pml" type="pml"/>
+                    <prompt src="prompt1.xml"/>
                 </sequence>
             </pml-workflow>
             """;
@@ -304,10 +304,10 @@ class WorkflowParserTest {
         String workflowContent = """
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
-                <parallel src="prompt1.pml" type="pml" bindResultType="List_Integer">
+                <parallel src="prompt1.xml" bindResultType="List_Integer">
                     <sequence model="test-model" repository="test-repo">
-                        <prompt src="prompt2.pml" type="pml"/>
-                        <prompt src="prompt3.pml" type="pml"/>
+                        <prompt src="prompt2.xml"/>
+                        <prompt src="prompt3.xml"/>
                     </sequence>
                 </parallel>
             </pml-workflow>
@@ -320,7 +320,7 @@ class WorkflowParserTest {
         // Then
         assertNotNull(result);
         assertTrue(result.isParallelWorkflow());
-        assertEquals("prompt1.pml", result.getLaunchPrompt().getSrcFile());
+        assertEquals("prompt1.xml", result.getLaunchPrompt().getSrcFile());
         assertEquals("pml", result.getLaunchPrompt().getType());
         assertEquals("test-model", result.getModel());
         assertEquals("test-repo", result.getRepository());
@@ -335,8 +335,8 @@ class WorkflowParserTest {
         assertEquals("test-model", sequence.getModel());
         assertEquals("test-repo", sequence.getRepository());
         assertEquals(2, sequence.getPrompts().size());
-        assertEquals("prompt2.pml", sequence.getPrompts().get(0).getSrcFile());
-        assertEquals("prompt3.pml", sequence.getPrompts().get(1).getSrcFile());
+        assertEquals("prompt2.xml", sequence.getPrompts().get(0).getSrcFile());
+        assertEquals("prompt3.xml", sequence.getPrompts().get(1).getSrcFile());
     }
 
     @Test
@@ -345,9 +345,9 @@ class WorkflowParserTest {
         String workflowContent = """
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
-                <parallel src="prompt1.pml" type="pml">
+                <parallel src="prompt1.xml">
                     <sequence model="test-model" repository="test-repo">
-                        <prompt src="prompt2.pml" type="pml"/>
+                        <prompt src="prompt2.xml"/>
                     </sequence>
                 </parallel>
             </pml-workflow>
@@ -371,9 +371,9 @@ class WorkflowParserTest {
         String workflowContent = """
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
-                <parallel type="pml">
+                <parallel>
                     <sequence model="test-model" repository="test-repo">
-                        <prompt src="prompt2.pml" type="pml"/>
+                        <prompt src="prompt2.xml"/>
                     </sequence>
                 </parallel>
             </pml-workflow>
@@ -390,7 +390,7 @@ class WorkflowParserTest {
         String workflowContent = """
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
-                <parallel src="prompt1.pml" type="pml">
+                <parallel src="prompt1.xml">
                 </parallel>
             </pml-workflow>
             """;
@@ -406,12 +406,12 @@ class WorkflowParserTest {
         String workflowContent = """
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
-                <parallel src="prompt1.pml" type="pml" bindResultType="List_Integer">
+                <parallel src="prompt1.xml" bindResultType="List_Integer">
                     <sequence model="model1" repository="repo1">
-                        <prompt src="prompt2.pml" type="pml"/>
+                        <prompt src="prompt2.xml"/>
                     </sequence>
                     <sequence model="model2" repository="repo2">
-                        <prompt src="prompt3.pml" type="pml"/>
+                        <prompt src="prompt3.xml"/>
                     </sequence>
                 </parallel>
             </pml-workflow>
@@ -437,8 +437,8 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
                 <sequence model="test-model" repository="test-repo">
-                    <prompt src="prompt1.pml" type="pml" bindResultExp="$get()"/>
-                    <prompt src="prompt2.pml" type="pml"/>
+                    <prompt src="prompt1.xml" bindResultExp="$get()"/>
+                    <prompt src="prompt2.xml"/>
                 </sequence>
             </pml-workflow>
             """;
@@ -465,7 +465,7 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
                 <sequence model="test-model" repository="test-repo">
-                    <prompt src="prompt1.pml" type="pml" bindResultExp=""/>
+                    <prompt src="prompt1.xml" bindResultExp=""/>
                 </sequence>
             </pml-workflow>
             """;
@@ -487,7 +487,7 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
                 <sequence model="test-model" repository="test-repo">
-                    <prompt src="prompt1.pml"/>
+                    <prompt src="prompt1.xml"/>
                 </sequence>
             </pml-workflow>
             """;
@@ -509,7 +509,7 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
                 <sequence model="test-model" repository="test-repo">
-                    <prompt src="prompt1.md" type="md"/>
+                    <prompt src="prompt1.md"/>
                 </sequence>
             </pml-workflow>
             """;
@@ -520,7 +520,7 @@ class WorkflowParserTest {
 
         // Then
         assertNotNull(result);
-        assertEquals("md", result.getLaunchPrompt().getType());
+        assertEquals("markdown", result.getLaunchPrompt().getType());
         assertFalse(result.getLaunchPrompt().isPml());
     }
 
@@ -531,7 +531,7 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
                 <sequence model="test-model" repository="test-repo">
-                    <prompt src="prompt1.pml" type="pml"/>
+                    <prompt src="prompt1.xml"/>
                 </sequence>
             </pml-workflow>
             """;
@@ -550,9 +550,9 @@ class WorkflowParserTest {
         String workflowContent = """
             <?xml version="1.0" encoding="UTF-8"?>
             <pml-workflow>
-                <parallel src="prompt1.pml" type="pml">
+                <parallel src="prompt1.xml">
                     <sequence model="test-model" repository="test-repo">
-                        <prompt src="prompt2.pml" type="pml"/>
+                        <prompt src="prompt2.xml"/>
                     </sequence>
                 </parallel>
             </pml-workflow>
@@ -573,7 +573,7 @@ class WorkflowParserTest {
             <?xml version="1.0" encoding="UTF-8"?>
             <invalid-root>
                 <sequence model="test-model" repository="test-repo">
-                    <prompt src="prompt1.pml" type="pml"/>
+                    <prompt src="prompt1.xml"/>
                 </sequence>
             </invalid-root>
             """;
@@ -618,10 +618,10 @@ class WorkflowParserTest {
     @Test
     void testPromptInfo_Constructor_WithBindResultExp() {
         // When
-        PromptInfo promptInfo = new PromptInfo("test.pml", "pml", "$get()");
+        PromptInfo promptInfo = new PromptInfo("test.xml", "pml", "$get()");
 
         // Then
-        assertEquals("test.pml", promptInfo.getSrcFile());
+        assertEquals("test.xml", promptInfo.getSrcFile());
         assertEquals("pml", promptInfo.getType());
         assertEquals("$get()", promptInfo.getBindResultExp());
         assertTrue(promptInfo.hasBindResultExp());
@@ -645,7 +645,7 @@ class WorkflowParserTest {
     void testSequenceInfo_Constructor() {
         // Given
         List<PromptInfo> prompts = List.of(
-            new PromptInfo("test.pml", "pml")
+            new PromptInfo("test.xml", "pml")
         );
 
         // When
@@ -655,18 +655,18 @@ class WorkflowParserTest {
         assertEquals("model", sequenceInfo.getModel());
         assertEquals("repo", sequenceInfo.getRepository());
         assertEquals(1, sequenceInfo.getPrompts().size());
-        assertEquals("test.pml", sequenceInfo.getPrompts().get(0).getSrcFile());
+        assertEquals("test.xml", sequenceInfo.getPrompts().get(0).getSrcFile());
 
         // Test immutability
         List<PromptInfo> returnedPrompts = sequenceInfo.getPrompts();
-        returnedPrompts.add(new PromptInfo("test2.pml", "pml"));
+        returnedPrompts.add(new PromptInfo("test2.xml", "pml"));
         assertEquals(1, sequenceInfo.getPrompts().size());
     }
 
     @Test
     void testParallelWorkflowData_Constructor() {
         // Given
-        PromptInfo parallelPrompt = new PromptInfo("parallel.pml", "pml");
+        PromptInfo parallelPrompt = new PromptInfo("parallel.xml", "pml");
         List<SequenceInfo> sequences = List.of(
             new SequenceInfo("model", "repo", List.of())
         );

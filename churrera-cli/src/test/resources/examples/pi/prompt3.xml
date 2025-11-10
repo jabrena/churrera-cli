@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <prompt xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.1.0/pml.xsd">
+        xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.3.0/pml.xsd">
 
-    <metadata>
-        <title>Refactor the tests</title>
-    </metadata>
+    <title>Refactor the tests</title>
 
     <role>You are a Senior software engineer with extensive experience in Java software development</role>
 
@@ -20,11 +18,7 @@
         - Dont miss Display none and good test method naming
     </goal>
 
-    <output-format>
-        <output-format-list>
-            <output-format-item>not explain anything</output-format-item>
-        </output-format-list>
-    </output-format>
+    <output-format>Don't explain anything</output-format>
 
     <safeguards>
         <safeguards-list>

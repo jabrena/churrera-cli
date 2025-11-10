@@ -103,6 +103,37 @@ public class WorkflowParser {
     }
 
     /**
+     * Infers the prompt type from the file extension in the src attribute.
+     *
+     * @param srcFile the source file path/name
+     * @return the inferred type: "pml" for .xml, "markdown" for .md, "text plain" for .txt
+     * @throws RuntimeException if the file extension is not one of the supported extensions
+     */
+    private static String inferTypeFromExtension(String srcFile) {
+        if (srcFile == null || srcFile.trim().isEmpty()) {
+            throw new RuntimeException("Source file cannot be null or empty");
+        }
+
+        int lastDotIndex = srcFile.lastIndexOf('.');
+        if (lastDotIndex == -1 || lastDotIndex == srcFile.length() - 1) {
+            throw new RuntimeException("Invalid file extension: file '" + srcFile + "' must have a valid extension (.xml, .md, or .txt)");
+        }
+
+        String extension = srcFile.substring(lastDotIndex + 1).toLowerCase();
+
+        switch (extension) {
+            case "xml":
+                return "pml";
+            case "md":
+                return "markdown";
+            case "txt":
+                return "text plain";
+            default:
+                throw new RuntimeException("Unsupported file extension: '" + extension + "' in file '" + srcFile + "'. Supported extensions are: .xml, .md, .txt");
+        }
+    }
+
+    /**
      * Parse v2 workflow format (sequence/prompt).
      */
     private WorkflowData parseV2Workflow(org.w3c.dom.Node sequenceNode) throws WorkflowParseException {
@@ -125,10 +156,7 @@ public class WorkflowParser {
             if (srcFile == null || srcFile.trim().isEmpty()) {
                 throw new WorkflowParseException("Prompt at index " + i + " missing required 'src' attribute");
             }
-            String type = prompt.getAttribute("type");
-            if (type == null || type.trim().isEmpty()) {
-                type = "pml"; // Default to pml if not specified
-            }
+            String type = inferTypeFromExtension(srcFile);
             String bindResultExp = prompt.getAttribute("bindResultExp");
             allPrompts.add(new PromptInfo(srcFile, type, bindResultExp));
         }
@@ -150,11 +178,7 @@ public class WorkflowParser {
             throw new WorkflowParseException("Parallel element missing required 'src' attribute");
         }
 
-        String type = parallelElement.getAttribute("type");
-        if (type == null || type.trim().isEmpty()) {
-            type = "pml"; // Default to pml
-        }
-
+        String type = inferTypeFromExtension(srcFile);
         String bindResultType = parallelElement.getAttribute("bindResultType");
 
         // Create the parallel prompt info
@@ -200,10 +224,7 @@ public class WorkflowParser {
             if (srcFile == null || srcFile.trim().isEmpty()) {
                 throw new WorkflowParseException("Prompt missing required 'src' attribute");
             }
-            String type = prompt.getAttribute("type");
-            if (type == null || type.trim().isEmpty()) {
-                type = "pml";
-            }
+            String type = inferTypeFromExtension(srcFile);
             String bindResultExp = prompt.getAttribute("bindResultExp");
             prompts.add(new PromptInfo(srcFile, type, bindResultExp));
         }

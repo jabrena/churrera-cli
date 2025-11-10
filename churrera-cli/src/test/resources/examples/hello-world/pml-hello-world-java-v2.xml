@@ -16,17 +16,9 @@
         </constraint-list>
     </constraints>
 
-    <output-format>
-        <output-format-list>
-            <output-format-item>Don not explain anything</output-format-item>
-        </output-format-list>
-    </output-format>
+    <output-format>Don't explain anything</output-format>
 
-    <safeguards>
-        <safeguards-list>
-            <safeguards-item>Build the solution with Maven Only</safeguards-item>
-        </safeguards-list>
-    </safeguards>
+    <safeguards>Build the solution with Maven Only</safeguards>
 
     <acceptance-criteria>
         <acceptance-criteria-list>

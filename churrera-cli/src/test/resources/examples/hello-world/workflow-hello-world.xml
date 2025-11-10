@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.2.0/pml-workflow.xsd">
+    xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.3.0/pml-workflow.xsd">
     <sequence model="default" repository="https://github.com/jabrena/wjax25-demos">
-        <prompt src="pml-java25-installation.xml" type="pml" />
-        <prompt src="pml-hello-world-java.xml" type="pml" />
+        <prompt src="pml-java25-installation-v5.xml" />
+        <prompt src="pml-hello-world-java-v2.xml" />
     </sequence>
 </pml-workflow>

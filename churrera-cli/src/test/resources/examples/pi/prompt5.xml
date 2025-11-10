@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <prompt xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.1.0/pml.xsd">
+        xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.3.0/pml.xsd">
 
-    <metadata>
-        <title>Add a JMH Benchmark</title>
-    </metadata>
+    <title>Add a JMH Benchmark</title>
 
     <role>You are a Senior software engineer with extensive experience in Java software development</role>
 
@@ -44,7 +42,6 @@
 
         After the analysis, remove the Slow implementation, update Tests and update JMH benchmark.
     </goal>
-
 
     <output-format>
         <output-format-list>

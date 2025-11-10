@@ -65,7 +65,7 @@ version: </xsl:text><xsl:value-of select="normalize-space(metadata/version)"/>
         </xsl:if>
 
         <!-- Process all content sections (goal already processed above) -->
-        <xsl:apply-templates select="examples | output-format | safeguards | acceptance-criteria"/>
+        <xsl:apply-templates select="examples | steps | output-format | safeguards | acceptance-criteria"/>
     </xsl:template>
 
     <!-- Examples container template -->
@@ -169,6 +169,13 @@ Description: </xsl:text>        <xsl:value-of select="normalize-space(example-de
 
     <!-- Steps template -->
     <xsl:template match="steps">
+        <!-- Add heading only if steps is not inside instructions -->
+        <xsl:if test="not(parent::instructions)">
+            <xsl:text>
+## Steps
+
+</xsl:text>
+        </xsl:if>
         <xsl:apply-templates select="step"/>
     </xsl:template>
 
@@ -225,11 +232,22 @@ Description: </xsl:text>        <xsl:value-of select="normalize-space(example-de
 ## Output Format
 
 </xsl:text>
-        <xsl:for-each select="output-format-list/output-format-item">
-            <xsl:text>- </xsl:text><xsl:value-of select="normalize-space(.)"/>
-            <xsl:text>
+        <xsl:choose>
+            <!-- If structured list format exists, use it -->
+            <xsl:when test="output-format-list">
+                <xsl:for-each select="output-format-list/output-format-item">
+                    <xsl:text>- </xsl:text><xsl:value-of select="normalize-space(.)"/>
+                    <xsl:text>
 </xsl:text>
-        </xsl:for-each>
+                </xsl:for-each>
+            </xsl:when>
+            <!-- Otherwise, use simple text content -->
+            <xsl:otherwise>
+                <xsl:value-of select="normalize-space(text())"/>
+                <xsl:text>
+</xsl:text>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <!-- Safeguards section template -->
@@ -238,11 +256,22 @@ Description: </xsl:text>        <xsl:value-of select="normalize-space(example-de
 ## Safeguards
 
 </xsl:text>
-        <xsl:for-each select="safeguards-list/safeguards-item">
-            <xsl:text>- </xsl:text><xsl:value-of select="normalize-space(.)"/>
-            <xsl:text>
+        <xsl:choose>
+            <!-- If structured list format exists, use it -->
+            <xsl:when test="safeguards-list">
+                <xsl:for-each select="safeguards-list/safeguards-item">
+                    <xsl:text>- </xsl:text><xsl:value-of select="normalize-space(.)"/>
+                    <xsl:text>
 </xsl:text>
-        </xsl:for-each>
+                </xsl:for-each>
+            </xsl:when>
+            <!-- Otherwise, use simple text content -->
+            <xsl:otherwise>
+                <xsl:value-of select="normalize-space(text())"/>
+                <xsl:text>
+</xsl:text>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <!-- Acceptance criteria section template -->
@@ -375,13 +404,15 @@ Description: </xsl:text>        <xsl:value-of select="normalize-space(example-de
     <!-- Template to trim step content while preserving paragraph structure -->
     <xsl:template name="trim-step-content">
         <xsl:param name="content"/>
+        <!-- Convert node to string explicitly to ensure we get all text content -->
+        <xsl:variable name="content-string" select="string($content)"/>
         <xsl:variable name="trimmed-start">
             <xsl:choose>
-                <xsl:when test="starts-with($content, '&#10;')">
-                    <xsl:value-of select="substring($content, 2)"/>
+                <xsl:when test="starts-with($content-string, '&#10;')">
+                    <xsl:value-of select="substring($content-string, 2)"/>
                 </xsl:when>
                 <xsl:otherwise>
-                    <xsl:value-of select="$content"/>
+                    <xsl:value-of select="$content-string"/>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
@@ -397,14 +428,8 @@ Description: </xsl:text>        <xsl:value-of select="normalize-space(example-de
         </xsl:variable>
         <!-- Check if content contains code blocks that need indentation preserved -->
         <xsl:choose>
-            <xsl:when test="contains($trimmed-both, '```bash') and (contains($trimmed-both, '#!/bin/bash') or contains($trimmed-both, '#!/usr/bin/env bash') or contains($trimmed-both, '#!/bin/sh'))">
-                <!-- For shell scripts, preserve all indentation by only trimming leading/trailing newlines -->
-                <xsl:call-template name="preserve-indentation">
-                    <xsl:with-param name="content" select="$trimmed-both"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="contains($trimmed-both, '```xml') or contains($trimmed-both, '```java') or contains($trimmed-both, '```txt')">
-                <!-- For XML, Java, and txt code blocks, preserve all indentation -->
+            <xsl:when test="contains($trimmed-both, '```bash') or contains($trimmed-both, '```xml') or contains($trimmed-both, '```java') or contains($trimmed-both, '```txt') or contains($trimmed-both, '```')">
+                <!-- For code blocks (bash, xml, java, txt, or any other), preserve all indentation by only trimming leading/trailing newlines -->
                 <xsl:call-template name="preserve-indentation">
                     <xsl:with-param name="content" select="$trimmed-both"/>
                 </xsl:call-template>

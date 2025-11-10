@@ -10,6 +10,7 @@ import info.jab.churrera.cli.commands.NewJobRunCommand;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.workflow.WorkflowValidator;
 import info.jab.churrera.workflow.WorkflowParser;
+import info.jab.churrera.workflow.PmlValidator;
 import info.jab.churrera.cli.service.JobProcessor;
 import info.jab.churrera.cli.service.CLIAgent;
 import info.jab.churrera.util.CursorApiKeyResolver;
@@ -216,7 +217,7 @@ public class ChurreraCLI implements Runnable {
         Matcher newMatcher = JOB_NEW_PATTERN.matcher(input);
         if (newMatcher.matches()) {
             String jobPath = newMatcher.group(1).trim();
-            new NewJobRunCommand(jobRepository, jobPath, new WorkflowValidator(), new WorkflowParser()).run();
+            new NewJobRunCommand(jobRepository, jobPath, new WorkflowValidator(), new WorkflowParser(), new PmlValidator()).run();
             return;
         }
 

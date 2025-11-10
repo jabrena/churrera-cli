@@ -9,6 +9,7 @@ import info.jab.churrera.workflow.WorkflowParser;
 import info.jab.churrera.workflow.WorkflowData;
 import info.jab.churrera.workflow.PromptInfo;
 import info.jab.churrera.workflow.WorkflowParseException;
+import info.jab.churrera.workflow.PmlValidator;
 import info.jab.churrera.agent.AgentState;
 import org.basex.core.BaseXException;
 import org.basex.query.QueryException;
@@ -48,6 +49,9 @@ class NewJobRunCommandTest {
     @Mock
     private WorkflowParser workflowParser;
 
+    @Mock
+    private PmlValidator pmlValidator;
+
     private Path tempDir;
     private Path testWorkflowFile;
     private String testJobPath;
@@ -85,11 +89,15 @@ class NewJobRunCommandTest {
         WorkflowData defaultWorkflowData = createDefaultWorkflowData();
         lenient().doReturn(defaultWorkflowData).when(workflowParser).parse(any(File.class));
 
+        // Setup default PML validation - successful
+        lenient().when(pmlValidator.validate(any(File.class)))
+            .thenReturn(new PmlValidator.ValidationResult(true, List.of()));
+
         // Reset mocks before each test
         reset(jobRepository);
 
         newJobRunCommand = new NewJobRunCommand(jobRepository, testJobPath,
-                                               workflowValidator, workflowParser);
+                                               workflowValidator, workflowParser, pmlValidator);
     }
 
     @AfterAll
@@ -141,7 +149,7 @@ class NewJobRunCommandTest {
         String nonExistentPath = "/non/existent/path.xml";
         NewJobRunCommand commandWithNonExistentFile =
             new NewJobRunCommand(jobRepository, nonExistentPath,
-                               workflowValidator, workflowParser);
+                               workflowValidator, workflowParser, pmlValidator);
 
         // When
         commandWithNonExistentFile.run();
@@ -257,5 +265,158 @@ class NewJobRunCommandTest {
             .when(jobRepository).save(any(Job.class));
         assertDoesNotThrow(() -> newJobRunCommand.run());
         verify(jobRepository).save(any(Job.class));
+    }
+
+    @Test
+    void testRun_PmlValidationFails() throws Exception {
+        // Given - Create PML files in the temp directory
+        Path prompt1File = tempDir.resolve("prompt1.xml");
+        Path prompt2File = tempDir.resolve("prompt2.xml");
+        Files.write(prompt1File, "<prompt><role>Test</role></prompt>".getBytes());
+        Files.write(prompt2File, "<prompt><role>Test</role></prompt>".getBytes());
+
+        // Setup workflow data with .xml files
+        WorkflowData workflowData = new WorkflowData(
+            new PromptInfo("prompt1.xml", "pml"),
+            "test-model",
+            "test-repo",
+            List.of(new PromptInfo("prompt2.xml", "pml"))
+        );
+        when(workflowParser.parse(any(File.class))).thenReturn(workflowData);
+
+        // Mock PML validation to fail
+        when(pmlValidator.validate(any(File.class)))
+            .thenReturn(new PmlValidator.ValidationResult(false,
+                List.of("Error: Invalid PML structure at line 1")));
+
+        // When
+        newJobRunCommand.run();
+
+        // Then
+        verify(workflowValidator).validate(any(File.class));
+        verify(workflowParser).parse(any(File.class));
+        verify(pmlValidator, atLeastOnce()).validate(any(File.class));
+        verify(jobRepository, never()).save(any(Job.class));
+        verify(jobRepository, never()).savePrompt(any(Prompt.class));
+    }
+
+    @Test
+    void testRun_PmlValidationSucceeds() throws Exception {
+        // Given - Create PML files in the temp directory
+        Path prompt1File = tempDir.resolve("prompt1.xml");
+        Path prompt2File = tempDir.resolve("prompt2.xml");
+        Files.write(prompt1File, "<prompt><role>Test</role></prompt>".getBytes());
+        Files.write(prompt2File, "<prompt><role>Test</role></prompt>".getBytes());
+
+        // Setup workflow data with .xml files
+        WorkflowData workflowData = new WorkflowData(
+            new PromptInfo("prompt1.xml", "pml"),
+            "test-model",
+            "test-repo",
+            List.of(new PromptInfo("prompt2.xml", "pml"))
+        );
+        when(workflowParser.parse(any(File.class))).thenReturn(workflowData);
+
+        // Mock PML validation to succeed
+        when(pmlValidator.validate(any(File.class)))
+            .thenReturn(new PmlValidator.ValidationResult(true, List.of()));
+
+        // When
+        newJobRunCommand.run();
+
+        // Then
+        verify(workflowValidator).validate(any(File.class));
+        verify(workflowParser).parse(any(File.class));
+        verify(pmlValidator, times(2)).validate(any(File.class)); // Both PML files validated
+        verify(jobRepository).save(any(Job.class));
+        verify(jobRepository, times(2)).savePrompt(any(Prompt.class));
+    }
+
+    @Test
+    void testRun_NonPmlFilesSkipped() throws Exception {
+        // Given - Create non-PML files in the temp directory
+        Path prompt1File = tempDir.resolve("prompt1.md");
+        Path prompt2File = tempDir.resolve("prompt2.txt");
+        Files.write(prompt1File, "# Markdown prompt".getBytes());
+        Files.write(prompt2File, "Text prompt".getBytes());
+
+        // Setup workflow data with non-PML files
+        WorkflowData workflowData = new WorkflowData(
+            new PromptInfo("prompt1.md", "markdown"),
+            "test-model",
+            "test-repo",
+            List.of(new PromptInfo("prompt2.txt", "text plain"))
+        );
+        when(workflowParser.parse(any(File.class))).thenReturn(workflowData);
+
+        // When
+        newJobRunCommand.run();
+
+        // Then - PML validator should not be called for non-PML files
+        verify(workflowValidator).validate(any(File.class));
+        verify(workflowParser).parse(any(File.class));
+        verify(pmlValidator, never()).validate(any(File.class));
+        verify(jobRepository).save(any(Job.class));
+        verify(jobRepository, times(2)).savePrompt(any(Prompt.class));
+    }
+
+    @Test
+    void testRun_MixedPmlAndNonPmlFiles() throws Exception {
+        // Given - Create mixed files in the temp directory
+        Path pmlFile = tempDir.resolve("prompt1.xml");
+        Path mdFile = tempDir.resolve("prompt2.md");
+        Files.write(pmlFile, "<prompt><role>Test</role></prompt>".getBytes());
+        Files.write(mdFile, "# Markdown prompt".getBytes());
+
+        // Setup workflow data with mixed file types
+        WorkflowData workflowData = new WorkflowData(
+            new PromptInfo("prompt1.xml", "pml"),
+            "test-model",
+            "test-repo",
+            List.of(new PromptInfo("prompt2.md", "markdown"))
+        );
+        when(workflowParser.parse(any(File.class))).thenReturn(workflowData);
+
+        // Mock PML validation to succeed for the PML file
+        when(pmlValidator.validate(any(File.class)))
+            .thenReturn(new PmlValidator.ValidationResult(true, List.of()));
+
+        // When
+        newJobRunCommand.run();
+
+        // Then - Only the PML file should be validated
+        verify(workflowValidator).validate(any(File.class));
+        verify(workflowParser).parse(any(File.class));
+        verify(pmlValidator, times(1)).validate(any(File.class)); // Only PML file validated
+        verify(jobRepository).save(any(Job.class));
+        verify(jobRepository, times(2)).savePrompt(any(Prompt.class));
+    }
+
+    @Test
+    void testRun_PmlFileNotFound() throws Exception {
+        // Given - Don't create the PML file
+        // Setup workflow data with .xml file that doesn't exist
+        WorkflowData workflowData = new WorkflowData(
+            new PromptInfo("nonexistent.xml", "pml"),
+            "test-model",
+            "test-repo",
+            List.of()
+        );
+        when(workflowParser.parse(any(File.class))).thenReturn(workflowData);
+
+        // Mock PML validation to return file not found error
+        when(pmlValidator.validate(any(File.class)))
+            .thenReturn(new PmlValidator.ValidationResult(false,
+                List.of("PML file does not exist: " + tempDir.resolve("nonexistent.xml").toAbsolutePath())));
+
+        // When
+        newJobRunCommand.run();
+
+        // Then
+        verify(workflowValidator).validate(any(File.class));
+        verify(workflowParser).parse(any(File.class));
+        verify(pmlValidator).validate(any(File.class));
+        verify(jobRepository, never()).save(any(Job.class));
+        verify(jobRepository, never()).savePrompt(any(Prompt.class));
     }
 }

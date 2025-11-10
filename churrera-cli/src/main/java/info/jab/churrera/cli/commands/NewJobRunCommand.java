@@ -9,6 +9,9 @@ import info.jab.churrera.workflow.WorkflowParser;
 import info.jab.churrera.workflow.WorkflowData;
 import info.jab.churrera.workflow.PromptInfo;
 import info.jab.churrera.workflow.WorkflowParseException;
+import info.jab.churrera.workflow.PmlValidator;
+import info.jab.churrera.workflow.ParallelWorkflowData;
+import info.jab.churrera.workflow.SequenceInfo;
 import info.jab.churrera.agent.AgentState;
 import org.basex.core.BaseXException;
 import org.basex.query.QueryException;
@@ -40,6 +43,7 @@ public class NewJobRunCommand implements Runnable {
     private final String jobPath;
     private final WorkflowValidator workflowValidator;
     private final WorkflowParser workflowParser;
+    private final PmlValidator pmlValidator;
 
     /**
      * Constructor with dependency injection for testing.
@@ -48,14 +52,17 @@ public class NewJobRunCommand implements Runnable {
      * @param jobPath the path to the workflow file
      * @param workflowValidator the workflow validator (can be null, will be created if null)
      * @param workflowParser the workflow parser (can be null, will be created if null)
+     * @param pmlValidator the PML validator (can be null, will be created if null)
      */
     public NewJobRunCommand(JobRepository jobRepository, String jobPath,
                            WorkflowValidator workflowValidator,
-                           WorkflowParser workflowParser) {
+                           WorkflowParser workflowParser,
+                           PmlValidator pmlValidator) {
         this.jobRepository = jobRepository;
         this.jobPath = jobPath;
         this.workflowValidator = workflowValidator != null ? workflowValidator : new WorkflowValidator();
         this.workflowParser = workflowParser != null ? workflowParser : new WorkflowParser();
+        this.pmlValidator = pmlValidator != null ? pmlValidator : new PmlValidator();
     }
 
     @Override
@@ -90,6 +97,20 @@ public class NewJobRunCommand implements Runnable {
             // Parse the workflow to extract agent and prompt information
             logger.debug("Parsing workflow file");
             WorkflowData workflowData = workflowParser.parse(workflowFile);
+
+            // Validate all PML files referenced in the workflow
+            logger.debug("Validating PML files referenced in workflow");
+            List<String> pmlValidationErrors = validatePmlFiles(workflowFile, workflowData);
+            if (!pmlValidationErrors.isEmpty()) {
+                logger.error("PML validation failed: {} errors found", pmlValidationErrors.size());
+                System.err.println("PML validation failed:");
+                for (int i = 0; i < pmlValidationErrors.size(); i++) {
+                    System.err.println("  " + (i + 1) + ". " + pmlValidationErrors.get(i));
+                }
+                return;
+            }
+
+            logger.debug("PML validation passed");
 
             // Generate IDs and timestamps
             String jobId = UUID.randomUUID().toString();
@@ -170,5 +191,73 @@ public class NewJobRunCommand implements Runnable {
             System.err.println("Error creating job: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Validates all PML files (.xml) referenced in the workflow.
+     *
+     * @param workflowFile the workflow file (used to resolve relative paths)
+     * @param workflowData the parsed workflow data
+     * @return list of validation error messages (empty if all valid)
+     */
+    private List<String> validatePmlFiles(File workflowFile, WorkflowData workflowData) {
+        List<String> allErrors = new ArrayList<>();
+        Path workflowDir = workflowFile.getParentFile() != null
+            ? workflowFile.getParentFile().toPath()
+            : Paths.get(".");
+
+        // Collect all prompts from the workflow
+        List<PromptInfo> allPrompts = collectAllPrompts(workflowData);
+
+        // Validate each PML file (.xml extension)
+        for (PromptInfo promptInfo : allPrompts) {
+            String srcFile = promptInfo.getSrcFile();
+
+            // Only validate files with .xml extension (PML files)
+            if (srcFile != null && srcFile.toLowerCase().endsWith(".xml")) {
+                Path pmlPath = workflowDir.resolve(srcFile);
+                File pmlFile = pmlPath.toFile();
+
+                logger.debug("Validating PML file: {}", pmlFile.getAbsolutePath());
+                PmlValidator.ValidationResult result = pmlValidator.validate(pmlFile);
+
+                if (!result.isValid()) {
+                    allErrors.add("PML file '" + srcFile + "':");
+                    for (String error : result.getErrors()) {
+                        allErrors.add("  - " + error);
+                    }
+                }
+            }
+        }
+
+        return allErrors;
+    }
+
+    /**
+     * Collects all prompts from the workflow, including parallel workflow prompts.
+     *
+     * @param workflowData the workflow data
+     * @return list of all prompts in the workflow
+     */
+    private List<PromptInfo> collectAllPrompts(WorkflowData workflowData) {
+        List<PromptInfo> allPrompts = new ArrayList<>();
+
+        // Add launch prompt
+        allPrompts.add(workflowData.getLaunchPrompt());
+
+        // Add update prompts
+        allPrompts.addAll(workflowData.getUpdatePrompts());
+
+        // If parallel workflow, add parallel prompt and all sequence prompts
+        if (workflowData.isParallelWorkflow()) {
+            ParallelWorkflowData parallelData = workflowData.getParallelWorkflowData();
+            allPrompts.add(parallelData.getParallelPrompt());
+
+            for (SequenceInfo sequence : parallelData.getSequences()) {
+                allPrompts.addAll(sequence.getPrompts());
+            }
+        }
+
+        return allPrompts;
     }
 }
