@@ -46,10 +46,13 @@ export CURSOR_API_KEY=your_key_xxx
 ```bash
 # Build
 ./mvnw clean package
-# Run
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar --help
+# Single Run
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --help
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/hello-world/workflow-hello-world.xml
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/euler-problems/workflow-euler.xml
+# Run REPL
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar cli
-
-# Using the commands
 jobs                    # List all jobs
 jobs new    churrera-cli/src/test/resources/examples/hello-world/workflow-hello-world.xml
 jobs new    churrera-cli/src/test/resources/examples/cis194/workflow-cis194.xml
