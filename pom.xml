@@ -75,7 +75,7 @@
         <module>churrera-cli</module>
         <module>churrera-core</module>
         <module>cursor-cloud-agents-openapi</module>
-        <module>cursor-cloud-agents-api-java-client</module>
+        <module>cursor-cloud-agents-client</module>
 
         <module>jacoco-report-aggregated</module>
     </modules>
@@ -203,7 +203,7 @@
             <!-- Internal module dependencies -->
             <dependency>
                 <groupId>info.jab</groupId>
-                <artifactId>cursor-cloud-agents-api-java-client</artifactId>
+                <artifactId>cursor-cloud-agents-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
