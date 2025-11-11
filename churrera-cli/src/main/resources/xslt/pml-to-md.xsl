@@ -37,9 +37,12 @@ version: </xsl:text><xsl:value-of select="normalize-space(metadata/version)"/>
 </xsl:text>
         </xsl:if>
 
-        <xsl:text>## Role
+        <!-- Process role only if it has content -->
+        <xsl:if test="normalize-space(role)">
+            <xsl:text>## Role
 
-</xsl:text><xsl:value-of select="role"/>
+</xsl:text><xsl:value-of select="normalize-space(role)"/>
+        </xsl:if>
         <!-- Process tone if present -->
         <xsl:apply-templates select="tone"/>
         <!-- Process goal (Instructions for AI) after role -->

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Churrera is a Java development CLI tool designed to operate with `Cursor Cloud Agents API` in an easy way.
+`Churrera` is a CLI tool designed to orchestrate `Cursor Cloud Agents REST API` in an easy way.
 
 ## What is Cursor Cloud Agents API?
 
@@ -12,36 +12,121 @@ Cursor Cloud Agents API (Beta) allows you to programmatically create and manage 
 
 ![](./documentation/solution.png)
 
-## How to use the tool?
+## Getting started
+
+### 1. Generate a CURSOR_API_KEY
+
+Visit [Integrations](https://cursor.com/dashboard?tab=integrations) in the cursor Dashboard where is possible to generate a `CURSOR_API_KEY`.
+
+![](./documentation/getting-started/get-api-key-1.png)
+
+Click in the button `New User API Key` to change the view and type `CURSOR_API_KEY` and click in `Save` button:
+
+![](./documentation/getting-started/get-api-key-2.png)
+
+Then a `Popup Window` will appear with the API Key created:
+
+![](./documentation/getting-started/get-api-key-3.png)
+
+With that detail, you could add the data into `.env` files in the following way:
+
+```bash
+CURSOR_API_KEY=key_xxx
+```
+
+**Note:** Remember to add the file `.env` inside of a `.cursorignore` file. Further information about it [here](https://cursor.com/docs/context/ignore-files).
+
+In the another hand, you could use that `CURSOR_API_KEY` and export as an environment variable in your system:
+
+```bash
+export CURSOR_API_KEY=key_xxx
+```
+
+**Note:** Churrera read `CURSOR_API_KEY` from .env files or from an environment variable.
+
+### 2. Give permissions Cursor to interact in Github
+
+Configure Github to allow Cursor interact with the repository that you want that Cursor Cloud Agents interact
+
+![](./documentation/getting-started/github-configuration-1.png)
+
+![](./documentation/getting-started/github-configuration-2.png)
+
+![](./documentation/getting-started/github-configuration-3.png)
+
+### 3. Running your first PML Workflow
 
 **1. Define a `pml-workflow` file:**
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.2.0/pml-workflow.xsd">
-    <sequence model="default" repository="https://github.com/jabrena/dvbe25-demos">
-        <prompt src="prompt1.xml" type="pml" />
-        <prompt src="prompt2.md" type="md" />
+    xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.3.0/pml-workflow.xsd">
+    <sequence model="default" repository="https://github.com/jabrena/wjax25-demos">
+        <prompt src="pml-hello-world-bash.xml" />
     </sequence>
 </pml-workflow>
 ```
 
-**2. Provide a valid CURSOR_API_KEY:**
+**2. Define a `pml-prompt` file:**
 
-In the path where you going to run churrera, define `.env` with:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.3.0/pml.xsd">
+    <goal>
+        Print "Hello World" in the console using a echo command
+    </goal>
 
-```bash
-CURSOR_API_KEY=your_key_xxx
-```
-
-or have a System environment variable with the name `CURSOR_API_KEY`:
-
-```bash
-export CURSOR_API_KEY=your_key_xxx
+    <output-format>Not explain anything and show any output</output-format>
+</prompt>
 ```
 
 **3. Launch the tool:**
+
+```bash
+# Build
+./mvnw clean package
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml
+```
+
+```bash
+
+   ____ _                                      ____ _     ___
+  / ___| |__  _   _ _ __ _ __ ___ _ __ __ _   / ___| |   |_ _|
+ | |   | '_ \| | | | '__| '__/ _ \ '__/ _` | | |   | |    | |
+ | |___| | | | |_| | |  | | |  __/ | | (_| | | |___| |___ | |
+  \____|_| |_|\__,_|_|  |_|  \___|_|  \__,_|  \____|_____|___|
+
+
+A CLI tool designed to orchestrate Cursor Cloud Agents REST API.
+
+Version: 0.2.0-SNAPSHOT
+Commit: 5253edc
+
+✓ CURSOR_API_KEY validated
+
+Job registered
+
+| Job ID   | Parent Job | Type     | Prompts | Status   | Last update    | Completed      |
++----------+------------+----------+---------+----------+----------------+----------------+
+| 26d271f0 | NA         | SEQUENCE | 0/1     | CREATING | 11/11/25 18:00 | Started 3s ago |
+
+| Job ID   | Parent Job | Type     | Prompts | Status  | Last update    | Completed       |
++----------+------------+----------+---------+---------+----------------+-----------------+
+| 26d271f0 | NA         | SEQUENCE | 0/1     | RUNNING | 11/11/25 18:00 | Started 14s ago |
+
+| Job ID   | Parent Job | Type     | Prompts | Status   | Last update    | Completed |
++----------+------------+----------+---------+----------+----------------+-----------+
+| 26d271f0 | NA         | SEQUENCE | 1/1     | FINISHED | 11/11/25 18:00 | 00:25 min |
+
+
+Job completed with status: FINISHED
+
+Thanks for using Churrera! ✨
+ja
+
+## Using churrera
 
 ```bash
 # Build
@@ -52,6 +137,7 @@ java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --help
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/hello-world/workflow-hello-world.xml
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/euler-problems/workflow-euler.xml
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/timeout/workflow-timeout.xml
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml
 # Run REPL
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar cli
 jobs                    # List all jobs
