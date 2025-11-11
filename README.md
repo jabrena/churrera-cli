@@ -56,11 +56,11 @@ Visit [Integrations](https://cursor.com/dashboard?tab=integrations) in Cursor to
 
 ![](./documentation/getting-started/get-api-key-1.png)
 
-Click in the button `New User API Key` to generate it. Type the name that you want and click in `Save` button to generate the `CURSOR_API_KEY`:
+Click in the button `New User API Key` to generate it. Type the name that you want and click in `Save` button to generate the new `CURSOR_API_KEY`:
 
 ![](./documentation/getting-started/get-api-key-2.png)
 
-Then a `Popup Window` will appear with the API Key created:
+Then a `Popup Window` will appear with the `CURSOR_API_KEY` created:
 
 ![](./documentation/getting-started/get-api-key-3.png)
 
