@@ -2,7 +2,8 @@
 <pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.3.0/pml-workflow.xsd">
     <parallel src="euler-problem-extractor-prompt.xml" bindResultType="List_Integer">
-        <sequence model="default" repository="https://github.com/jabrena/wjax25-demos">
+        <sequence model="default" repository="https://github.com/jabrena/wjax25-demos"
+        timeout="2m" fallback-src="fallback.xml" >
             <prompt src="euler-problem-solver-prompt.xml" bindResultExp="$get()"/>
         </sequence>
     </parallel>

@@ -51,6 +51,7 @@ java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar --help
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --help
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/hello-world/workflow-hello-world.xml
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/euler-problems/workflow-euler.xml
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/timeout/workflow-timeout.xml
 # Run REPL
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar cli
 jobs                    # List all jobs

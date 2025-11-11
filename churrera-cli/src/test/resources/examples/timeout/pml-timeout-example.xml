@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+    <title>Develop a HelloWorld Java Class program</title>
+
+    <role>You are a Senior software engineer with extensive experience in Java software development</role>
+
+    <goal>
+        Create a bash script which runs a function which waits for 180 seconds
+        and every 10 seconds print "Hello World" in the console like this:
+
+        ```bash
+        #!/bin/bash
+
+        # Script that prints "Hello World" every 10 seconds for 180 seconds total
+        for i in {1..18}; do
+            echo "Hello World"
+            # Wait for 10 seconds
+        sleep 10
+        done
+        ```
+
+        Save the bash script as `hello-world.sh` and run it with the command `./hello-world.sh`
+    </goal>
+
+    <constraints>
+        <constraint-list>
+            <constraint>Don't invest time in planning</constraint>
+        </constraint-list>
+    </constraints>
+
+    <output-format>Show the bash script output</output-format>
+    <safeguards>Ensure that the bash script is executable and runs successfully for 180 seconds</safeguards>
+
+    <acceptance-criteria>
+        <acceptance-criteria-list>
+            <acceptance-criteria-item>The bash script is created in the current directory</acceptance-criteria-item>
+            <acceptance-criteria-item>The bash script is executable and runs successfully for 180 seconds</acceptance-criteria-item>
+            <acceptance-criteria-item>The bash script prints "Hello World" every 10 seconds</acceptance-criteria-item>
+            <acceptance-criteria-item>The bash script runs for 180 seconds to achieve the goal</acceptance-criteria-item>
+        </acceptance-criteria-list>
+    </acceptance-criteria>
+</prompt>

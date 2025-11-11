@@ -146,26 +146,20 @@ public class JobProcessor {
                 return;
             }
 
-            // Check timeout before processing (only if timeout is set)
-            if (job.timeoutMillis() != null && job.workflowStartTime() != null) {
-                long elapsedMillis = Duration.between(job.workflowStartTime(), LocalDateTime.now()).toMillis();
-                if (elapsedMillis >= job.timeoutMillis()) {
-                    // Only execute fallback if it hasn't been executed yet
-                    if (job.fallbackExecuted() == null || !job.fallbackExecuted()) {
-                        logger.warn("Job {} has reached timeout ({}ms elapsed, {}ms limit). Executing fallback.",
-                            job.jobId(), elapsedMillis, job.timeoutMillis());
-                        executeFallback(job, workflowData);
-                    } else {
-                        logger.debug("Job {} has reached timeout but fallback already executed, skipping.", job.jobId());
-                    }
-                    return;
-                }
-            }
-
             // Standard sequence workflow processing
             // If job has no cursorAgentId, launch it with the first prompt
             boolean justLaunched = false;
             if (job.cursorAgentId() == null) {
+                // Reset workflowStartTime before launching to ensure we start fresh
+                // This handles the case where a job was previously processed but is being restarted
+                if (job.timeoutMillis() != null) {
+                    Job jobWithResetTime = job.withWorkflowStartTime(LocalDateTime.now());
+                    jobRepository.save(jobWithResetTime);
+                    job = jobRepository.findById(job.jobId()).orElse(job);
+                    logger.info("Reset workflowStartTime for job {} with timeout {}ms (starting fresh)",
+                        job.jobId(), job.timeoutMillis());
+                }
+
                 logger.info("Launching agent for job: {} (previous status: {})", job.jobId(), job.status());
                 launchJobAgent(job, workflowData);
 
@@ -173,26 +167,74 @@ public class JobProcessor {
                 job = jobRepository.findById(job.jobId()).orElse(job);
                 logger.info("Job {} updated with cursorAgentId: {} (status: {})", job.jobId(), job.cursorAgentId(), job.status());
                 justLaunched = true;
+            } else {
+                // Job already has cursorAgentId - reset workflowStartTime if it's null or stale
+                // A stale workflowStartTime is one that's much older than the timeout (e.g., > 2x timeout),
+                // indicating it's from a previous run, not the current active execution
+                if (job.timeoutMillis() != null && !job.status().isTerminal()) {
+                    boolean shouldReset = false;
+                    if (job.workflowStartTime() == null) {
+                        shouldReset = true;
+                        logger.info("workflowStartTime is null for job {} with timeout, setting it to now", job.jobId());
+                    } else {
+                        long elapsedMillis = Duration.between(job.workflowStartTime(), LocalDateTime.now()).toMillis();
+                        // If elapsed time is more than 2x the timeout, it's likely stale from a previous run
+                        // Reset it so the timeout starts fresh for this execution
+                        if (elapsedMillis > (job.timeoutMillis() * 2)) {
+                            shouldReset = true;
+                            logger.info("workflowStartTime for job {} is stale ({}ms elapsed, {}ms timeout, >2x timeout). Resetting to now for fresh timeout tracking.",
+                                job.jobId(), elapsedMillis, job.timeoutMillis());
+                        }
+                    }
+                    if (shouldReset) {
+                        Job jobWithResetTime = job.withWorkflowStartTime(LocalDateTime.now());
+                        jobRepository.save(jobWithResetTime);
+                        job = jobRepository.findById(job.jobId()).orElse(job);
+                        logger.info("Reset workflowStartTime for existing job {} with timeout {}ms (starting fresh)",
+                            job.jobId(), job.timeoutMillis());
+                    }
+                }
+            }
+
+            // Check timeout continuously - this must happen even right after launching
+            // to ensure timeout is detected as soon as it occurs
+            if (job.cursorAgentId() != null && job.timeoutMillis() != null) {
+                // Ensure workflowStartTime is set - if null, set it to now (shouldn't happen, but safety check)
+                if (job.workflowStartTime() == null) {
+                    logger.warn("workflowStartTime is null for job {} with timeout, setting it to now", job.jobId());
+                    Job jobWithTime = job.withWorkflowStartTime(LocalDateTime.now());
+                    jobRepository.save(jobWithTime);
+                    job = jobRepository.findById(job.jobId()).orElse(job);
+                }
+
+                long elapsedMillis = Duration.between(job.workflowStartTime(), LocalDateTime.now()).toMillis();
+                logger.info("Job {} timeout check: elapsed={}ms, limit={}ms, workflowStartTime={}",
+                    job.jobId(), elapsedMillis, job.timeoutMillis(), job.workflowStartTime());
+                if (elapsedMillis >= job.timeoutMillis()) {
+                    // Only execute fallback if job is not already in terminal state and fallback hasn't been executed yet
+                    if (!job.status().isTerminal() && (job.fallbackExecuted() == null || !job.fallbackExecuted())) {
+                        logger.warn("Job {} has reached timeout ({}ms elapsed, {}ms limit). Executing fallback.",
+                            job.jobId(), elapsedMillis, job.timeoutMillis());
+                        executeFallback(job, workflowData, elapsedMillis, job.timeoutMillis());
+                        // Fetch updated job after fallback execution (may have new cursorAgentId or status)
+                        job = jobRepository.findById(job.jobId()).orElse(job);
+                        logger.info("Job {} updated after fallback execution, cursorAgentId: {}, status: {}",
+                            job.jobId(), job.cursorAgentId(), job.status());
+                        // Continue processing to monitor the fallback agent status
+                    } else if (job.status().isTerminal()) {
+                        logger.info("Job {} has reached timeout but is already in terminal state ({}), skipping fallback.",
+                            job.jobId(), job.status());
+                        return;
+                    } else {
+                        logger.debug("Job {} has reached timeout but fallback already executed, skipping.", job.jobId());
+                        return;
+                    }
+                }
             }
 
             // Check current status and continue processing if needed
             // Don't monitor immediately after launching to allow parallel job processing
             if (job.cursorAgentId() != null && !justLaunched) {
-                // Check timeout again before processing
-                if (job.timeoutMillis() != null && job.workflowStartTime() != null) {
-                    long elapsedMillis = Duration.between(job.workflowStartTime(), LocalDateTime.now()).toMillis();
-                    if (elapsedMillis >= job.timeoutMillis()) {
-                        // Only execute fallback if it hasn't been executed yet
-                        if (job.fallbackExecuted() == null || !job.fallbackExecuted()) {
-                            logger.warn("Job {} has reached timeout ({}ms elapsed, {}ms limit). Executing fallback.",
-                                job.jobId(), elapsedMillis, job.timeoutMillis());
-                            executeFallback(job, workflowData);
-                        } else {
-                            logger.debug("Job {} has reached timeout but fallback already executed, skipping.", job.jobId());
-                        }
-                        return;
-                    }
-                }
                 try {
                     logger.info("Getting agent status for job: {}", job.jobId());
                     AgentState currentStatus = cliAgent.getAgentStatus(job.cursorAgentId());
@@ -281,28 +323,6 @@ public class JobProcessor {
                 timeoutMillis = parallelData.getTimeoutMillis();
             }
 
-            // Check timeout before processing (only if timeout is set)
-            if (timeoutMillis != null && job.workflowStartTime() != null) {
-                long elapsedMillis = Duration.between(job.workflowStartTime(), LocalDateTime.now()).toMillis();
-                if (elapsedMillis >= timeoutMillis) {
-                    // Only execute fallback if it hasn't been executed yet
-                    if (job.fallbackExecuted() == null || !job.fallbackExecuted()) {
-                        logger.warn("Child job {} has reached timeout ({}ms elapsed, {}ms limit). Executing fallback.",
-                            job.jobId(), elapsedMillis, timeoutMillis);
-                        String fallbackSrc = job.fallbackSrc();
-                        if (fallbackSrc == null) {
-                            fallbackSrc = parallelData.getFallbackSrc();
-                        }
-                        if (fallbackSrc != null) {
-                            executeFallback(job.withFallbackSrc(fallbackSrc), childWorkflowData);
-                        }
-                    } else {
-                        logger.debug("Child job {} has reached timeout but fallback already executed, skipping.", job.jobId());
-                    }
-                    return;
-                }
-            }
-
             // Process as standard sequence workflow
             boolean justLaunched = false;
             if (job.cursorAgentId() == null) {
@@ -320,9 +340,11 @@ public class JobProcessor {
                 // Check timeout again before processing
                 if (timeoutMillis != null && job.workflowStartTime() != null) {
                     long elapsedMillis = Duration.between(job.workflowStartTime(), LocalDateTime.now()).toMillis();
+                    logger.debug("Child job {} timeout check: elapsed={}ms, limit={}ms, workflowStartTime={}",
+                        job.jobId(), elapsedMillis, timeoutMillis, job.workflowStartTime());
                     if (elapsedMillis >= timeoutMillis) {
-                        // Only execute fallback if it hasn't been executed yet
-                        if (job.fallbackExecuted() == null || !job.fallbackExecuted()) {
+                        // Only execute fallback if job is not already in terminal state and fallback hasn't been executed yet
+                        if (!job.status().isTerminal() && (job.fallbackExecuted() == null || !job.fallbackExecuted())) {
                             logger.warn("Child job {} has reached timeout ({}ms elapsed, {}ms limit). Executing fallback.",
                                 job.jobId(), elapsedMillis, timeoutMillis);
                             String fallbackSrc = job.fallbackSrc();
@@ -330,12 +352,21 @@ public class JobProcessor {
                                 fallbackSrc = parallelData.getFallbackSrc();
                             }
                             if (fallbackSrc != null) {
-                                executeFallback(job.withFallbackSrc(fallbackSrc), childWorkflowData);
+                                executeFallback(job.withFallbackSrc(fallbackSrc), childWorkflowData, elapsedMillis, timeoutMillis);
+                                // Fetch updated job after fallback execution (may have new cursorAgentId or status)
+                                job = jobRepository.findById(job.jobId()).orElse(job);
+                                logger.info("Child job {} updated after fallback execution, cursorAgentId: {}, status: {}",
+                                    job.jobId(), job.cursorAgentId(), job.status());
+                                // Continue processing to monitor the fallback agent status
                             }
+                        } else if (job.status().isTerminal()) {
+                            logger.info("Child job {} has reached timeout but is already in terminal state ({}), skipping fallback.",
+                                job.jobId(), job.status());
+                            return;
                         } else {
                             logger.debug("Child job {} has reached timeout but fallback already executed, skipping.", job.jobId());
+                            return;
                         }
-                        return;
                     }
                 }
                 try {
@@ -393,6 +424,7 @@ public class JobProcessor {
                 long elapsedMillis = Duration.between(job.workflowStartTime(), LocalDateTime.now()).toMillis();
                 if (elapsedMillis >= timeoutMillis) {
                     // Only execute fallback if it hasn't been executed yet
+                    // Note: For parallel workflows, we check child statuses in executeFallbackForParallelChildren
                     if (job.fallbackExecuted() == null || !job.fallbackExecuted()) {
                         logger.warn("Parallel workflow {} has reached timeout ({}ms elapsed, {}ms limit). Executing fallback for all unfinished children.",
                             job.jobId(), elapsedMillis, timeoutMillis);
@@ -412,6 +444,7 @@ public class JobProcessor {
                     long elapsedMillis = Duration.between(job.workflowStartTime(), LocalDateTime.now()).toMillis();
                     if (elapsedMillis >= timeoutMillis) {
                         // Only execute fallback if it hasn't been executed yet
+                        // Note: For parallel workflows, we check child statuses in executeFallbackForParallelChildren
                         if (job.fallbackExecuted() == null || !job.fallbackExecuted()) {
                             logger.warn("Parallel workflow {} has reached timeout ({}ms elapsed, {}ms limit). Executing fallback for all unfinished children.",
                                 job.jobId(), elapsedMillis, timeoutMillis);
@@ -665,11 +698,12 @@ public class JobProcessor {
             Job updatedJob = job.withCursorAgentId(cursorAgentId);
             cliAgent.updateJobCursorIdInDatabase(updatedJob, cursorAgentId, AgentState.CREATING);
 
-            // Set workflowStartTime if timeout is configured
+            // Reset workflowStartTime to now when launching (even if it already exists, to start fresh)
             if (job.timeoutMillis() != null) {
                 updatedJob = updatedJob.withWorkflowStartTime(LocalDateTime.now());
                 jobRepository.save(updatedJob);
-                logger.info("Set workflowStartTime for job {} with timeout {}ms", job.jobId(), job.timeoutMillis());
+                logger.info("Set workflowStartTime for job {} with timeout {}ms (workflow start time reset to now)",
+                    job.jobId(), job.timeoutMillis());
             }
 
             logger.info("Launched job {} with Cursor ID: {} (type: {})", job.jobId(), cursorAgentId, launchPrompt.getType());
@@ -826,9 +860,18 @@ public class JobProcessor {
      *
      * @param job the job that timed out
      * @param workflowData the workflow data
+     * @param elapsedMillis the elapsed time in milliseconds (for logging)
+     * @param timeoutMillis the timeout limit in milliseconds (for logging)
      */
-    private void executeFallback(Job job, WorkflowData workflowData) {
+    private void executeFallback(Job job, WorkflowData workflowData, long elapsedMillis, long timeoutMillis) {
         try {
+            // Check if job is already in a terminal state - don't execute fallback if already finished
+            if (job.status().isTerminal()) {
+                logger.info("Job {} is already in terminal state ({}), skipping fallback execution.", job.jobId(), job.status());
+                System.out.println("ℹ️  Fallback skipped for job: " + job.jobId() + " (status: " + job.status() + " - already terminal)");
+                return;
+            }
+
             // Check if fallback has already been executed
             if (job.fallbackExecuted() != null && job.fallbackExecuted()) {
                 logger.debug("Fallback already executed for job {}, skipping.", job.jobId());
@@ -842,7 +885,10 @@ public class JobProcessor {
                 return;
             }
 
-            logger.info("Executing fallback prompt '{}' for job {}", fallbackSrc, job.jobId());
+            // Print message when executing fallback due to timeout
+            System.out.println("⚠️  FALLBACK ACTION TRIGGERED for job: " + job.jobId());
+            logger.info("Executing fallback prompt '{}' for job {} (timeout: {}ms elapsed >= {}ms limit)",
+                fallbackSrc, job.jobId(), elapsedMillis, timeoutMillis);
 
             // Read fallback file
             String fallbackContent = readPromptFile(job.path(), fallbackSrc);
@@ -878,6 +924,8 @@ public class JobProcessor {
             Job updatedJob = job.withFallbackExecuted(true);
             jobRepository.save(updatedJob);
             logger.info("Marked fallback as executed for job {}", job.jobId());
+            System.out.println("✅ Fallback prompt sent successfully for job: " + job.jobId());
+            System.out.println("   Continuing to monitor the fallback agent status...\n");
 
         } catch (Exception e) {
             logger.error("Error executing fallback for job {}: {}", job.jobId(), e.getMessage(), e);
@@ -919,6 +967,7 @@ public class JobProcessor {
                 }
             }
 
+            System.out.println("⚠️  FALLBACK ACTION TRIGGERED (Parallel Workflow) for job: " + parentJob.jobId());
             logger.info("Executing fallback '{}' for {} unfinished child jobs of parallel workflow {}",
                 fallbackSrc, unfinishedChildren.size(), parentJob.jobId());
 

@@ -4,7 +4,8 @@
 
     <role>You are a Senior software engineer with extensive experience in Java software development</role>
 
-    <goal>Develop a classic Java class HelloWorld.java program that print "Hello World" in the console only</goal>
+    <goal>Develop a classic Java class HelloWorld.java program
+        that print "Hello World" in the console only</goal>
 
     <constraints>
         <constraint-list>

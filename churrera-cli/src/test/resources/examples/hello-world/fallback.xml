@@ -7,8 +7,10 @@
     <role>System Administrator with expertise in Java development environments and package management for Linux systems</role>
 
     <goal>
-        Commit local changes and push to the branch.
+        Stop all activities
+        If you have any local changes, commit them and push to the branch.
         Communicate what is the issues that you are facing
-        and how you are going to fix it.
+
+        You reached your goal.
     </goal>
 </prompt>
