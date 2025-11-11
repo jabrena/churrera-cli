@@ -84,17 +84,17 @@ export CURSOR_API_KEY=key_xxx
 
 ### 3. Give permissions Cursor to interact in Github
 
-Configure Github to allow Cursor in order to interact with the repository that you want that Cursor Cloud Agents interact so visit [Integrations](https://cursor.com/dashboard?tab=integrations) and click in the button `Manage` in Github area.
+Configure Github to allow Cursor to interact with the repository that you want that Cursor Cloud Agents interact so visit [Integrations](https://cursor.com/dashboard?tab=integrations) and click in the button `Manage` in Github area.
 
 ![](./documentation/getting-started/github-configuration-1.png)
 
-**Note:** In the future, Cursor Cloud Agents will support `Gitlab` soon (I guess)
+**Note:** In the future, Cursor Cloud Agents could support `Gitlab` soon (I guess)
 
-Once you are in Github, you will have to select in what `Github User` you are going to give permissions:
+Once you are in Github, you will have to select in what `Github User` you are going to give permissions and click in `Configure` link:
 
 ![](./documentation/getting-started/github-configuration-2.png)
 
-Once, you are installed Cursor in your Github User, you will need to configure what repository will give permissions:
+Once, you are installed Cursor in your Github User, you will need to define what repositores you will give permissions:
 
 ![](./documentation/getting-started/github-configuration-3.png)
 
