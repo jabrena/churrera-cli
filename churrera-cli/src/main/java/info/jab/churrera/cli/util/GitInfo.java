@@ -34,7 +34,7 @@ public class GitInfo {
             prop.load(input);
 
             //Print info
-            System.out.print(colorize("A PML Workflow tool for Cursor Cloud Agents REST API.", Attribute.GREEN_TEXT()));
+            System.out.print(colorize("A CLI tool designed to orchestrate Cursor Cloud Agents REST API.", Attribute.GREEN_TEXT()));
             System.out.println();
             System.out.println();
             System.out.print(colorize("Version: ", Attribute.GREEN_TEXT()));
