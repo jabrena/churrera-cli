@@ -64,7 +64,9 @@ Then a `Popup Window` will appear with the API Key created:
 
 ![](./documentation/getting-started/get-api-key-3.png)
 
-With that detail, you could add the data into `.env` files in the following way:
+### 2. Store or put visible CURSOR_API_KEY to be used by CHURRERA
+
+With the new CURSOR_API_KEY, you could add into `.env` file with the following format:
 
 ```bash
 CURSOR_API_KEY=key_xxx
@@ -80,7 +82,7 @@ export CURSOR_API_KEY=key_xxx
 
 **Note:** Churrera read `CURSOR_API_KEY` from .env files or from an environment variable.
 
-### 2. Give permissions Cursor to interact in Github
+### 3. Give permissions Cursor to interact in Github
 
 Configure Github to allow Cursor in order to interact with the repository that you want that Cursor Cloud Agents interact so visit [Integrations](https://cursor.com/dashboard?tab=integrations) and click in the button `Manage` in Github area.
 
@@ -98,7 +100,7 @@ Once, you are installed Cursor in your Github User, you will need to configure w
 
 That repository will match with the repository that you indicate in the attribute `repository` in a `pml-workflow` file.
 
-### 3. Running your first PML Workflow
+### 4. Running your first PML Workflow
 
 **1. Define a `pml-workflow` file:**
 
