@@ -66,7 +66,7 @@ Then a `Popup Window` will appear with the `CURSOR_API_KEY` created:
 
 ### 2. Store or put visible CURSOR_API_KEY to be used by CHURRERA
 
-With the new CURSOR_API_KEY, you could add into `.env` file with the following format:
+With the new `CURSOR_API_KEY` created, you could add it into the `.env` file with the following format:
 
 ```bash
 CURSOR_API_KEY=key_xxx
