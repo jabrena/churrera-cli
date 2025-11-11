@@ -80,7 +80,7 @@ In the another hand, you could use that `CURSOR_API_KEY` and export it as an env
 export CURSOR_API_KEY=key_xxx
 ```
 
-**Note:** Churrera read `CURSOR_API_KEY` from .env files or from an environment variable.
+**Note:** Churrera read `CURSOR_API_KEY` values from a .env file stored in the same path where you run Churrera or define an environment variable in your terminal.
 
 ### 3. Give permissions Cursor to interact in Github
 
