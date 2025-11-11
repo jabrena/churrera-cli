@@ -10,9 +10,9 @@ Cursor Cloud Agents REST API (Beta) allows you to programmatically create and ma
 
 **OpenAPI:** https://editor-next.swagger.io/?url=https://cursor.com/docs-static/cloud-agents-openapi.yaml
 
-## How it works?
+## How does it work?
 
-`Churrera CLI` processes a `PML-Workflow` file which define a Job to be processes and it is composed by one or more `Prompts` which are executed by a `Frontier model`.
+`Churrera CLI` processes a `PML-Workflow` file which defines a Job to be processed and it is composed of one or more `Prompts` which are executed by a `Frontier model`.
 
 ![](./documentation/high-level-solution.png)
 
@@ -56,11 +56,11 @@ Visit [Integrations](https://cursor.com/dashboard?tab=integrations) in Cursor to
 
 ![](./documentation/getting-started/get-api-key-1.png)
 
-Click in the button `New User API Key` to generate it. Type the name that you want and click in `Save` button to generate the new `CURSOR_API_KEY`:
+Click the button `New User API Key` to generate it. Type the name that you want and click the `Save` button to generate the new `CURSOR_API_KEY`:
 
 ![](./documentation/getting-started/get-api-key-2.png)
 
-Then a `Popup Window` will appear with the `CURSOR_API_KEY` created:
+Then a popup window will appear with the `CURSOR_API_KEY` created:
 
 ![](./documentation/getting-started/get-api-key-3.png)
 
@@ -74,31 +74,31 @@ CURSOR_API_KEY=key_xxx
 
 **Note:** Remember to add the file `.env` inside of a `.cursorignore` file. Further information about it [here](https://cursor.com/docs/context/ignore-files).
 
-In the another hand, you could use that `CURSOR_API_KEY` and export it as an environment variable in your system:
+On the other hand, you could use that `CURSOR_API_KEY` and export it as an environment variable in your system:
 
 ```bash
 export CURSOR_API_KEY=key_xxx
 ```
 
-**Note:** Churrera read `CURSOR_API_KEY` values from a .env file stored in the same path where you run Churrera or define an environment variable in your terminal.
+**Note:** Churrera reads `CURSOR_API_KEY` values from a .env file stored in the same path where you run Churrera or define an environment variable in your terminal.
 
-### 3. Give permissions Cursor to interact in Github
+### 3. Give Cursor permissions to interact with Github
 
-Configure Github to allow Cursor to interact with the repository that you want that Cursor Cloud Agents interact so visit [Integrations](https://cursor.com/dashboard?tab=integrations) and click in the button `Manage` in Github area.
+Configure Github to allow Cursor to interact with the repository that you want Cursor Cloud Agents to interact with, so visit [Integrations](https://cursor.com/dashboard?tab=integrations) and click the button `Manage` in the Github area.
 
 ![](./documentation/getting-started/github-configuration-1.png)
 
-**Note:** In the future, Cursor Cloud Agents could support `Gitlab` soon (I guess)
+**Note:** In the future, Cursor Cloud Agents may support `Gitlab` as well.
 
-Once you are in Github, you will have to select in what `Github User` you are going to give permissions and click in `Configure` link:
+Once you are in Github, you will have to select which `Github User` you are going to give permissions to and click the `Configure` link:
 
 ![](./documentation/getting-started/github-configuration-2.png)
 
-Once, you have installed Cursor in your Github User, you will need to define what repositores you will give permissions:
+Once you have installed Cursor in your Github User, you will need to define which repositories you will give permissions to:
 
 ![](./documentation/getting-started/github-configuration-3.png)
 
-You will indicate in the attribute `repository` the repository that you deinfed before in the `pml-workflow` file.
+You will indicate in the attribute `repository` the repository that you defined before in the `pml-workflow` file.
 
 ### 4. Running your first PML Workflow
 
