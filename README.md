@@ -4,13 +4,13 @@
 
 `Churrera` is a CLI tool designed to orchestrate `Cursor Cloud Agents REST API` in an easy way.
 
-## What is Cursor Cloud Agents API?
+## What is Cursor Cloud Agents REST API?
 
-Cursor Cloud Agents API (Beta) allows you to programmatically create and manage AI-powered coding agents that work autonomously on your repositories.
+Cursor Cloud Agents REST API (Beta) allows you to programmatically create and manage AI-powered coding agents that work autonomously on your repositories.
 
 **OpenAPI:** https://editor-next.swagger.io/?url=https://cursor.com/docs-static/cloud-agents-openapi.yaml
 
-![](./documentation/solution.png)
+![](./documentation/high-level-solution.png)
 
 ## Getting started
 
