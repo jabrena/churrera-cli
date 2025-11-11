@@ -52,7 +52,7 @@ Cursor Cloud Agents REST API (Beta) allows you to programmatically create and ma
 
 ### 1. Generate a CURSOR_API_KEY
 
-Visit [Integrations](https://cursor.com/dashboard?tab=integrations) in the cursor Dashboard where is possible to generate a `CURSOR_API_KEY`.
+Visit [Integrations](https://cursor.com/dashboard?tab=integrations) to generate a `CURSOR_API_KEY`:
 
 ![](./documentation/getting-started/get-api-key-1.png)
 
