@@ -124,7 +124,7 @@ Job registered
 Job completed with status: FINISHED
 
 Thanks for using Churrera! ✨
-ja
+```
 
 ## Using churrera
 
