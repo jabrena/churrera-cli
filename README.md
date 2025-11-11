@@ -64,7 +64,7 @@ Then a popup window will appear with the `CURSOR_API_KEY` created:
 
 ![](./documentation/getting-started/get-api-key-3.png)
 
-### 2. Store or put visible CURSOR_API_KEY to be used by CHURRERA
+### 2. Store or put visible CURSOR_API_KEY to be used by Churrera
 
 With the new `CURSOR_API_KEY` created, you could add it into the `.env` file with the following format:
 
