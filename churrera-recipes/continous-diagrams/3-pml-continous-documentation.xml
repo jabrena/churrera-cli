@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.3.0/pml.xsd">
+
+    <title>Generate continuous documentation for the project</title>
+
+    <role>You are a Senior software engineer with extensive experience in Java software development</role>
+
+    <goal>
+        Generate continuous documentation for the project.
+        Follow the next steps to achieve the goal.
+    </goal>
+
+    <steps>
+        <step number="1">
+            <step-title>Update diagrams in the documentation folder</step-title>
+            <step-content>
+                Verify the dates froms the diagrams generated in the documentation folder.
+                and compare the most recent date with the last date from files
+                in the modules in modules churrera-cli, churrera-core, cursor-cloud-agents-openapi,
+                cursor-cloud-agents-client
+
+                If you exist few new files, update the diagrams in the documentation folder.
+
+                To update the diagrams, remove the previous diagrams in the path: ./documentation/uml/ and
+                the .puml files in the path: ./documentation/uml/puml/
+
+                later, run the command:
+
+                <![CDATA[
+                ```bash
+                jbang puml-to-png@jabrena --watch ./documentation/uml/ &
+                ```
+                ]]>
+
+                And later:
+
+                `Create UML class diagrams with @171-java-diagrams without any question
+                for all modules finally create a complete diagram from all`
+
+                Fetch the rule from the following URL:
+                https://github.com/jabrena/cursor-rules-java/blob/main/.cursor/rules/171-java-diagrams.md
+
+                put the diagrams in the path: ./documentation/uml/ and move the .puml files to the path: ./documentation/uml/puml/
+            </step-content>
+        </step>
+    </steps>
+
+    <acceptance-criteria>
+        <acceptance-criteria-list>
+            <acceptance-criteria-item>The diagrams are updated in the path: ./documentation/uml/</acceptance-criteria-item>
+            <acceptance-criteria-item>The .puml files are moved to the path: ./documentation/uml/puml/</acceptance-criteria-item>
+        </acceptance-criteria-list>
+    </acceptance-criteria>
+</prompt>
