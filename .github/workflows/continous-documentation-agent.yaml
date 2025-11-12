@@ -1,10 +1,10 @@
-name: AOCAgent
+name: Continuous Documentation Agent
 
 on:
   workflow_dispatch:
 
 jobs:
-  aoc-agent:
+  continuous-documentation-agent:
     name: Continuous Documentation Agent Execution
     runs-on: ubuntu-latest
     timeout-minutes: 35
