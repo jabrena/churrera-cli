@@ -40,8 +40,10 @@
 
                 Fetch the rule from the following URL:
                 https://github.com/jabrena/cursor-rules-java/blob/main/.cursor/rules/171-java-diagrams.md
+                put the diagrams in the path: ./documentation/uml/ and move the .puml files to the
+                path: ./documentation/uml/puml/
 
-                put the diagrams in the path: ./documentation/uml/ and move the .puml files to the path: ./documentation/uml/puml/
+                Update the ./documentation/uml/README.md file with the new diagrams
             </step-content>
         </step>
     </steps>
