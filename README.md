@@ -215,6 +215,13 @@ jobs delete <job-id>    # Delete job and associated Cursor agent
 jobs pr     <job-id>    # Show PR link
 ```
 
+## Build in local
+
+```bash
+./mvnw clean package
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml
+```
+
 ## Changelog
 
 - Review the [CHANGELOG](./CHANGELOG.md) for further details
