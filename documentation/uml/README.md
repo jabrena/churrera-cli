@@ -6,11 +6,11 @@ This document provides an overview of the class structure for the Churrera proje
 
 The complete diagram shows all modules and their relationships across the entire project.
 
-> **Note**: The complete diagram PNG is currently being generated. The PlantUML source file is available at `puml/uml-class-diagram-complete.puml` and can be converted to PNG when needed.
+![](uml-class-diagram-complete.png)
 
 The complete diagram includes:
 - **churrera-cli**: Command-line interface components
-- **churrera-core**: Core workflow and utility functionality  
+- **churrera-core**: Core workflow and utility functionality
 - **cursor-cloud-agents-client**: Cursor API client implementations
 - **cursor-cloud-agents-openapi**: OpenAPI specifications
 
