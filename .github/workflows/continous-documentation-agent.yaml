@@ -31,4 +31,4 @@ jobs:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
         run: |
           jbang trust add https://github.com/jabrena/
-          jbang churrera@jabrena run churrera-recipes/continous-diagrams/workflow-documentation.xml
+          jbang churrera@jabrena run churrera-recipes/continous-diagrams/workflow.xml

@@ -15,13 +15,6 @@
         <step number="1">
             <step-title>Update diagrams in the documentation folder</step-title>
             <step-content>
-                Verify the dates froms the diagrams generated in the documentation folder.
-                and compare the most recent date with the last date from files
-                in the modules in modules churrera-cli, churrera-core, cursor-cloud-agents-openapi,
-                cursor-cloud-agents-client
-
-                If you exist few new files, update the diagrams in the documentation folder.
-
                 To update the diagrams, remove the previous diagrams in the path: ./documentation/uml/ and
                 the .puml files in the path: ./documentation/uml/puml/
 
@@ -44,6 +37,11 @@
                 path: ./documentation/uml/puml/
 
                 Update the ./documentation/uml/README.md file with the new diagrams
+
+                The document located in the path: ./documentation/uml/README.md should show
+                a diagram per maven module and a complete diagram from all modules.
+
+                Review that png files show all elements from the .puml files. In other case, make chages in the .puml files.
             </step-content>
         </step>
     </steps>
