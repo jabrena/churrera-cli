@@ -1,5 +1,6 @@
 package info.jab.cursor.client;
 
+import info.jab.cursor.client.impl.CursorAgentManagementImpl;
 import info.jab.cursor.generated.client.ApiException;
 import info.jab.cursor.generated.client.api.AgentManagementApi;
 import info.jab.cursor.generated.client.model.AgentResponse;

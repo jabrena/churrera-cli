@@ -1,5 +1,6 @@
 package info.jab.cursor.client;
 
+import info.jab.cursor.client.impl.CursorAgentInformationImpl;
 import info.jab.cursor.generated.client.model.AgentResponse;
 import info.jab.cursor.generated.client.model.AgentsList;
 import info.jab.cursor.generated.client.model.ConversationResponse;

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import info.jab.cursor.client.CursorAgentManagement;
-import info.jab.cursor.client.CursorAgentManagementImpl;
+import info.jab.cursor.client.impl.CursorAgentManagementImpl;
 import info.jab.cursor.generated.client.ApiException;
 import info.jab.cursor.generated.client.model.Agent;
 import info.jab.cursor.generated.client.model.DeleteAgentResponse;

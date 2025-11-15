@@ -1,5 +1,6 @@
-package info.jab.cursor.client;
+package info.jab.cursor.client.impl;
 
+import info.jab.cursor.client.CursorAgentInformation;
 import info.jab.cursor.generated.client.model.AgentResponse;
 import info.jab.cursor.generated.client.ApiClient;
 import info.jab.cursor.generated.client.api.AgentInformationApi;
@@ -115,3 +116,4 @@ public class CursorAgentInformationImpl implements CursorAgentInformation {
         }
     }
 }
+

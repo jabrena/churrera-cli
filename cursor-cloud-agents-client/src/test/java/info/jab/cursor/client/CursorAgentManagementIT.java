@@ -1,5 +1,6 @@
 package info.jab.cursor.client;
 
+import info.jab.cursor.client.impl.CursorAgentManagementImpl;
 import info.jab.cursor.generated.client.model.AgentResponse;
 import info.jab.cursor.generated.client.model.DeleteAgentResponse;
 import info.jab.cursor.generated.client.model.FollowUpResponse;

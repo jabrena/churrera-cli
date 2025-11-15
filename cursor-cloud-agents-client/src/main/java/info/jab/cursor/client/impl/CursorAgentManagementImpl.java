@@ -1,5 +1,6 @@
-package info.jab.cursor.client;
+package info.jab.cursor.client.impl;
 
+import info.jab.cursor.client.CursorAgentManagement;
 import info.jab.cursor.generated.client.model.DeleteAgentResponse;
 import info.jab.cursor.generated.client.model.AgentResponse;
 import info.jab.cursor.generated.client.ApiClient;
@@ -178,3 +179,4 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
         }
     }
 }
+

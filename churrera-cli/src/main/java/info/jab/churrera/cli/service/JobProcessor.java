@@ -29,8 +29,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import info.jab.churrera.util.ConversationJsonDeserializer;
 import info.jab.churrera.util.PropertyResolver;
 import info.jab.churrera.util.PmlConverter;
-import info.jab.cursor.client.CursorAgentManagementImpl;
-import info.jab.cursor.client.CursorAgentInformationImpl;
+import info.jab.cursor.client.impl.CursorAgentManagementImpl;
+import info.jab.cursor.client.impl.CursorAgentInformationImpl;
 
 /**
  * Background job processor that automatically processes unfinished jobs,

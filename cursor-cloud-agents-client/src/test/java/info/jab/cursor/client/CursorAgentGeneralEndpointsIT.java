@@ -1,5 +1,6 @@
 package info.jab.cursor.client;
 
+import info.jab.cursor.client.impl.CursorAgentGeneralEndpointsImpl;
 import info.jab.cursor.generated.client.model.ApiKeyInfo;
 import info.jab.cursor.generated.client.model.RepositoriesList;
 import com.github.tomakehurst.wiremock.WireMockServer;

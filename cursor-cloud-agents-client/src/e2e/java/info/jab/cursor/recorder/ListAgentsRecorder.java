@@ -4,7 +4,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import info.jab.cursor.client.CursorAgentInformation;
-import info.jab.cursor.client.CursorAgentInformationImpl;
+import info.jab.cursor.client.impl.CursorAgentInformationImpl;
 import info.jab.cursor.generated.client.ApiException;
 import info.jab.cursor.generated.client.model.AgentsList;
 import org.slf4j.Logger;
