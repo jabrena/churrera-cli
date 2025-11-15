@@ -3,319 +3,274 @@
 title Churrera CLI Module - Class Diagram
 
 package "info.jab.churrera.cli" {
-    class ChurreraCLI {
-        -logger: Logger
-        +createCLICommand(): ChurreraCLICommand
-        +createRunCommand(): RunCommand
-        +run(): void
-        +main(String[]): void
-    }
+  class ChurreraCLI {
+    -logger: Logger
+    +main(String[]): void
+    +createCLICommand(): ChurreraCLICommand
+    +createRunCommand(): RunCommand
+    -printBanner(): void
+  }
 }
 
 package "info.jab.churrera.cli.command" {
-    interface Runnable {
-    }
-    
-    class ChurreraCLICommand implements Runnable {
-        -jobRepository: JobRepository
-        -jobProcessor: JobProcessor
-        -propertyResolver: PropertyResolver
-        -scanner: Scanner
-        -cliAgent: CLIAgent
-        +run(): void
-    }
-    
-    class RunCommand implements Runnable {
-        -jobRepository: JobRepository
-        -jobProcessor: JobProcessor
-        -workflowValidator: WorkflowValidator
-        -workflowParser: WorkflowParser
-        -pmlValidator: PmlValidator
-        -pollingIntervalSeconds: int
-        +run(): void
-    }
-    
-    class JobsCommand implements Runnable {
-        -jobRepository: JobRepository
-        +run(): void
-    }
-    
-    class NewJobCommand implements Runnable {
-        -jobRepository: JobRepository
-        -cliAgent: CLIAgent
-        +run(): void
-    }
-    
-    class JobStatusCommand implements Runnable {
-        -jobRepository: JobRepository
-        +run(): void
-    }
-    
-    class JobLogsCommand implements Runnable {
-        -jobRepository: JobRepository
-        -cliAgent: CLIAgent
-        +run(): void
-    }
-    
-    class DeleteJobCommand implements Runnable {
-        -jobRepository: JobRepository
-        +run(): void
-    }
-    
-    class NewJobRunCommand implements Runnable {
-        -jobRepository: JobRepository
-        -jobProcessor: JobProcessor
-        +run(): void
-    }
-    
-    class JobsPrCommand implements Runnable {
-        -jobRepository: JobRepository
-        +run(): void
-    }
-    
-    class TableFormatter {
-        +formatJobs(List<Job>): String
-    }
-}
+  class ChurreraCLICommand {
+    -jobRepository: JobRepository
+    -jobProcessor: JobProcessor
+    -propertyResolver: PropertyResolver
+    -scanner: Scanner
+    -cliAgent: CLIAgent
+    -scheduledExecutor: ScheduledExecutorService
+    +run(): void
+    -executeCommand(String): void
+    -printHelp(): void
+    -isExitCommand(String): boolean
+    -clearScreen(): void
+    +getScheduledExecutor(): ScheduledExecutorService
+    +getJobRepository(): JobRepository
+  }
 
-package "info.jab.churrera.cli.model" {
-    record Job {
-        +jobId: String
-        +path: String
-        +cursorAgentId: String
-        +model: String
-        +repository: String
-        +status: AgentState
-        +createdAt: LocalDateTime
-        +lastUpdate: LocalDateTime
-        +parentJobId: String
-        +result: String
-        +type: WorkflowType
-        +timeoutMillis: Long
-        +workflowStartTime: LocalDateTime
-        +fallbackSrc: String
-        +fallbackExecuted: Boolean
-        +withPath(String): Job
-        +withCursorAgentId(String): Job
-        +withStatus(AgentState): Job
-    }
-    
-    class JobWithDetails {
-        -job: Job
-        -prompts: List<Prompt>
-        +getJob(): Job
-        +getPrompts(): List<Prompt>
-    }
-    
-    record Prompt {
-        +promptId: String
-        +jobId: String
-        +pmlFile: String
-        +status: String
-        +createdAt: LocalDateTime
-        +lastUpdate: LocalDateTime
-        +withStatus(String): Prompt
-    }
-}
+  class RunCommand {
+    -jobRepository: JobRepository
+    -jobProcessor: JobProcessor
+    -workflowValidator: WorkflowValidator
+    -workflowParser: WorkflowParser
+    -pmlValidator: PmlValidator
+    -pollingIntervalSeconds: int
+    +run(): void
+  }
 
-package "info.jab.churrera.cli.repository" {
-    class JobRepository {
-        -context: Context
-        -databasePath: String
-        -initialized: boolean
-        +initialize(): void
-        +findAll(): List<Job>
-        +findById(String): Optional<Job>
-        +save(Job): void
-        +deleteById(String): void
-        +savePrompt(Prompt): void
-        +findPromptById(String): Optional<Prompt>
-        +findPromptsByJobId(String): List<Prompt>
-        +findJobWithDetails(String): Optional<JobWithDetails>
-        +findUnfinishedJobs(): List<Job>
-        +close(): void
-    }
+  class JobsCommand {
+    -jobRepository: JobRepository
+    +run(): void
+  }
+
+  class NewJobCommand {
+    -jobRepository: JobRepository
+    -jobPath: String
+    +run(): void
+  }
+
+  class NewJobRunCommand {
+    -jobRepository: JobRepository
+    -jobPath: String
+    -workflowValidator: WorkflowValidator
+    -workflowParser: WorkflowParser
+    -pmlValidator: PmlValidator
+    +run(): void
+  }
+
+  class JobsPrCommand {
+    -jobRepository: JobRepository
+    -jobId: String
+    +run(): void
+  }
+
+  class JobStatusCommand {
+    -jobRepository: JobRepository
+    -cliAgent: CLIAgent
+    -jobId: String
+    +run(): void
+  }
+
+  class JobLogsCommand {
+    -jobRepository: JobRepository
+    -cliAgent: CLIAgent
+    -jobId: String
+    +run(): void
+  }
+
+  class DeleteJobCommand {
+    -jobRepository: JobRepository
+    -cliAgent: CLIAgent
+    -jobId: String
+    +run(): void
+  }
+
+  class TableFormatter {
+    +formatJobs(List<Job>): String
+    +formatJobDetails(JobWithDetails): String
+  }
 }
 
 package "info.jab.churrera.cli.service" {
-    class CLIAgent {
-        -cursorAgentManagement: CursorAgentManagement
-        -cursorAgentInformation: CursorAgentInformation
-        -jobRepository: JobRepository
-        -pmlConverter: PmlConverter
-        -propertyResolver: PropertyResolver
-        +launchAgentForJob(Job, String, String, String, boolean): String
-        +followUpForPrompt(String, String, String, String): String
-        +monitorAgent(String, int): AgentState
-        +getConversation(String): ConversationResponse
-        +getConversationContent(String): String
-        +deleteAgent(String): void
-        +updateJobCursorIdInDatabase(Job, String, AgentState): void
-        +updateJobStatusInDatabase(Job, AgentState): void
-        +getAgentStatus(String): AgentState
-    }
-    
-    class JobProcessor {
-        -jobRepository: JobRepository
-        -cliAgent: CLIAgent
-        -workflowParser: WorkflowParser
-        -pollingIntervalSeconds: int
-        +processJob(Job): void
-    }
+  class CLIAgent {
+    -cursorAgentManagement: CursorAgentManagement
+    -cursorAgentInformation: CursorAgentInformation
+    -jobRepository: JobRepository
+    -pmlConverter: PmlConverter
+    -propertyResolver: PropertyResolver
+    +launchAgentForJob(Job, String, String, String, boolean): String
+    +followUpForPrompt(String, String, String, String): String
+    +monitorAgent(String, int): AgentState
+    +getConversation(String): ConversationResponse
+    +getConversationContent(String): String
+    +deleteAgent(String): void
+    +updateJobCursorIdInDatabase(Job, String, AgentState): void
+    +updateJobStatusInDatabase(Job, AgentState): void
+    +updatePromptInDatabase(Prompt, String): void
+    +updateJobInDatabase(Job): void
+    +getAgentStatus(String): AgentState
+    -convertToMarkdown(String, String): String
+  }
+
+  class JobProcessor {
+    -jobRepository: JobRepository
+    -cliAgent: CLIAgent
+    -workflowParser: WorkflowParser
+    -pollingIntervalSeconds: int
+    +processJobs(): void
+    -processJob(Job): void
+    -processJobWorkflow(Job, List<Prompt>): void
+    -processChildJobWorkflow(Job, WorkflowData, List<Prompt>): void
+    -processParallelWorkflow(Job, WorkflowData): void
+    -createChildJobs(Job, List<Object>, ParallelWorkflowData): void
+    -createChildJobPrompts(Job, SequenceInfo): void
+    -launchJobAgent(Job, WorkflowData): void
+    -monitorAndProcessPrompts(Job, List<Prompt>, WorkflowData): void
+    -processRemainingPrompts(Job, List<Prompt>, WorkflowData): void
+    -processPrompt(Job, Prompt, PromptInfo): void
+    -parseWorkflow(String): WorkflowData
+    -readPromptFile(String, String): String
+    -executeFallback(Job, WorkflowData, long, long): void
+    -executeFallbackForParallelChildren(Job, ParallelWorkflowData): void
+    -inferTypeFromExtension(String): String
+  }
+}
+
+package "info.jab.churrera.cli.repository" {
+  class JobRepository {
+    -context: Context
+    -databasePath: String
+    -initialized: boolean
+    +initialize(): void
+    +findAll(): List<Job>
+    +findById(String): Optional<Job>
+    +save(Job): void
+    +deleteById(String): void
+    +savePrompt(Prompt): void
+    +findPromptById(String): Optional<Prompt>
+    +findPromptsByJobId(String): List<Prompt>
+    +findJobWithDetails(String): Optional<JobWithDetails>
+    +findUnfinishedJobs(): List<Job>
+    +deletePromptsByJobId(String): void
+    +findJobsByParentId(String): List<Job>
+    +close(): void
+    -jobToXml(Job): String
+    -parseJobFromXml(String): Job
+    -parseJobsFromDocument(String): List<Job>
+    -promptToXml(Prompt): String
+    -parsePromptFromXml(String): Prompt
+    -parsePromptsFromDocument(String): List<Prompt>
+    -escapeXml(String): String
+  }
+}
+
+package "info.jab.churrera.cli.model" {
+  class Job {
+    +jobId: String
+    +path: String
+    +cursorAgentId: String
+    +model: String
+    +repository: String
+    +status: AgentState
+    +createdAt: LocalDateTime
+    +lastUpdate: LocalDateTime
+    +parentJobId: String
+    +result: String
+    +type: WorkflowType
+    +timeoutMillis: Long
+    +workflowStartTime: LocalDateTime
+    +fallbackSrc: String
+    +fallbackExecuted: Boolean
+    +withPath(String): Job
+    +withCursorAgentId(String): Job
+    +withStatus(AgentState): Job
+    +withModel(String): Job
+    +withRepository(String): Job
+    +withParentJobId(String): Job
+    +withResult(String): Job
+    +withType(WorkflowType): Job
+    +withTimeoutMillis(Long): Job
+    +withWorkflowStartTime(LocalDateTime): Job
+    +withFallbackSrc(String): Job
+    +withFallbackExecuted(Boolean): Job
+  }
+
+  class JobWithDetails {
+    -job: Job
+    -prompts: List<Prompt>
+    +getJob(): Job
+    +getPrompts(): List<Prompt>
+  }
+
+  class Prompt {
+    +promptId: String
+    +jobId: String
+    +pmlFile: String
+    +status: String
+    +createdAt: LocalDateTime
+    +lastUpdate: LocalDateTime
+    +withStatus(String): Prompt
+  }
+
+  enum AgentState {
+    UNKNOWN
+    CREATING
+    ACTIVE
+    SUCCESSFUL
+    FAILED
+    +isTerminal(): boolean
+    +isActive(): boolean
+    +isSuccessful(): boolean
+    +of(AgentResponse): AgentState
+  }
 }
 
 package "info.jab.churrera.cli.util" {
-    class GitInfo {
-        +print(): void
-    }
+  class GitInfo {
+    +print(): void
+  }
 }
 
-package "info.jab.churrera.workflow" {
-    class WorkflowParser {
-        +parse(File): WorkflowData
-        +parse(Path): WorkflowData
-        +determineWorkflowType(File): WorkflowType
-    }
-    
-    class WorkflowData {
-        -launchPrompt: PromptInfo
-        -model: String
-        -repository: String
-        -updatePrompts: List<PromptInfo>
-        -parallelWorkflowData: ParallelWorkflowData
-        -timeoutMillis: Long
-        -fallbackSrc: String
-        +getLaunchPrompt(): PromptInfo
-        +getModel(): String
-        +getRepository(): String
-        +getUpdatePrompts(): List<PromptInfo>
-        +isParallelWorkflow(): boolean
-    }
-    
-    class WorkflowValidator {
-        +validate(WorkflowData): void
-    }
-    
-    class PmlValidator {
-        +validate(File): void
-    }
-    
-    enum WorkflowType {
-        SEQUENCE
-        PARALLEL
-    }
-}
-
-package "info.jab.churrera.agent" {
-    enum AgentState {
-        PENDING
-        RUNNING
-        COMPLETED
-        FAILED
-        UNKNOWN
-        +isTerminal(): boolean
-    }
-}
-
-package "info.jab.churrera.util" {
-    class CursorApiKeyResolver {
-        +resolveApiKey(): String
-    }
-    
-    class PropertyResolver {
-        +getProperty(String, String): Optional<String>
-    }
-    
-    class PmlConverter {
-        +toMarkdownFromContent(String): String
-        +toMarkdownFromContent(String, String): String
-    }
-}
-
-package "info.jab.cursor" {
-    interface CursorAgentManagement {
-        +launch(String, String, String, boolean): AgentResponse
-        +followUp(String, String): FollowUpResponse
-        +delete(String): DeleteAgentResponse
-    }
-    
-    interface CursorAgentInformation {
-        +getStatus(String): AgentResponse
-        +getAgentConversation(String): ConversationResponse
-    }
-    
-    class CursorAgentManagementImpl implements CursorAgentManagement {
-        -apiKey: String
-        -apiBaseUrl: String
-        +launch(String, String, String, boolean): AgentResponse
-        +followUp(String, String): FollowUpResponse
-        +delete(String): DeleteAgentResponse
-    }
-    
-    class CursorAgentInformationImpl implements CursorAgentInformation {
-        -apiKey: String
-        -apiBaseUrl: String
-        +getStatus(String): AgentResponse
-        +getAgentConversation(String): ConversationResponse
-    }
-}
-
-ChurreraCLI --> ChurreraCLICommand
-ChurreraCLI --> RunCommand
-ChurreraCLI --> JobRepository
-ChurreraCLI --> WorkflowParser
-ChurreraCLI --> CLIAgent
-ChurreraCLI --> CursorAgentManagementImpl
-ChurreraCLI --> CursorAgentInformationImpl
-
-ChurreraCLICommand --> JobRepository
-ChurreraCLICommand --> JobProcessor
-ChurreraCLICommand --> CLIAgent
-ChurreraCLICommand --> PropertyResolver
-
-RunCommand --> JobRepository
-RunCommand --> JobProcessor
-RunCommand --> WorkflowValidator
-RunCommand --> WorkflowParser
-RunCommand --> PmlValidator
-
-JobsCommand --> JobRepository
-NewJobCommand --> JobRepository
-NewJobCommand --> CLIAgent
-JobStatusCommand --> JobRepository
-JobLogsCommand --> JobRepository
-JobLogsCommand --> CLIAgent
-DeleteJobCommand --> JobRepository
-NewJobRunCommand --> JobRepository
-NewJobRunCommand --> JobProcessor
-
-CLIAgent --> JobRepository
-CLIAgent --> CursorAgentManagement
-CLIAgent --> CursorAgentInformation
-CLIAgent --> PmlConverter
-CLIAgent --> PropertyResolver
-CLIAgent --> Job
-CLIAgent --> AgentState
-
-JobProcessor --> JobRepository
-JobProcessor --> CLIAgent
-JobProcessor --> WorkflowParser
-JobProcessor --> Job
-
-JobRepository --> Job
-JobRepository --> Prompt
-JobRepository --> JobWithDetails
-JobRepository --> PropertyResolver
-
-WorkflowParser --> WorkflowData
-WorkflowData --> PromptInfo
-WorkflowData --> ParallelWorkflowData
-WorkflowData --> WorkflowType
-
-Job --> AgentState
-Job --> WorkflowType
-
-CursorAgentManagementImpl ..|> CursorAgentManagement
-CursorAgentInformationImpl ..|> CursorAgentInformation
+' Relationships
+ChurreraCLI --> ChurreraCLICommand : creates
+ChurreraCLI --> RunCommand : creates
+ChurreraCLICommand --> JobRepository : uses
+ChurreraCLICommand --> JobProcessor : uses
+ChurreraCLICommand --> CLIAgent : uses
+ChurreraCLICommand --> PropertyResolver : uses
+RunCommand --> JobRepository : uses
+RunCommand --> JobProcessor : uses
+RunCommand --> WorkflowValidator : uses
+RunCommand --> WorkflowParser : uses
+RunCommand --> PmlValidator : uses
+JobsCommand --> JobRepository : uses
+NewJobCommand --> JobRepository : uses
+NewJobRunCommand --> JobRepository : uses
+NewJobRunCommand --> WorkflowValidator : uses
+NewJobRunCommand --> WorkflowParser : uses
+NewJobRunCommand --> PmlValidator : uses
+JobStatusCommand --> JobRepository : uses
+JobStatusCommand --> CLIAgent : uses
+JobLogsCommand --> JobRepository : uses
+JobLogsCommand --> CLIAgent : uses
+DeleteJobCommand --> JobRepository : uses
+DeleteJobCommand --> CLIAgent : uses
+CLIAgent --> JobRepository : uses
+CLIAgent --> CursorAgentManagement : uses
+CLIAgent --> CursorAgentInformation : uses
+CLIAgent --> PmlConverter : uses
+CLIAgent --> PropertyResolver : uses
+JobProcessor --> JobRepository : uses
+JobProcessor --> CLIAgent : uses
+JobProcessor --> WorkflowParser : uses
+JobRepository --> Job : manages
+JobRepository --> Prompt : manages
+JobRepository --> JobWithDetails : creates
+JobWithDetails --> Job : contains
+JobWithDetails --> Prompt : contains
+Job --> AgentState : uses
+Job --> WorkflowType : uses
+Prompt --> Job : references
 
 @enduml

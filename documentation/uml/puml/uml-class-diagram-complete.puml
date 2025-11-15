@@ -1,220 +1,131 @@
 @startuml
 !theme plain
-title Complete Churrera Project - Class Diagram
-
-' Layout settings to prevent diagram from being cut off
-skinparam linetype ortho
-skinparam packageStyle rectangle
-skinparam maxMessageSize 60
-skinparam nodesep 5
-skinparam ranksep 15
-skinparam wrapMessageWidth 150
-skinparam classAttributeIconSize 0
-skinparam backgroundColor white
-skinparam shadowing false
-skinparam defaultFontSize 10
-skinparam packageFontSize 11
-skinparam classFontSize 10
-
-' Compact layout settings
-skinparam packagePadding 5
-skinparam roundcorner 5
-skinparam maxwidth 200
+title Complete Project - Class Diagram
 
 package "churrera-cli" {
-    package "info.jab.churrera.cli" {
-        class ChurreraCLI {
-            +createCLICommand(): ChurreraCLICommand
-            +createRunCommand(): RunCommand
-            +main(String[]): void
-        }
-    }
-
-    package "info.jab.churrera.cli.command" {
-        class ChurreraCLICommand implements Runnable
-        class RunCommand implements Runnable
-        class JobsCommand implements Runnable
-        class NewJobCommand implements Runnable
-        class JobStatusCommand implements Runnable
-        class JobLogsCommand implements Runnable
-        class DeleteJobCommand implements Runnable
-        class NewJobRunCommand implements Runnable
-        class JobsPrCommand implements Runnable
-        class TableFormatter
-    }
-
-    package "info.jab.churrera.cli.model" {
-        record Job {
-            +jobId: String
-            +path: String
-            +cursorAgentId: String
-            +model: String
-            +repository: String
-            +status: AgentState
-            +type: WorkflowType
-        }
-
-        class JobWithDetails
-        record Prompt
-    }
-
-    package "info.jab.churrera.cli.repository" {
-        class JobRepository {
-            +initialize(): void
-            +findAll(): List<Job>
-            +save(Job): void
-            +deleteById(String): void
-        }
-    }
-
-    package "info.jab.churrera.cli.service" {
-        class CLIAgent {
-            +launchAgentForJob(Job, String, String, String, boolean): String
-            +followUpForPrompt(String, String, String, String): String
-            +monitorAgent(String, int): AgentState
-        }
-
-        class JobProcessor {
-            +processJob(Job): void
-        }
-    }
-
-    package "info.jab.churrera.cli.util" {
-        class GitInfo
-    }
+  package "info.jab.churrera.cli" {
+    class ChurreraCLI
+  }
+  package "info.jab.churrera.cli.command" {
+    class ChurreraCLICommand
+    class RunCommand
+    class JobsCommand
+    class NewJobCommand
+    class NewJobRunCommand
+    class JobsPrCommand
+    class JobStatusCommand
+    class JobLogsCommand
+    class DeleteJobCommand
+    class TableFormatter
+  }
+  package "info.jab.churrera.cli.service" {
+    class CLIAgent
+    class JobProcessor
+  }
+  package "info.jab.churrera.cli.repository" {
+    class JobRepository
+  }
+  package "info.jab.churrera.cli.model" {
+    class Job
+    class JobWithDetails
+    class Prompt
+    enum AgentState
+  }
+  package "info.jab.churrera.cli.util" {
+    class GitInfo
+  }
 }
 
 package "churrera-core" {
-    package "info.jab.churrera.workflow" {
-        class WorkflowParser {
-            +parse(File): WorkflowData
-            +determineWorkflowType(File): WorkflowType
-        }
-
-        class WorkflowData {
-            +getLaunchPrompt(): PromptInfo
-            +getModel(): String
-            +isParallelWorkflow(): boolean
-        }
-
-        class WorkflowValidator
-        class PmlValidator
-        class PromptInfo
-        class SequenceInfo
-        class ParallelWorkflowData
-        class TimeoutParser
-        class ExpressionEvaluator
-        class BindResultTypeMapper
-        enum WorkflowType
-        class WorkflowParseException
-    }
-
-    package "info.jab.churrera.agent" {
-        enum AgentState {
-            PENDING
-            RUNNING
-            COMPLETED
-            FAILED
-            UNKNOWN
-        }
-    }
-
-    package "info.jab.churrera.util" {
-        class CursorApiKeyResolver
-        class PropertyResolver
-        class PmlConverter
-        class ClasspathResolver
-        class ConversationJsonDeserializer
-    }
+  package "info.jab.churrera.workflow" {
+    class WorkflowParser
+    class WorkflowData
+    class WorkflowValidator
+    class PmlValidator
+    class WorkflowParseException
+    class PromptInfo
+    class ParallelWorkflowData
+    class SequenceInfo
+    class TimeoutParser
+    class ExpressionEvaluator
+    class BindResultTypeMapper
+    enum WorkflowType
+  }
+  package "info.jab.churrera.util" {
+    class PmlConverter
+    class PropertyResolver
+    class CursorApiKeyResolver
+    class ClasspathResolver
+    class ConversationJsonDeserializer
+  }
 }
 
 package "cursor-cloud-agents-client" {
-    package "info.jab.cursor" {
-        interface CursorAgentManagement {
-            +launch(String, String, String, boolean): AgentResponse
-            +followUp(String, String): FollowUpResponse
-            +delete(String): DeleteAgentResponse
-        }
-
-        interface CursorAgentInformation {
-            +getStatus(String): AgentResponse
-            +getAgentConversation(String): ConversationResponse
-        }
-
-        interface CursorAgentGeneralEndpoints {
-            +getAgent(String): AgentResponse
-            +listAgents(): List<AgentResponse>
-        }
-
-        class CursorAgentManagementImpl implements CursorAgentManagement
-        class CursorAgentInformationImpl implements CursorAgentInformation
-        class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoints
-    }
-
-    package "info.jab.cursor.client.model" {
-        class AgentResponse
-        class FollowUpResponse
-        class DeleteAgentResponse
-        class ConversationResponse
-        class ConversationMessage
-    }
+  package "info.jab.cursor.client" {
+    interface CursorAgentManagement
+    interface CursorAgentInformation
+    interface CursorAgentGeneralEndpoints
+  }
+  package "info.jab.cursor.client.impl" {
+    class CursorAgentManagementImpl
+    class CursorAgentInformationImpl
+    class CursorAgentGeneralEndpointsImpl
+  }
+  package "info.jab.cursor.client.model" {
+    class AgentResponse
+    class FollowUpResponse
+    class DeleteAgentResponse
+    class ConversationResponse
+    class ConversationMessage
+    class AgentsList
+    class ApiKeyInfo
+    class RepositoriesList
+    class Repository
+    class Source
+    class Target
+  }
 }
 
-package "cursor-cloud-agents-openapi" {
-    note right: OpenAPI specification files\nfor Cursor API contracts
-}
-
-' CLI Module Relationships
+' Cross-module relationships
 ChurreraCLI --> ChurreraCLICommand
 ChurreraCLI --> RunCommand
-ChurreraCLI --> JobRepository
-ChurreraCLI --> CLIAgent
-ChurreraCLI --> WorkflowParser
-
 ChurreraCLICommand --> JobRepository
 ChurreraCLICommand --> JobProcessor
 ChurreraCLICommand --> CLIAgent
-
 RunCommand --> JobRepository
 RunCommand --> JobProcessor
 RunCommand --> WorkflowValidator
 RunCommand --> WorkflowParser
-
+RunCommand --> PmlValidator
 CLIAgent --> JobRepository
 CLIAgent --> CursorAgentManagement
 CLIAgent --> CursorAgentInformation
 CLIAgent --> PmlConverter
-
+CLIAgent --> PropertyResolver
 JobProcessor --> JobRepository
 JobProcessor --> CLIAgent
 JobProcessor --> WorkflowParser
-
 JobRepository --> Job
 JobRepository --> Prompt
 JobRepository --> JobWithDetails
-
-' Core Module Relationships
+Job --> AgentState
+Job --> WorkflowType
+JobWithDetails --> Job
+JobWithDetails --> Prompt
 WorkflowParser --> WorkflowData
 WorkflowParser --> WorkflowType
 WorkflowData --> PromptInfo
 WorkflowData --> ParallelWorkflowData
+WorkflowData --> WorkflowType
+ParallelWorkflowData --> PromptInfo
 ParallelWorkflowData --> SequenceInfo
 SequenceInfo --> PromptInfo
-
-' Client Module Relationships
 CursorAgentManagementImpl ..|> CursorAgentManagement
 CursorAgentInformationImpl ..|> CursorAgentInformation
 CursorAgentGeneralEndpointsImpl ..|> CursorAgentGeneralEndpoints
-
 CursorAgentManagementImpl --> AgentResponse
-CursorAgentManagementImpl --> FollowUpResponse
 CursorAgentInformationImpl --> AgentResponse
 CursorAgentInformationImpl --> ConversationResponse
-
-' Cross-module Relationships
-Job --> AgentState
-Job --> WorkflowType
-CLIAgent --> Job
-WorkflowData --> WorkflowType
+ConversationResponse --> ConversationMessage
 
 @enduml

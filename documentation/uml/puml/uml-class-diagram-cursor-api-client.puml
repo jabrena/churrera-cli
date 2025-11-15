@@ -1,100 +1,134 @@
 @startuml
 !theme plain
-title Cursor Cloud Agents Client Module - Class Diagram
+title Cursor API Client Module - Class Diagram
 
-package "info.jab.cursor" {
-    interface CursorAgentManagement {
-        +launch(String, String, String, boolean): AgentResponse
-        +followUp(String, String): FollowUpResponse
-        +delete(String): DeleteAgentResponse
-    }
-    
-    interface CursorAgentInformation {
-        +getStatus(String): AgentResponse
-        +getAgentConversation(String): ConversationResponse
-    }
-    
-    interface CursorAgentGeneralEndpoints {
-        +getAgent(String): AgentResponse
-        +listAgents(): List<AgentResponse>
-    }
-    
-    class CursorAgentManagementImpl implements CursorAgentManagement {
-        -apiKey: String
-        -apiBaseUrl: String
-        -restClient: RestClient
-        +launch(String, String, String, boolean): AgentResponse
-        +followUp(String, String): FollowUpResponse
-        +delete(String): DeleteAgentResponse
-    }
-    
-    class CursorAgentInformationImpl implements CursorAgentInformation {
-        -apiKey: String
-        -apiBaseUrl: String
-        -restClient: RestClient
-        +getStatus(String): AgentResponse
-        +getAgentConversation(String): ConversationResponse
-    }
-    
-    class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoints {
-        -apiKey: String
-        -apiBaseUrl: String
-        -restClient: RestClient
-        +getAgent(String): AgentResponse
-        +listAgents(): List<AgentResponse>
-    }
+package "info.jab.cursor.client" {
+  interface CursorAgentManagement {
+    +launch(String, String, String, boolean): AgentResponse
+    +followUp(String, String): FollowUpResponse
+    +delete(String): DeleteAgentResponse
+  }
+
+  interface CursorAgentInformation {
+    +getStatus(String): AgentResponse
+    +getAgentConversation(String): ConversationResponse
+    +listAgents(): AgentsList
+    +getApiKeyInfo(): ApiKeyInfo
+    +listRepositories(): RepositoriesList
+  }
+
+  interface CursorAgentGeneralEndpoints {
+    +getApiKeyInfo(): ApiKeyInfo
+  }
+}
+
+package "info.jab.cursor.client.impl" {
+  class CursorAgentManagementImpl {
+    -apiKey: String
+    -agentManagementApi: AgentManagementApi
+    +launch(String, String, String, boolean): AgentResponse
+    +followUp(String, String): FollowUpResponse
+    +delete(String): DeleteAgentResponse
+    -getAuthHeaders(): Map<String, String>
+    -createLaunchAgentRequest(String, String, String, boolean): LaunchAgentRequest
+  }
+
+  class CursorAgentInformationImpl {
+    -apiKey: String
+    -agentInformationApi: AgentInformationApi
+    +getStatus(String): AgentResponse
+    +getAgentConversation(String): ConversationResponse
+    +listAgents(): AgentsList
+    +getApiKeyInfo(): ApiKeyInfo
+    +listRepositories(): RepositoriesList
+    -getAuthHeaders(): Map<String, String>
+  }
+
+  class CursorAgentGeneralEndpointsImpl {
+    -apiKey: String
+    -generalEndpointsApi: GeneralEndpointsApi
+    +getApiKeyInfo(): ApiKeyInfo
+    -getAuthHeaders(): Map<String, String>
+  }
 }
 
 package "info.jab.cursor.client.model" {
-    class AgentResponse {
-        -id: String
-        -status: String
-        -createdAt: String
-        -updatedAt: String
-        +getId(): String
-        +getStatus(): String
-        +getCreatedAt(): String
-        +getUpdatedAt(): String
-    }
-    
-    class FollowUpResponse {
-        -id: String
-        -status: String
-        +getId(): String
-        +getStatus(): String
-    }
-    
-    class DeleteAgentResponse {
-        -success: boolean
-        +isSuccess(): boolean
-    }
-    
-    class ConversationResponse {
-        -messages: List<ConversationMessage>
-        +getMessages(): List<ConversationMessage>
-    }
-    
-    class ConversationMessage {
-        -text: String
-        -role: String
-        +getText(): String
-        +getRole(): String
-    }
+  class AgentResponse {
+    +id(): String
+    +status(): String
+    +model(): String
+    +repository(): String
+    +from(Agent): AgentResponse
+  }
+
+  class FollowUpResponse {
+    +id(): String
+    +from(FollowUp): FollowUpResponse
+  }
+
+  class DeleteAgentResponse {
+    +id(): String
+    +from(DeleteAgent): DeleteAgentResponse
+  }
+
+  class ConversationResponse {
+    +messages(): List<ConversationMessage>
+    +from(Conversation): ConversationResponse
+  }
+
+  class ConversationMessage {
+    +text(): String
+    +role(): String
+    +from(Message): ConversationMessage
+  }
+
+  class AgentsList {
+    +agents(): List<AgentResponse>
+    +from(Agents): AgentsList
+  }
+
+  class ApiKeyInfo {
+    +name(): String
+    +from(ApiKey): ApiKeyInfo
+  }
+
+  class RepositoriesList {
+    +repositories(): List<Repository>
+    +from(Repositories): RepositoriesList
+  }
+
+  class Repository {
+    +name(): String
+    +url(): String
+    +from(RepositoryInfo): Repository
+  }
+
+  class Source {
+    +repository(): URI
+    +ref(): String
+  }
+
+  class Target {
+    +autoCreatePr(): boolean
+  }
 }
 
-CursorAgentManagementImpl ..|> CursorAgentManagement
-CursorAgentInformationImpl ..|> CursorAgentInformation
-CursorAgentGeneralEndpointsImpl ..|> CursorAgentGeneralEndpoints
-
-CursorAgentManagementImpl --> AgentResponse
-CursorAgentManagementImpl --> FollowUpResponse
-CursorAgentManagementImpl --> DeleteAgentResponse
-
-CursorAgentInformationImpl --> AgentResponse
-CursorAgentInformationImpl --> ConversationResponse
-
-CursorAgentGeneralEndpointsImpl --> AgentResponse
-
-ConversationResponse --> ConversationMessage
+' Relationships
+CursorAgentManagementImpl ..|> CursorAgentManagement : implements
+CursorAgentInformationImpl ..|> CursorAgentInformation : implements
+CursorAgentGeneralEndpointsImpl ..|> CursorAgentGeneralEndpoints : implements
+CursorAgentManagementImpl --> AgentResponse : returns
+CursorAgentManagementImpl --> FollowUpResponse : returns
+CursorAgentManagementImpl --> DeleteAgentResponse : returns
+CursorAgentInformationImpl --> AgentResponse : returns
+CursorAgentInformationImpl --> ConversationResponse : returns
+CursorAgentInformationImpl --> AgentsList : returns
+CursorAgentInformationImpl --> ApiKeyInfo : returns
+CursorAgentInformationImpl --> RepositoriesList : returns
+CursorAgentGeneralEndpointsImpl --> ApiKeyInfo : returns
+ConversationResponse --> ConversationMessage : contains
+RepositoriesList --> Repository : contains
+AgentResponse --> Source : uses
+AgentResponse --> Target : uses
 
 @enduml
