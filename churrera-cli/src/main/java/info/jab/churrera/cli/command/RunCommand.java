@@ -64,6 +64,18 @@ public class RunCommand implements Runnable {
     )
     private boolean deleteOnSuccessCompletion;
 
+    @CommandLine.Option(
+        names = "--retrieve-models",
+        description = "Retrieve and display available models from Cursor API"
+    )
+    private boolean retrieveModels;
+
+    @CommandLine.Option(
+        names = "--retrieve-repositories",
+        description = "Retrieve and display available repositories from Cursor API"
+    )
+    private boolean retrieveRepositories;
+
     private final JobRepository jobRepository;
     private final JobProcessor jobProcessor;
     private final WorkflowValidator workflowValidator;
@@ -89,6 +101,18 @@ public class RunCommand implements Runnable {
 
     @Override
     public void run() {
+        // Handle --retrieve-models option
+        if (retrieveModels) {
+            retrieveAndDisplayModels();
+            return;
+        }
+
+        // Handle --retrieve-repositories option
+        if (retrieveRepositories) {
+            retrieveAndDisplayRepositories();
+            return;
+        }
+
         // Validate that if --workflow is used, it must have a value
         if (workflowPath != null && workflowPath.trim().isEmpty()) {
             logger.error("--workflow option was used but no value provided");
@@ -683,6 +707,72 @@ public class RunCommand implements Runnable {
             // Then delete this child job
             deleteJob(childJob);
             logger.info("Deleted child job: {}", childJob.jobId());
+        }
+    }
+
+    /**
+     * Retrieves and displays available models from the Cursor API.
+     */
+    private void retrieveAndDisplayModels() {
+        try {
+            logger.info("Retrieving available models from Cursor API");
+            System.out.println("Retrieving available models...");
+            System.out.println();
+
+            List<String> models = cliAgent.getModels();
+
+            if (models == null || models.isEmpty()) {
+                System.out.println("No models available.");
+                logger.warn("No models returned from API");
+                return;
+            }
+
+            System.out.println("Available models:");
+            System.out.println();
+            for (int i = 0; i < models.size(); i++) {
+                System.out.println("  " + (i + 1) + ". " + models.get(i));
+            }
+            System.out.println();
+            System.out.println("Total: " + models.size() + " model(s)");
+            logger.info("Retrieved {} models successfully", models.size());
+
+        } catch (Exception e) {
+            logger.error("Error retrieving models: {}", e.getMessage(), e);
+            System.err.println("Error retrieving models: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Retrieves and displays available repositories from the Cursor API.
+     */
+    private void retrieveAndDisplayRepositories() {
+        try {
+            logger.info("Retrieving available repositories from Cursor API");
+            System.out.println("Retrieving available repositories...");
+            System.out.println();
+
+            List<String> repositories = cliAgent.getRepositories();
+
+            if (repositories == null || repositories.isEmpty()) {
+                System.out.println("No repositories available.");
+                logger.warn("No repositories returned from API");
+                return;
+            }
+
+            System.out.println("Available repositories:");
+            System.out.println();
+            for (int i = 0; i < repositories.size(); i++) {
+                System.out.println("  " + (i + 1) + ". " + repositories.get(i));
+            }
+            System.out.println();
+            System.out.println("Total: " + repositories.size() + " repository(ies)");
+            logger.info("Retrieved {} repositories successfully", repositories.size());
+
+        } catch (Exception e) {
+            logger.error("Error retrieving repositories: {}", e.getMessage(), e);
+            System.err.println("Error retrieving repositories: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

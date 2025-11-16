@@ -3,11 +3,14 @@ package info.jab.churrera.cli.service;
 import info.jab.cursor.client.model.AgentResponse;
 import info.jab.cursor.client.CursorAgentManagement;
 import info.jab.cursor.client.CursorAgentInformation;
+import info.jab.cursor.client.CursorAgentGeneralEndpoints;
 import info.jab.cursor.client.impl.CursorAgentManagementImpl;
 import info.jab.cursor.client.impl.CursorAgentInformationImpl;
 import info.jab.cursor.client.model.FollowUpResponse;
 import info.jab.cursor.client.model.ConversationResponse;
 import info.jab.cursor.client.model.ConversationMessage;
+import info.jab.cursor.client.model.RepositoriesList;
+import java.util.List;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.cli.model.Job;
@@ -30,13 +33,15 @@ public class CLIAgent {
 
     private final CursorAgentManagement cursorAgentManagement;
     private final CursorAgentInformation cursorAgentInformation;
+    private final CursorAgentGeneralEndpoints cursorAgentGeneralEndpoints;
     private final JobRepository jobRepository;
     private final PmlConverter pmlConverter;
     private final PropertyResolver propertyResolver;
 
-    public CLIAgent(JobRepository jobRepository, CursorAgentManagement cursorAgentManagement, CursorAgentInformation cursorAgentInformation, PmlConverter pmlConverter, PropertyResolver propertyResolver) {
+    public CLIAgent(JobRepository jobRepository, CursorAgentManagement cursorAgentManagement, CursorAgentInformation cursorAgentInformation, CursorAgentGeneralEndpoints cursorAgentGeneralEndpoints, PmlConverter pmlConverter, PropertyResolver propertyResolver) {
         this.cursorAgentManagement = cursorAgentManagement;
         this.cursorAgentInformation = cursorAgentInformation;
+        this.cursorAgentGeneralEndpoints = cursorAgentGeneralEndpoints;
         this.jobRepository = jobRepository;
         this.pmlConverter = pmlConverter;
         this.propertyResolver = propertyResolver;
@@ -289,6 +294,40 @@ public class CLIAgent {
         } catch (Exception e) {
             logger.error("Failed to get agent status for {}: {}", cursorAgentId, e.getMessage());
             throw new RuntimeException("Failed to get agent status: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Get the list of available models from the Cursor API.
+     *
+     * @return list of available model names
+     */
+    public List<String> getModels() {
+        try {
+            return cursorAgentGeneralEndpoints.getModels();
+        } catch (Exception e) {
+            logger.error("Failed to get models: {}", e.getMessage());
+            throw new RuntimeException("Failed to get models: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Get the list of available repository URLs from the Cursor API.
+     *
+     * @return list of available repository URLs
+     */
+    public List<String> getRepositories() {
+        try {
+            RepositoriesList repositoriesList = cursorAgentGeneralEndpoints.getRepositories();
+            if (repositoriesList == null || repositoriesList.repositories() == null) {
+                return List.of();
+            }
+            return repositoriesList.repositories().stream()
+                .map(repo -> repo.repository())
+                .toList();
+        } catch (Exception e) {
+            logger.error("Failed to get repositories: {}", e.getMessage());
+            throw new RuntimeException("Failed to get repositories: " + e.getMessage(), e);
         }
     }
 

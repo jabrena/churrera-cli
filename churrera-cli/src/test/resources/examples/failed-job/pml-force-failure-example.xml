@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+    <title>Develop a HelloWorld Java Class program</title>
+
+    <role>You are a Senior software engineer with extensive experience in Java software development</role>
+
+    <goal>
+        Create a bash script print "Hello World" in the console
+
+        When finish with the bash action, finish the agent as FAILED
+    </goal>
+
+    <constraints>
+        <constraint-list>
+            <constraint>Don't invest time in planning</constraint>
+        </constraint-list>
+    </constraints>
+
+    <output-format>Show the bash execution output</output-format>
+
+</prompt>

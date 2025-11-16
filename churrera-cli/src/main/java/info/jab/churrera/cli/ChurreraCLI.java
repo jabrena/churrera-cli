@@ -13,6 +13,7 @@ import info.jab.churrera.workflow.WorkflowValidator;
 import info.jab.churrera.workflow.PmlValidator;
 import info.jab.cursor.client.impl.CursorAgentManagementImpl;
 import info.jab.cursor.client.impl.CursorAgentInformationImpl;
+import info.jab.cursor.client.impl.CursorAgentGeneralEndpointsImpl;
 import org.basex.core.BaseXException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,7 @@ public class ChurreraCLI implements Runnable {
             jobRepository,
             new CursorAgentManagementImpl(apiKey, apiBaseUrl),
             new CursorAgentInformationImpl(apiKey, apiBaseUrl),
+            new CursorAgentGeneralEndpointsImpl(apiKey, apiBaseUrl),
             new PmlConverter(),
             propertyResolver
         );
@@ -112,6 +114,7 @@ public class ChurreraCLI implements Runnable {
             jobRepository,
             new CursorAgentManagementImpl(apiKey, apiBaseUrl),
             new CursorAgentInformationImpl(apiKey, apiBaseUrl),
+            new CursorAgentGeneralEndpointsImpl(apiKey, apiBaseUrl),
             new PmlConverter(),
             propertyResolver
         );

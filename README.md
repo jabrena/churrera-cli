@@ -142,8 +142,9 @@ jbang catalog list jabrena
 
 # Single execution (Designed for Pipelines)
 jbang churrera@jabrena run \
---workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml \
---delete-on-success-completion
+--workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml --delete-on-success-completion
+jbang churrera@jabrena run --retrieve-models
+jbang churrera@jabrena run --retrieve-repositories
 ```
 
 Follow the output from the tool:
@@ -223,6 +224,9 @@ jobs pr     <job-id>    # Show PR link
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --help
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml --delete-on-success-completion
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml --delete-on-completion
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --retrieve-models
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --retrieve-repositories
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/failed-job/workflow.xml
 ```
 
 ## Changelog
