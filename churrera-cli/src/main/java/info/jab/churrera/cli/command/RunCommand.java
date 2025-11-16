@@ -46,8 +46,8 @@ public class RunCommand implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RunCommand.class);
     private static final int JOB_ID_PREFIX_LENGTH = 8;
 
-    @CommandLine.Parameters(
-        index = "0",
+    @CommandLine.Option(
+        names = "--workflow",
         description = "Path to the workflow XML file"
     )
     private String workflowPath;
@@ -89,6 +89,13 @@ public class RunCommand implements Runnable {
 
     @Override
     public void run() {
+        // Validate that if --workflow is used, it must have a value
+        if (workflowPath != null && workflowPath.trim().isEmpty()) {
+            logger.error("--workflow option was used but no value provided");
+            System.err.println("Error: --workflow option requires a value (path to workflow XML file)");
+            return;
+        }
+
         logger.info("Running workflow file in blocking mode: {}", workflowPath);
 
         try {
