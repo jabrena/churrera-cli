@@ -219,7 +219,9 @@ jobs pr     <job-id>    # Show PR link
 
 ```bash
 ./mvnw clean package
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --help
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml --delete-on-completion
 ```
 
 ## Changelog

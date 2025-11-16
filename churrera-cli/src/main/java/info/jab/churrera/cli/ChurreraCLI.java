@@ -32,8 +32,9 @@ import java.util.Scanner;
  */
 @CommandLine.Command(
     name = "churrera",
+    subcommands = {CliCommand.class, RunCommand.class},
     mixinStandardHelpOptions = true,
-    subcommands = {CliCommand.class, RunCommand.class}
+    usageHelpAutoWidth = true
 )
 public class ChurreraCLI implements Runnable {
 
@@ -132,7 +133,7 @@ public class ChurreraCLI implements Runnable {
         jobRepository.initialize();
         logger.info("Churrera Run command initialized successfully");
 
-        return new RunCommand(jobRepository, jobProcessor, workflowValidator, workflowParser, pmlValidator, pollingIntervalSeconds);
+        return new RunCommand(jobRepository, jobProcessor, workflowValidator, workflowParser, pmlValidator, pollingIntervalSeconds, cliAgent);
     }
 
     @Override

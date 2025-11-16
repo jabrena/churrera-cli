@@ -23,7 +23,8 @@ import java.util.regex.Pattern;
 @CommandLine.Command(
     name = "cli",
     description = "Start interactive REPL mode for managing jobs",
-    mixinStandardHelpOptions = true
+    mixinStandardHelpOptions = true,
+    usageHelpAutoWidth = true
 )
 public class CliCommand implements Runnable {
 
