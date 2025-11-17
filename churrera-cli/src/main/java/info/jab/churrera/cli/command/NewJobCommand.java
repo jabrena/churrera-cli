@@ -67,7 +67,7 @@ public class NewJobCommand implements Runnable {
             // Determine workflow type
             WorkflowType workflowType = WorkflowParser.determineWorkflowType(new File(path));
 
-            Job job = new Job(jobId, path, null, model, repository, AgentState.UNKNOWN, now, now, null, null, workflowType, null, null, null, null);
+            Job job = new Job(jobId, path, null, model, repository, AgentState.CREATING(), now, now, null, null, workflowType, null, null, null, null);
             jobRepository.save(job);
 
             logger.info("Job created with ID: {}", jobId);

@@ -533,7 +533,7 @@ public class JobRepository {
         }
 
         // Parse AgentState from string
-        AgentState status = AgentState.valueOf(statusStr);
+        AgentState status = parseAgentState(statusStr);
 
         // Parse new timeout and fallback fields (nullable)
         String timeoutMillisStr = extractXmlValueOptional(xml, "timeoutMillis");
@@ -711,6 +711,29 @@ public class JobRepository {
                 .replace(">", "&gt;")
                 .replace("\"", "&quot;")
                 .replace("'", "&apos;");
+    }
+
+    /**
+     * Parses a status string into an AgentState.
+     *
+     * @param statusStr the status string to parse
+     * @return AgentState instance, defaults to CREATING if unknown
+     */
+    private AgentState parseAgentState(String statusStr) {
+        if (statusStr == null || statusStr.trim().isEmpty()) {
+            return AgentState.CREATING();
+        }
+
+        String upperStatus = statusStr.toUpperCase().trim();
+
+        return switch (upperStatus) {
+            case "CREATING" -> AgentState.CREATING();
+            case "RUNNING" -> AgentState.RUNNING();
+            case "FINISHED" -> AgentState.FINISHED();
+            case "ERROR" -> AgentState.ERROR();
+            case "EXPIRED" -> AgentState.EXPIRED();
+            default -> AgentState.CREATING();
+        };
     }
 
 }

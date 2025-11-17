@@ -9,7 +9,7 @@ import java.util.Objects;
 public record AgentResponse(
     String id,
     String name,
-    String status,
+    AgentStatus status,
     Source source,
     Target target,
     OffsetDateTime createdAt
@@ -17,7 +17,10 @@ public record AgentResponse(
     public AgentResponse {
         Objects.requireNonNull(id, "ID cannot be null");
         Objects.requireNonNull(name, "Name cannot be null");
-        // Status can be null (handled by AgentState.of())
+        // Status can be null, default to CREATING
+        if (status == null) {
+            status = AgentStatus.CREATING;
+        }
         Objects.requireNonNull(source, "Source cannot be null");
         Objects.requireNonNull(target, "Target cannot be null");
         Objects.requireNonNull(createdAt, "Created at cannot be null");
@@ -33,14 +36,9 @@ public record AgentResponse(
         if (generated == null) {
             return null;
         }
-        //TODO: Handle status enum values
-        String status = null;
+        AgentStatus status = AgentStatus.CREATING; // default
         if (generated.getStatus() != null) {
-            if (generated.getStatus() instanceof info.jab.cursor.generated.client.model.AgentResponse.StatusEnum) {
-                status = ((info.jab.cursor.generated.client.model.AgentResponse.StatusEnum) generated.getStatus()).getValue();
-            } else {
-                status = generated.getStatus().toString();
-            }
+            status = mapStatusEnum(generated.getStatus());
         }
         return new AgentResponse(
             generated.getId(),
@@ -51,5 +49,25 @@ public record AgentResponse(
             generated.getCreatedAt()
         );
     }
+
+    /**
+     * Maps StatusEnum from generated OpenAPI model to AgentStatus enum.
+     *
+     * @param statusEnum the StatusEnum from generated model
+     * @return corresponding AgentStatus enum, or CREATING if unknown
+     */
+    private static AgentStatus mapStatusEnum(info.jab.cursor.generated.client.model.AgentResponse.StatusEnum statusEnum) {
+        if (statusEnum == null) {
+            return AgentStatus.CREATING;
+        }
+        return switch (statusEnum) {
+            case CREATING -> AgentStatus.CREATING;
+            case RUNNING -> AgentStatus.RUNNING;
+            case FINISHED -> AgentStatus.FINISHED;
+            case ERROR -> AgentStatus.ERROR;
+            case EXPIRED -> AgentStatus.EXPIRED;
+        };
+    }
+
 }
 

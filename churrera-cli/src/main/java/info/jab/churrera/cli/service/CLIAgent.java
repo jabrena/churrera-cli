@@ -133,7 +133,7 @@ public class CLIAgent {
      */
     public AgentState monitorAgent(String cursorAgentId, int delaySeconds) {
         int checkCount = 0;
-        AgentState lastState = AgentState.UNKNOWN;
+        AgentState lastState = AgentState.CREATING();
 
         while (true) {
             try {

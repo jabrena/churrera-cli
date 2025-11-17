@@ -1,21 +1,101 @@
 package info.jab.churrera.cli.model;
 
 import info.jab.cursor.client.model.AgentResponse;
+import info.jab.cursor.client.model.AgentStatus;
+
+import java.util.Objects;
 
 /**
- * Enum representing all possible agent states.
- * Based on the Cursor API specification.
+ * Class representing all possible agent states.
+ * Uses AgentStatus enum values directly from the Cursor API specification.
  */
-public enum AgentState {
-    PENDING,
-    CREATING,
-    RUNNING,
-    COMPLETED,
-    FAILED,
-    CANCELLED,
-    EXPIRED,
-    FINISHED,
-    UNKNOWN;
+public final class AgentState {
+    private final AgentStatus status;
+
+    private AgentState(AgentStatus status) {
+        this.status = Objects.requireNonNull(status, "Status cannot be null");
+    }
+
+    /**
+     * Creates an AgentState from an AgentResponse.
+     * If the response or status is null, defaults to CREATING.
+     *
+     * @param agent The agent response to parse (can be null)
+     * @return AgentState representing the agent's current state
+     */
+    public static AgentState of(AgentResponse agent) {
+        if (agent == null || agent.status() == null) {
+            return CREATING();
+        }
+        return of(agent.status());
+    }
+
+    /**
+     * Creates an AgentState directly from an AgentStatus enum value.
+     *
+     * @param status The AgentStatus enum value
+     * @return AgentState instance
+     */
+    public static AgentState of(AgentStatus status) {
+        if (status == null) {
+            return CREATING();
+        }
+        return new AgentState(status);
+    }
+
+    /**
+     * Creates a CREATING state.
+     *
+     * @return AgentState with CREATING status
+     */
+    public static AgentState CREATING() {
+        return new AgentState(AgentStatus.CREATING);
+    }
+
+    /**
+     * Creates a RUNNING state.
+     *
+     * @return AgentState with RUNNING status
+     */
+    public static AgentState RUNNING() {
+        return new AgentState(AgentStatus.RUNNING);
+    }
+
+    /**
+     * Creates a FINISHED state.
+     *
+     * @return AgentState with FINISHED status
+     */
+    public static AgentState FINISHED() {
+        return new AgentState(AgentStatus.FINISHED);
+    }
+
+    /**
+     * Creates an ERROR state.
+     *
+     * @return AgentState with ERROR status
+     */
+    public static AgentState ERROR() {
+        return new AgentState(AgentStatus.ERROR);
+    }
+
+    /**
+     * Creates an EXPIRED state.
+     *
+     * @return AgentState with EXPIRED status
+     */
+    public static AgentState EXPIRED() {
+        return new AgentState(AgentStatus.EXPIRED);
+    }
+
+    /**
+     * Gets the underlying AgentStatus enum value.
+     *
+     * @return the AgentStatus enum value
+     */
+    public AgentStatus getStatus() {
+        return status;
+    }
 
     /**
      * Checks if this agent state represents a terminal state.
@@ -24,10 +104,7 @@ public enum AgentState {
      * @return true if the state is terminal, false otherwise
      */
     public boolean isTerminal() {
-        return switch (this) {
-            case COMPLETED, FAILED, CANCELLED, EXPIRED, FINISHED -> true;
-            case PENDING, CREATING, RUNNING, UNKNOWN -> false;
-        };
+        return status == AgentStatus.FINISHED || status == AgentStatus.ERROR || status == AgentStatus.EXPIRED;
     }
 
     /**
@@ -36,7 +113,7 @@ public enum AgentState {
      * @return true if the agent completed successfully, false otherwise
      */
     public boolean isSuccessful() {
-        return this == COMPLETED || this == FINISHED;
+        return status == AgentStatus.FINISHED;
     }
 
     /**
@@ -45,7 +122,7 @@ public enum AgentState {
      * @return true if the agent failed, false otherwise
      */
     public boolean isFailed() {
-        return this == FAILED || this == CANCELLED || this == EXPIRED;
+        return status == AgentStatus.ERROR || status == AgentStatus.EXPIRED;
     }
 
     /**
@@ -57,45 +134,21 @@ public enum AgentState {
         return !isTerminal();
     }
 
-    /**
-     * Parses an Agent object and returns the corresponding AgentStates enum.
-     *
-     * @param agent The agent to parse (can be null)
-     * @return AgentStates enum representing the agent's current state
-     */
-    public static AgentState of(AgentResponse agent) {
-        if (agent == null || agent.status() == null) {
-            return UNKNOWN;
-        }
-
-        String status = agent.status();
-        return parseStatus(status);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AgentState agentState = (AgentState) o;
+        return status == agentState.status;
     }
 
-    /**
-     * Parses a status string into an AgentStates enum.
-     *
-     * @param status The status string to parse
-     * @return The corresponding AgentStates enum
-     */
-    private static AgentState parseStatus(String status) {
-        if (status == null || status.trim().isEmpty()) {
-            return UNKNOWN;
-        }
+    @Override
+    public int hashCode() {
+        return Objects.hash(status);
+    }
 
-        String upperStatus = status.toUpperCase().trim();
-
-        return switch (upperStatus) {
-            case "PENDING" -> PENDING;
-            case "CREATING" -> CREATING;
-            case "RUNNING" -> RUNNING;
-            case "COMPLETED" -> COMPLETED;
-            case "FAILED" -> FAILED;
-            case "CANCELLED" -> CANCELLED;
-            case "EXPIRED" -> EXPIRED;
-            case "FINISHED" -> FINISHED;
-            default -> UNKNOWN;
-        };
+    @Override
+    public String toString() {
+        return status.name();
     }
 }
-

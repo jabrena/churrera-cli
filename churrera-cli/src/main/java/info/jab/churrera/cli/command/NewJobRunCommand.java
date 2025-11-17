@@ -163,7 +163,7 @@ public class NewJobRunCommand implements Runnable {
                 null, // cursorAgentId is initially null until launched in Cursor
                 model,
                 repository,
-                AgentState.UNKNOWN,
+                AgentState.CREATING(),
                 now,
                 now,
                 null, // parentJobId is null for top-level jobs
