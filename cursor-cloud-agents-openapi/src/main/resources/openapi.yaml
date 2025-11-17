@@ -894,11 +894,9 @@ components:
           enum:
             - CREATING
             - RUNNING
-            - COMPLETED
-            - FAILED
-            - CANCELLED
-            - EXPIRED
             - FINISHED
+            - ERROR
+            - EXPIRED
           example: "CREATING"
         source:
           $ref: '#/components/schemas/Source'

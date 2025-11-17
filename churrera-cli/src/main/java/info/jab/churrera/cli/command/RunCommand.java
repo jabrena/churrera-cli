@@ -463,7 +463,11 @@ public class RunCommand implements Runnable {
                         long minutes = totalSeconds / 60;
                         long seconds = totalSeconds % 60;
 
-                        timeAgo = String.format("%02d:%02d min", minutes, seconds);
+                        if (minutes == 0) {
+                            timeAgo = String.format("%02d secs", seconds);
+                        } else {
+                            timeAgo = String.format("%02d:%02d min", minutes, seconds);
+                        }
                     } else {
                         // For active jobs, calculate time elapsed since job creation
                         Duration duration = Duration.between(j.createdAt(), LocalDateTime.now());

@@ -1,7 +1,7 @@
 {
   "id" : "bc-test-agent-12345",
   "name" : "Add installation instructions to readme",
-  "status" : "COMPLETED",
+  "status" : "FINISHED",
   "source" : {
     "repository" : "https://github.com/jabrena/churrera",
     "ref" : "main"

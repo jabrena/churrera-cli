@@ -33,6 +33,7 @@ public record AgentResponse(
         if (generated == null) {
             return null;
         }
+        //TODO: Handle status enum values
         String status = null;
         if (generated.getStatus() != null) {
             if (generated.getStatus() instanceof info.jab.cursor.generated.client.model.AgentResponse.StatusEnum) {
