@@ -65,7 +65,7 @@
         <maven-plugin-project-info-reports.version>3.9.0</maven-plugin-project-info-reports.version>
 
         <!-- Quality thresholds -->
-        <coverage.level>45</coverage.level>
+        <coverage.level>55</coverage.level>
 
         <!-- Surefire argLine property (overridden by JaCoCo when active) -->
         <argLine></argLine>
