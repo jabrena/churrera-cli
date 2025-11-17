@@ -75,7 +75,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/openapi.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/cloud-agents-openapi.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>native</library>
                             <output>${project.build.directory}/generated-sources</output>
@@ -144,7 +144,7 @@
                         <version>${openapi-generator-maven-plugin.version}</version>
                         <configuration>
                             <inputSpec>
-                                ${project.basedir}/src/main/resources/openapi.yaml</inputSpec>
+                                ${project.basedir}/src/main/resources/cloud-agents-openapi.yaml</inputSpec>
                             <generatorName>dynamic-html</generatorName>
                             <output>${project.build.directory}/openapi-docs</output>
                             <configOptions>
@@ -231,7 +231,7 @@
                                         <resource>
                                             <directory>${project.basedir}/src/main/resources</directory>
                                             <includes>
-                                                <include>openapi.yaml</include>
+                                                <include>cloud-agents-openapi.yaml</include>
                                             </includes>
                                         </resource>
                                     </resources>
@@ -257,7 +257,7 @@
                                         <!-- Replace the default petstore URL with our OpenAPI spec -->
                                         <replacement>
                                             <token>https://petstore.swagger.io/v2/swagger.json</token>
-                                            <value>./openapi.yaml</value>
+                                            <value>./cloud-agents-openapi.yaml</value>
                                         </replacement>
                                         <!-- Configure Swagger UI with enhanced settings for
                                         examples -->
@@ -326,7 +326,7 @@
                                             //<![CDATA[
 
   window.ui = SwaggerUIBundle({
-    url: './openapi.yaml',
+    url: './cloud-agents-openapi.yaml',
     dom_id: '#swagger-ui',
     deepLinking: true,
     presets: [

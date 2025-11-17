@@ -69,7 +69,7 @@ class JobRepositoryTest {
     void shouldSaveAndFindJob() throws BaseXException, IOException, QueryException {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job job = new Job("test-job-1", "/path/to/job", null, "default-model", "default-repo", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null);
+        Job job = new Job("test-job-1", "/path/to/job", null, "default-model", "default-repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
 
         // When
         jobRepository.save(job);
@@ -93,8 +93,8 @@ class JobRepositoryTest {
     void shouldFindAllJobs() throws BaseXException, IOException, QueryException {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job job1 = new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null);
-        Job job2 = new Job("job-2", "/path/2", null, "model2", "repo2", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null);
+        Job job1 = new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
+        Job job2 = new Job("job-2", "/path/2", null, "model2", "repo2", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
 
         jobRepository.save(job1);
         jobRepository.save(job2);
@@ -120,7 +120,7 @@ class JobRepositoryTest {
     void shouldDeleteJob() throws BaseXException, IOException, QueryException {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job job = new Job("job-to-delete", "/path/to/delete", null, "model", "repo", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null);
+        Job job = new Job("job-to-delete", "/path/to/delete", null, "model", "repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
         jobRepository.save(job);
 
         // Verify job exists
@@ -172,7 +172,7 @@ class JobRepositoryTest {
     void shouldFindJobWithDetails() throws BaseXException, IOException, QueryException {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job job = new Job("job-1", "/path/1", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED, now, now, null, null, null, null, null, null, null);
+        Job job = new Job("job-1", "/path/1", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, null, null, null, null, null);
         Prompt prompt1 = new Prompt("prompt-1", "job-1", "prompt1.xml", "COMPLETED", now, now);
         Prompt prompt2 = new Prompt("prompt-2", "job-1", "prompt2.xml", "SENT", now, now);
 
@@ -203,9 +203,9 @@ class JobRepositoryTest {
     void shouldFindUnfinishedJobs() throws BaseXException, IOException, QueryException {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job finishedJob = new Job("job-1", "/path/1", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED, now, now, null, null, null, null, null, null, null);
-        Job unfinishedJob1 = new Job("job-2", "/path/2", null, "model2", "repo2", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null);
-        Job unfinishedJob2 = new Job("job-3", "/path/3", "cursor-agent-456", "model3", "repo3", AgentState.CREATING, now, now, null, null, null, null, null, null, null);
+        Job finishedJob = new Job("job-1", "/path/1", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, null, null, null, null, null);
+        Job unfinishedJob1 = new Job("job-2", "/path/2", null, "model2", "repo2", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
+        Job unfinishedJob2 = new Job("job-3", "/path/3", "cursor-agent-456", "model3", "repo3", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
 
         jobRepository.save(finishedJob);
         jobRepository.save(unfinishedJob1);
@@ -248,18 +248,18 @@ class JobRepositoryTest {
     void shouldUpdateExistingJob() throws BaseXException, IOException, QueryException {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job originalJob = new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null);
+        Job originalJob = new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
         jobRepository.save(originalJob);
 
         // When
-        Job updatedJob = originalJob.withCursorAgentId("cursor-agent-123").withStatus(AgentState.CREATING);
+        Job updatedJob = originalJob.withCursorAgentId("cursor-agent-123").withStatus(AgentState.CREATING());
         jobRepository.save(updatedJob);
 
         // Then
         Optional<Job> found = jobRepository.findById("job-1");
         assertThat(found).isPresent();
         assertThat(found.get().cursorAgentId()).isEqualTo("cursor-agent-123");
-        assertThat(found.get().status()).isEqualTo(AgentState.CREATING);
+        assertThat(found.get().status()).isEqualTo(AgentState.CREATING());
     }
 
     @Test
@@ -283,7 +283,7 @@ class JobRepositoryTest {
     void shouldHandleJobWithNullCursorAgentId() throws BaseXException, IOException, QueryException {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job jobWithNullAgent = new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null);
+        Job jobWithNullAgent = new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
 
         // When
         jobRepository.save(jobWithNullAgent);
@@ -298,7 +298,7 @@ class JobRepositoryTest {
     void shouldHandleJobWithCursorAgentId() throws BaseXException, IOException, QueryException {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job jobWithAgent = new Job("job-1", "/path/1", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED, now, now, null, null, null, null, null, null, null);
+        Job jobWithAgent = new Job("job-1", "/path/1", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, null, null, null, null, null);
 
         // When
         jobRepository.save(jobWithAgent);
@@ -314,12 +314,12 @@ class JobRepositoryTest {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job[] jobs = {
-            new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null),
-            new Job("job-2", "/path/2", "agent-2", "model2", "repo2", AgentState.CREATING, now, now, null, null, null, null, null, null, null),
-            new Job("job-3", "/path/3", "agent-3", "model3", "repo3", AgentState.RUNNING, now, now, null, null, null, null, null, null, null),
-            new Job("job-4", "/path/4", "agent-4", "model4", "repo4", AgentState.FINISHED, now, now, null, null, null, null, null, null, null),
-            new Job("job-5", "/path/5", "agent-5", "model5", "repo5", AgentState.FAILED, now, now, null, null, null, null, null, null, null),
-            new Job("job-6", "/path/6", "agent-6", "model6", "repo6", AgentState.FINISHED, now, now, null, null, null, null, null, null, null)
+            new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.CREATING(), now, now, null, null, null, null, null, null, null),
+            new Job("job-2", "/path/2", "agent-2", "model2", "repo2", AgentState.CREATING(), now, now, null, null, null, null, null, null, null),
+            new Job("job-3", "/path/3", "agent-3", "model3", "repo3", AgentState.RUNNING(), now, now, null, null, null, null, null, null, null),
+            new Job("job-4", "/path/4", "agent-4", "model4", "repo4", AgentState.FINISHED(), now, now, null, null, null, null, null, null, null),
+            new Job("job-5", "/path/5", "agent-5", "model5", "repo5", AgentState.ERROR(), now, now, null, null, null, null, null, null, null),
+            new Job("job-6", "/path/6", "agent-6", "model6", "repo6", AgentState.FINISHED(), now, now, null, null, null, null, null, null, null)
         };
 
         // When
@@ -365,10 +365,10 @@ class JobRepositoryTest {
     void shouldFindJobsByParentId() throws BaseXException, IOException, QueryException {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job parentJob = new Job("parent-job", "/path/parent", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED, now, now, null, null, null, null, null, null, null);
-        Job childJob1 = new Job("child-job-1", "/path/child1", "cursor-agent-124", "model1", "repo1", AgentState.RUNNING, now, now, "parent-job", null, null, null, null, null, null);
-        Job childJob2 = new Job("child-job-2", "/path/child2", "cursor-agent-125", "model1", "repo1", AgentState.CREATING, now, now, "parent-job", null, null, null, null, null, null);
-        Job otherJob = new Job("other-job", "/path/other", "cursor-agent-126", "model1", "repo1", AgentState.FINISHED, now, now, null, null, null, null, null, null, null);
+        Job parentJob = new Job("parent-job", "/path/parent", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, null, null, null, null, null);
+        Job childJob1 = new Job("child-job-1", "/path/child1", "cursor-agent-124", "model1", "repo1", AgentState.RUNNING(), now, now, "parent-job", null, null, null, null, null, null);
+        Job childJob2 = new Job("child-job-2", "/path/child2", "cursor-agent-125", "model1", "repo1", AgentState.CREATING(), now, now, "parent-job", null, null, null, null, null, null);
+        Job otherJob = new Job("other-job", "/path/other", "cursor-agent-126", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, null, null, null, null, null);
 
         jobRepository.save(parentJob);
         jobRepository.save(childJob1);
@@ -396,7 +396,7 @@ class JobRepositoryTest {
     void shouldHandleJobWithParentJobId() throws BaseXException, IOException, QueryException {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job jobWithParent = new Job("child-job", "/path/child", "cursor-agent-123", "model1", "repo1", AgentState.RUNNING, now, now, "parent-job-id", null, null, null, null, null, null);
+        Job jobWithParent = new Job("child-job", "/path/child", "cursor-agent-123", "model1", "repo1", AgentState.RUNNING(), now, now, "parent-job-id", null, null, null, null, null, null);
 
         // When
         jobRepository.save(jobWithParent);
@@ -411,7 +411,7 @@ class JobRepositoryTest {
     void shouldHandleJobWithResult() throws BaseXException, IOException, QueryException {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job jobWithResult = new Job("job-with-result", "/path/job", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED, now, now, null, "Some result data", null, null, null, null, null);
+        Job jobWithResult = new Job("job-with-result", "/path/job", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, "Some result data", null, null, null, null, null);
 
         // When
         jobRepository.save(jobWithResult);
@@ -426,8 +426,8 @@ class JobRepositoryTest {
     void shouldHandleJobWithWorkflowType() throws BaseXException, IOException, QueryException {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job sequenceJob = new Job("sequence-job", "/path/seq", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED, now, now, null, null, info.jab.churrera.workflow.WorkflowType.SEQUENCE, null, null, null, null);
-        Job parallelJob = new Job("parallel-job", "/path/par", "cursor-agent-124", "model1", "repo1", AgentState.FINISHED, now, now, null, null, info.jab.churrera.workflow.WorkflowType.PARALLEL, null, null, null, null);
+        Job sequenceJob = new Job("sequence-job", "/path/seq", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, info.jab.churrera.workflow.WorkflowType.SEQUENCE, null, null, null, null);
+        Job parallelJob = new Job("parallel-job", "/path/par", "cursor-agent-124", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, info.jab.churrera.workflow.WorkflowType.PARALLEL, null, null, null, null);
 
         // When
         jobRepository.save(sequenceJob);
@@ -453,7 +453,7 @@ class JobRepositoryTest {
             "cursor-agent-123",
             "model1",
             "repo1",
-            AgentState.FINISHED,
+            AgentState.FINISHED(),
             now,
             now,
             null,
@@ -504,7 +504,7 @@ class JobRepositoryTest {
     void shouldHandleInitializeWhenDatabaseExists() throws BaseXException, IOException, QueryException {
         // Given - repository already initialized
         LocalDateTime now = LocalDateTime.now();
-        Job job = new Job("test-job", "/path/to/job", null, "model", "repo", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null);
+        Job job = new Job("test-job", "/path/to/job", null, "model", "repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
         jobRepository.save(job);
         jobRepository.close();
 
@@ -539,7 +539,7 @@ class JobRepositoryTest {
 
         // Given
         LocalDateTime now = LocalDateTime.now();
-        Job validJob = new Job("valid-job", "/path", null, "model", "repo", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null);
+        Job validJob = new Job("valid-job", "/path", null, "model", "repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
 
         // When
         jobRepository.save(validJob);
@@ -554,7 +554,7 @@ class JobRepositoryTest {
     void shouldHandleNullInEscapeXml() throws BaseXException, IOException, QueryException {
         // Given - Job with null values that get escaped
         LocalDateTime now = LocalDateTime.now();
-        Job jobWithNulls = new Job("job-1", "/path", null, "model", "repo", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null);
+        Job jobWithNulls = new Job("job-1", "/path", null, "model", "repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
 
         // When
         jobRepository.save(jobWithNulls);
@@ -572,7 +572,7 @@ class JobRepositoryTest {
         // Given - Save a job with valid workflow type
         LocalDateTime now = LocalDateTime.now();
         Job job = new Job("job-1", "/path", "cursor-agent-123", "model1", "repo1",
-                         AgentState.FINISHED, now, now, null, null,
+                         AgentState.FINISHED(), now, now, null, null,
                          info.jab.churrera.workflow.WorkflowType.SEQUENCE, null, null, null, null);
 
         jobRepository.save(job);
@@ -595,7 +595,7 @@ class JobRepositoryTest {
         LocalDateTime now = LocalDateTime.now();
         for (int i = 0; i < 5; i++) {
             Job job = new Job("job-" + i, "/path/" + i, null, "model", "repo",
-                            AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null);
+                            AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
             jobRepository.save(job);
         }
 
@@ -611,13 +611,13 @@ class JobRepositoryTest {
         // Given - Create multiple child jobs to test exception handling path
         LocalDateTime now = LocalDateTime.now();
         Job parentJob = new Job("parent", "/parent", "agent-1", "model", "repo",
-                               AgentState.FINISHED, now, now, null, null, null, null, null, null, null);
+                               AgentState.FINISHED(), now, now, null, null, null, null, null, null, null);
         jobRepository.save(parentJob);
 
         // Add multiple child jobs to exercise different code paths
         for (int i = 0; i < 3; i++) {
             Job childJob = new Job("child-" + i, "/child" + i, "agent-" + (i+2), "model", "repo",
-                                  AgentState.RUNNING, now, now, "parent", null, null, null, null, null, null);
+                                  AgentState.RUNNING(), now, now, "parent", null, null, null, null, null, null);
             jobRepository.save(childJob);
         }
 
@@ -638,7 +638,7 @@ class JobRepositoryTest {
             "cursor-agent-999",
             "gpt-4",
             "myrepo",
-            AgentState.FINISHED,
+            AgentState.FINISHED(),
             now,
             now,
             "parent-job-999",
@@ -676,7 +676,7 @@ class JobRepositoryTest {
 
         // When
         LocalDateTime now = LocalDateTime.now();
-        Job job = new Job("test-default", "/path", null, "model", "repo", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null);
+        Job job = new Job("test-default", "/path", null, "model", "repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
         defaultRepo.save(job);
         Optional<Job> found = defaultRepo.findById("test-default");
 

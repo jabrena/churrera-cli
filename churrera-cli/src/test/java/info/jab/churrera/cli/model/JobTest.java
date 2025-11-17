@@ -20,7 +20,7 @@ class JobTest {
         String cursorAgentId = "agent-123";
         String model = "gpt-4";
         String repository = "test-repo";
-        AgentState status = AgentState.PENDING;
+        AgentState status = AgentState.CREATING();
         LocalDateTime createdAt = LocalDateTime.now();
         LocalDateTime lastUpdate = LocalDateTime.now();
 
@@ -47,7 +47,7 @@ class JobTest {
         String path = "/path/to/workflow.xml";
         String model = "gpt-4";
         String repository = "test-repo";
-        AgentState status = AgentState.PENDING;
+        AgentState status = AgentState.CREATING();
         LocalDateTime createdAt = LocalDateTime.now();
         LocalDateTime lastUpdate = LocalDateTime.now();
 
@@ -65,7 +65,7 @@ class JobTest {
         String path = "/path/to/workflow.xml";
         String model = "gpt-4";
         String repository = "test-repo";
-        AgentState status = AgentState.PENDING;
+        AgentState status = AgentState.CREATING();
         LocalDateTime createdAt = LocalDateTime.now();
         LocalDateTime lastUpdate = LocalDateTime.now();
 
@@ -81,7 +81,7 @@ class JobTest {
         String jobId = "test-job-id";
         String model = "gpt-4";
         String repository = "test-repo";
-        AgentState status = AgentState.PENDING;
+        AgentState status = AgentState.CREATING();
         LocalDateTime createdAt = LocalDateTime.now();
         LocalDateTime lastUpdate = LocalDateTime.now();
 
@@ -97,7 +97,7 @@ class JobTest {
         String jobId = "test-job-id";
         String path = "/path/to/workflow.xml";
         String repository = "test-repo";
-        AgentState status = AgentState.PENDING;
+        AgentState status = AgentState.CREATING();
         LocalDateTime createdAt = LocalDateTime.now();
         LocalDateTime lastUpdate = LocalDateTime.now();
 
@@ -113,7 +113,7 @@ class JobTest {
         String jobId = "test-job-id";
         String path = "/path/to/workflow.xml";
         String model = "gpt-4";
-        AgentState status = AgentState.PENDING;
+        AgentState status = AgentState.CREATING();
         LocalDateTime createdAt = LocalDateTime.now();
         LocalDateTime lastUpdate = LocalDateTime.now();
 
@@ -146,7 +146,7 @@ class JobTest {
         String path = "/path/to/workflow.xml";
         String model = "gpt-4";
         String repository = "test-repo";
-        AgentState status = AgentState.PENDING;
+        AgentState status = AgentState.CREATING();
         LocalDateTime lastUpdate = LocalDateTime.now();
 
         // When & Then
@@ -162,7 +162,7 @@ class JobTest {
         String path = "/path/to/workflow.xml";
         String model = "gpt-4";
         String repository = "test-repo";
-        AgentState status = AgentState.PENDING;
+        AgentState status = AgentState.CREATING();
         LocalDateTime createdAt = LocalDateTime.now();
 
         // When & Then
@@ -181,7 +181,7 @@ class JobTest {
             "agent-123",
             "gpt-4",
             "test-repo",
-            AgentState.PENDING,
+            AgentState.CREATING(),
             createdAt,
             LocalDateTime.now(),
             null,
@@ -217,7 +217,7 @@ class JobTest {
             null,
             "gpt-4",
             "test-repo",
-            AgentState.PENDING,
+            AgentState.CREATING(),
             createdAt,
             LocalDateTime.now(),
             null,
@@ -252,7 +252,7 @@ class JobTest {
             "agent-123",
             "gpt-4",
             "test-repo",
-            AgentState.PENDING,
+            AgentState.CREATING(),
             createdAt,
             LocalDateTime.now(),
             null,
@@ -262,7 +262,7 @@ class JobTest {
             null,
             null
         , null);
-        AgentState newStatus = AgentState.RUNNING;
+        AgentState newStatus = AgentState.RUNNING();
 
         // When
         Job updatedJob = originalJob.withStatus(newStatus);
@@ -287,7 +287,7 @@ class JobTest {
             "agent-123",
             "gpt-4",
             "test-repo",
-            AgentState.PENDING,
+            AgentState.CREATING(),
             createdAt,
             LocalDateTime.now(),
             null,
@@ -322,7 +322,7 @@ class JobTest {
             "agent-123",
             "gpt-4",
             "test-repo",
-            AgentState.PENDING,
+            AgentState.CREATING(),
             createdAt,
             LocalDateTime.now(),
             null,
@@ -351,9 +351,9 @@ class JobTest {
     void shouldHaveProperEquality() {
         // Given
         LocalDateTime timestamp = LocalDateTime.now();
-        Job job1 = new Job("id", "/path", "agent", "model", "repo", AgentState.PENDING, timestamp, timestamp, null, null, null, null, null, null, null);
-        Job job2 = new Job("id", "/path", "agent", "model", "repo", AgentState.PENDING, timestamp, timestamp, null, null, null, null, null, null, null);
-        Job job3 = new Job("id2", "/path", "agent", "model", "repo", AgentState.PENDING, timestamp, timestamp, null, null, null, null, null, null, null);
+        Job job1 = new Job("id", "/path", "agent", "model", "repo", AgentState.CREATING(), timestamp, timestamp, null, null, null, null, null, null, null);
+        Job job2 = new Job("id", "/path", "agent", "model", "repo", AgentState.CREATING(), timestamp, timestamp, null, null, null, null, null, null, null);
+        Job job3 = new Job("id2", "/path", "agent", "model", "repo", AgentState.CREATING(), timestamp, timestamp, null, null, null, null, null, null, null);
 
         // When & Then
         assertThat(job1).isEqualTo(job2);
@@ -371,7 +371,7 @@ class JobTest {
             "agent-123",
             "gpt-4",
             "test-repo",
-            AgentState.PENDING,
+            AgentState.CREATING(),
             timestamp,
             timestamp,
             null,
@@ -391,7 +391,7 @@ class JobTest {
         assertThat(toString).contains("agent-123");
         assertThat(toString).contains("gpt-4");
         assertThat(toString).contains("test-repo");
-        assertThat(toString).contains("PENDING");
+        assertThat(toString).contains("CREATING");
     }
 
     @Test
@@ -400,7 +400,14 @@ class JobTest {
         LocalDateTime timestamp = LocalDateTime.now();
 
         // When & Then - Test with different states
-        for (AgentState state : AgentState.values()) {
+        AgentState[] states = {
+            AgentState.CREATING(),
+            AgentState.RUNNING(),
+            AgentState.FINISHED(),
+            AgentState.ERROR(),
+            AgentState.EXPIRED()
+        };
+        for (AgentState state : states) {
             Job job = new Job("id", "/path", "agent", "model", "repo", state, timestamp, timestamp, null, null, null, null, null, null, null);
             assertThat(job.status()).isEqualTo(state);
         }

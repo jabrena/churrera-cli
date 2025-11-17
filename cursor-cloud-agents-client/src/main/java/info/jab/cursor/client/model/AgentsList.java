@@ -14,13 +14,14 @@ public record AgentsList(
         Objects.requireNonNull(agents, "Agents cannot be null");
     }
 
+
     /**
-     * Factory method to create AgentsList from generated OpenAPI model.
+     * Factory method to create AgentsList from ListAgents200Response.
      *
      * @param generated the generated OpenAPI model
      * @return domain model instance, or null if input is null
      */
-    public static AgentsList from(info.jab.cursor.generated.client.model.AgentsList generated) {
+    public static AgentsList from(info.jab.cursor.generated.client.model.ListAgents200Response generated) {
         if (generated == null) {
             return null;
         }

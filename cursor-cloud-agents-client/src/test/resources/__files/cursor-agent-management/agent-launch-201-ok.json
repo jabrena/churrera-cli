@@ -8,11 +8,10 @@
   },
   "target" : {
     "branchName" : "cursor/add-installation-instructions-to-readme-2487",
-    "url" : "https://cursor.com/agents?id=bc-test-agent-12345",
-    "prUrl" : null,
-    "autoCreatePr" : true
+    "url" : "https://cursor.com/agents?id=bc-test-agent-12345",    "prUrl" : null,
+    "autoCreatePr" : true,
+    "openAsCursorGithubApp": false,
+    "skipReviewerRequest": false
   },
-  "summary" : null,
-  "createdAt" : "2025-10-12T18:11:16.596Z",
-  "updatedAt" : null
+  "createdAt" : "2025-10-12T18:11:16.596Z"
 }

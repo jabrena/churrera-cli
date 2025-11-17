@@ -4,7 +4,7 @@ import info.jab.cursor.client.CursorAgentGeneralEndpoints;
 import info.jab.cursor.client.model.ApiKeyInfo;
 import info.jab.cursor.client.model.RepositoriesList;
 import info.jab.cursor.generated.client.ApiClient;
-import info.jab.cursor.generated.client.api.GeneralEndpointsApi;
+import info.jab.cursor.generated.client.api.DefaultApi;
 import info.jab.cursor.generated.client.ApiException;
 
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoi
     private static final Logger logger = LoggerFactory.getLogger(CursorAgentGeneralEndpointsImpl.class);
 
     private final String apiKey;
-    private final GeneralEndpointsApi generalEndpointsApi;
+    private final DefaultApi defaultApi;
 
     /**
      * Creates a new CursorAgentGeneralEndpointsImpl with the specified API key and base URL.
@@ -37,7 +37,7 @@ public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoi
         // Initialize API client
         ApiClient apiClient = new ApiClient();
         apiClient.updateBaseUri(apiBaseUrl);
-        this.generalEndpointsApi = new GeneralEndpointsApi(apiClient);
+        this.defaultApi = new DefaultApi(apiClient);
     }
 
     /**
@@ -54,7 +54,7 @@ public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoi
     @Override
     public ApiKeyInfo getApiKeyInfo() {
         try {
-           return ApiKeyInfo.from(generalEndpointsApi.getApiKeyInfo(getAuthHeaders()));
+           return ApiKeyInfo.from(defaultApi.getMe(getAuthHeaders()));
         } catch (ApiException e) {
             logger.error("Failed to get API key info: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to get API key info: " + e.getMessage(), e);
@@ -64,7 +64,7 @@ public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoi
     @Override
     public List<String> getModels() {
         try {
-            return generalEndpointsApi.listModels(getAuthHeaders()).getModels();
+            return defaultApi.listModels(getAuthHeaders()).getModels();
         } catch (ApiException e) {
             logger.error("Failed to get models: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to get models: " + e.getMessage(), e);
@@ -74,7 +74,7 @@ public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoi
     @Override
     public RepositoriesList getRepositories() {
         try {
-            return RepositoriesList.from(generalEndpointsApi.listRepositories(getAuthHeaders()));
+            return RepositoriesList.from(defaultApi.listRepositories(getAuthHeaders()));
         } catch (ApiException e) {
             logger.error("Failed to get repositories: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to get repositories: " + e.getMessage(), e);

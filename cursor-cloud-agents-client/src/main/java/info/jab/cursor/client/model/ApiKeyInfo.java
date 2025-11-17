@@ -16,13 +16,14 @@ public record ApiKeyInfo(
         Objects.requireNonNull(createdAt, "Created at cannot be null");
     }
 
+
     /**
-     * Factory method to create ApiKeyInfo from generated OpenAPI model.
+     * Factory method to create ApiKeyInfo from GetMe200Response.
      *
      * @param generated the generated OpenAPI model
      * @return domain model instance, or null if input is null
      */
-    public static ApiKeyInfo from(info.jab.cursor.generated.client.model.ApiKeyInfo generated) {
+    public static ApiKeyInfo from(info.jab.cursor.generated.client.model.GetMe200Response generated) {
         if (generated == null) {
             return null;
         }

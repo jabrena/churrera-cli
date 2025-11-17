@@ -13,13 +13,14 @@ public record RepositoriesList(
         Objects.requireNonNull(repositories, "Repositories cannot be null");
     }
 
+
     /**
-     * Factory method to create RepositoriesList from generated OpenAPI model.
+     * Factory method to create RepositoriesList from ListRepositories200Response.
      *
      * @param generated the generated OpenAPI model
      * @return domain model instance, or null if input is null
      */
-    public static RepositoriesList from(info.jab.cursor.generated.client.model.RepositoriesList generated) {
+    public static RepositoriesList from(info.jab.cursor.generated.client.model.ListRepositories200Response generated) {
         if (generated == null) {
             return null;
         }

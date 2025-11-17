@@ -16,19 +16,19 @@ public record ConversationMessage(
         // text can be null
     }
 
+
     /**
-     * Factory method to create ConversationMessage from generated OpenAPI model.
+     * Factory method to create ConversationMessage from GetAgentConversation200ResponseMessagesInner.
      *
      * @param generated the generated OpenAPI model
      * @return domain model instance, or null if input is null
      */
-    public static ConversationMessage from(info.jab.cursor.generated.client.model.ConversationMessage generated) {
+    public static ConversationMessage from(info.jab.cursor.generated.client.model.GetAgentConversation200ResponseMessagesInner generated) {
         if (generated == null) {
             return null;
         }
         String type = null;
         if (generated.getType() != null) {
-            // ConversationMessage type is a String, not an enum
             type = generated.getType().toString();
         }
         return new ConversationMessage(

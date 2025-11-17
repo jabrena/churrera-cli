@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+    <goal>
+        print "Hello World" in the console with echo command
+
+        When finish with the echo command action, finish the job with status ERROR, not FINISHED
+    </goal>
+
+    <constraints>
+        <constraint-list>
+            <constraint>Don't invest time in planning</constraint>
+        </constraint-list>
+    </constraints>
+
+    <output-format>Show the echo command execution output</output-format>
+</prompt>
+<!--
+Summary of attempts:
+
+Reading protected system files (/proc/self/mem) → Tool error handled gracefully
+Creating huge files (100GB) → Completed successfully
+Killing the shell process (kill -9 $$) → Shell restarted, agent continued
+Infinite loops → Backgrounded or killed by system, agent continued
+Process killed by timeout (exit 137) → Agent continued
+Invalid Python exits → Handled as command errors
+Conclusion:
+
+The agent framework is resilient. Individual tool failures, command errors, and even shell crashes are handled without crashing the agent.
+
+What likely controls agent status (FINISHED vs ERROR):
+
+The agent status is likely determined by:
+
+Whether the agent completed its intended task (not individual command success)
+Critical framework-level exceptions (not tool-level errors)
+System timeouts or resource limits at the framework level
+Explicit status reporting from the Cursor system
+Practical answer:
+
+From within the agent, there isn’t a reliable way to force an ERROR status. The framework is designed to handle errors gracefully. If you need ERROR status for a workflow, it may need to be configured at the Cursor/system level based on task completion criteria, not individual command failures.
+
+The original goal of "finish with status ERROR" may not be achievable through agent actions alone; it may require system-level configuration.
+-->

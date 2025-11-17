@@ -5,15 +5,14 @@ import info.jab.cursor.client.model.AgentResponse;
 import info.jab.cursor.client.model.DeleteAgentResponse;
 import info.jab.cursor.client.model.FollowUpResponse;
 import info.jab.cursor.generated.client.ApiClient;
-import info.jab.cursor.generated.client.api.AgentManagementApi;
-import info.jab.cursor.generated.client.model.LaunchAgentRequest;
-import info.jab.cursor.generated.client.model.Prompt;
-import info.jab.cursor.generated.client.model.Source;
-import info.jab.cursor.generated.client.model.TargetRequest;
-import info.jab.cursor.generated.client.model.FollowUpRequest;
+import info.jab.cursor.generated.client.api.DefaultApi;
+import info.jab.cursor.generated.client.model.CreateAgentRequest;
+import info.jab.cursor.generated.client.model.CreateAgentRequestPrompt;
+import info.jab.cursor.generated.client.model.CreateAgentRequestSource;
+import info.jab.cursor.generated.client.model.CreateAgentRequestTarget;
+import info.jab.cursor.generated.client.model.AddFollowupRequest;
 import info.jab.cursor.generated.client.ApiException;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -31,7 +30,7 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
     private static final String DEFAULT_BRANCH = "main";
 
     private final String apiKey;
-    private final AgentManagementApi agentManagementApi;
+    private final DefaultApi defaultApi;
 
     /**
      * Creates a new CursorAgentManagementImpl with the specified API key and base URL.
@@ -45,7 +44,20 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
         // Initialize API client
         ApiClient apiClient = new ApiClient();
         apiClient.updateBaseUri(apiBaseUrl);
-        this.agentManagementApi = new AgentManagementApi(apiClient);
+        this.defaultApi = new DefaultApi(apiClient);
+    }
+
+    /**
+     * Constructor for testing purposes.
+     * Allows injection of a mock DefaultApi for unit testing.
+     * This constructor is public to allow tests in different packages to use it.
+     *
+     * @param apiKey The API key for authentication with Cursor API
+     * @param defaultApi The DefaultApi instance to use (typically a mock in tests)
+     */
+    public CursorAgentManagementImpl(String apiKey, DefaultApi defaultApi) {
+        this.apiKey = apiKey;
+        this.defaultApi = defaultApi;
     }
 
     /**
@@ -82,12 +94,12 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
         }
 
         // Create the launch request
-        LaunchAgentRequest request = createLaunchAgentRequest(prompt, model, repository, pr);
+        CreateAgentRequest request = createLaunchAgentRequest(prompt, model, repository, pr);
 
         // Launch the agent
         try {
             logger.debug("Launching agent with model: {}, repository: {}", model, repository);
-            AgentResponse result = AgentResponse.from(agentManagementApi.launchAgent(request, getAuthHeaders()));
+            AgentResponse result = AgentResponse.from(defaultApi.createAgent(request, getAuthHeaders()));
             logger.debug("Successfully launched agent: {}", result.id());
             return result;
         } catch (ApiException e) {
@@ -97,30 +109,30 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
     }
 
     /**
-     * Creates a LaunchAgentRequest with the specified parameters.
+     * Creates a CreateAgentRequest with the specified parameters.
      *
      * @param prompt     The prompt/instructions for the agent to execute
      * @param model      The LLM model to use
      * @param repository The repository URL where the agent should work
      * @param pr         Whether to automatically create a pull request when the agent completes
-     * @return LaunchAgentRequest instance configured with the provided parameters
+     * @return CreateAgentRequest instance configured with the provided parameters
      */
-    private LaunchAgentRequest createLaunchAgentRequest(String prompt, String model, String repository, boolean pr) {
+    private CreateAgentRequest createLaunchAgentRequest(String prompt, String model, String repository, boolean pr) {
         // Create the prompt
-        Prompt promptObj = new Prompt();
+        CreateAgentRequestPrompt promptObj = new CreateAgentRequestPrompt();
         promptObj.setText(prompt);
 
         // Create the source (repository and branch)
-        Source source = new Source();
-        source.setRepository(URI.create(repository));
+        CreateAgentRequestSource source = new CreateAgentRequestSource();
+        source.setRepository(repository);
         source.setRef(DEFAULT_BRANCH);
 
         // Create the target configuration (optional)
-        TargetRequest target = new TargetRequest();
+        CreateAgentRequestTarget target = new CreateAgentRequestTarget();
         target.setAutoCreatePr(pr);
 
         // Create the launch request
-        LaunchAgentRequest request = new LaunchAgentRequest();
+        CreateAgentRequest request = new CreateAgentRequest();
         request.setPrompt(promptObj);
         request.setSource(source);
         request.setModel(model);
@@ -140,17 +152,17 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
         }
 
         // Create the prompt
-        Prompt promptObj = new Prompt();
+        info.jab.cursor.generated.client.model.AddFollowupRequestPrompt promptObj = new info.jab.cursor.generated.client.model.AddFollowupRequestPrompt();
         promptObj.setText(prompt);
 
         // Create the follow-up request
-        FollowUpRequest request = new FollowUpRequest();
+        AddFollowupRequest request = new AddFollowupRequest();
         request.setPrompt(promptObj);
 
         // Follow-up the agent
         try {
             logger.debug("Following up agent: {}", agentId);
-            FollowUpResponse response = FollowUpResponse.from(agentManagementApi.addFollowUp(agentId, request, getAuthHeaders()));
+            FollowUpResponse response = FollowUpResponse.from(defaultApi.addFollowup(agentId, request, getAuthHeaders()));
             logger.debug("Successfully followed up agent: {}", agentId);
             return response;
         } catch (ApiException e) {
@@ -170,7 +182,7 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
 
         try {
             logger.debug("Deleting agent: {}", agentId);
-            DeleteAgentResponse response = DeleteAgentResponse.from(agentManagementApi.deleteAgent(agentId, getAuthHeaders()));
+            DeleteAgentResponse response = DeleteAgentResponse.from(defaultApi.deleteAgent(agentId, getAuthHeaders()));
             logger.debug("Successfully deleted agent: {} with response: {}", agentId, response.id());
             return response;
         } catch (ApiException e) {

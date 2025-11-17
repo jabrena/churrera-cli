@@ -259,7 +259,7 @@ public class JobProcessor {
                 } catch (Exception statusError) {
                     logger.error("Error getting agent status for job {}: {}", job.jobId(), statusError.getMessage());
                     // Mark job as failed if we can't get status
-                    cliAgent.updateJobStatusInDatabase(job, AgentState.FAILED);
+                    cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
                 }
             } else if (justLaunched) {
                 logger.info("Job {} just launched, will check status on next polling cycle", job.jobId());
@@ -376,7 +376,7 @@ public class JobProcessor {
                 // but database status hasn't been updated yet
                 try {
                     AgentState currentStatus = cliAgent.getAgentStatus(job.cursorAgentId());
-                    logger.info("Child job {} status polled: {} -> updating database (current DB status: {})", 
+                    logger.info("Child job {} status polled: {} -> updating database (current DB status: {})",
                         job.jobId(), currentStatus, job.status());
                     cliAgent.updateJobStatusInDatabase(job, currentStatus);
 
@@ -393,7 +393,7 @@ public class JobProcessor {
                     }
                 } catch (Exception statusError) {
                     logger.error("Error processing child job {}: {}", job.jobId(), statusError.getMessage());
-                    cliAgent.updateJobStatusInDatabase(job, AgentState.FAILED);
+                    cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
                 }
             } else if (justLaunched) {
                 logger.info("Child job {} just launched, will check status on next polling cycle", job.jobId());
@@ -483,7 +483,7 @@ public class JobProcessor {
                 } catch (Exception statusError) {
                     logger.error("Error getting agent status for parent job {}: {}", job.jobId(), statusError.getMessage());
                     try {
-                        cliAgent.updateJobStatusInDatabase(job, AgentState.FAILED);
+                        cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
                     } catch (Exception updateError) {
                         logger.error("Error updating job status to FAILED: {}", updateError.getMessage());
                     }
@@ -545,7 +545,7 @@ public class JobProcessor {
                     logger.error("No result to store for parent job: {}", job.jobId());
                     // If deserialization failed after a successful agent run, mark job as FAILED
                     try {
-                        cliAgent.updateJobStatusInDatabase(job, AgentState.FAILED);
+                        cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
                         logger.error("Parent job {} marked as FAILED due to result deserialization issues", job.jobId());
                     } catch (Exception updateError) {
                         logger.error("Error updating job status to FAILED: {}", updateError.getMessage());
@@ -561,7 +561,7 @@ public class JobProcessor {
         } catch (Exception e) {
             logger.error("Error processing parallel workflow for job {}: {}", job.jobId(), e.getMessage(), e);
             try {
-                cliAgent.updateJobStatusInDatabase(job, AgentState.FAILED);
+                cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
             } catch (Exception updateError) {
                 logger.error("Error updating job status: {}", updateError.getMessage());
             }
@@ -617,7 +617,7 @@ public class JobProcessor {
                         null, // cursorAgentId starts as null
                         sequenceInfo.getModel() != null ? sequenceInfo.getModel() : parentJob.model(),
                         sequenceInfo.getRepository() != null ? sequenceInfo.getRepository() : parentJob.repository(),
-                        AgentState.UNKNOWN,
+                        AgentState.CREATING(),
                         now,
                         now,
                         parentJob.jobId(), // Set parent job ID
@@ -702,7 +702,7 @@ public class JobProcessor {
 
             // Update job in database with cursorAgentId and CREATING status
             Job updatedJob = job.withCursorAgentId(cursorAgentId);
-            cliAgent.updateJobCursorIdInDatabase(updatedJob, cursorAgentId, AgentState.CREATING);
+            cliAgent.updateJobCursorIdInDatabase(updatedJob, cursorAgentId, AgentState.CREATING());
 
             // Reset workflowStartTime to now when launching (even if it already exists, to start fresh)
             if (job.timeoutMillis() != null) {
@@ -718,7 +718,7 @@ public class JobProcessor {
             logger.error("Error launching job {}: {}", job.jobId(), e.getMessage());
             // Mark job as failed if launch fails
             try {
-                cliAgent.updateJobStatusInDatabase(job, AgentState.FAILED);
+                cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
             } catch (Exception updateError) {
                 logger.error("Error updating job status to FAILED: {}", updateError.getMessage());
             }
@@ -887,7 +887,7 @@ public class JobProcessor {
             String fallbackSrc = job.fallbackSrc();
             if (fallbackSrc == null || fallbackSrc.trim().isEmpty()) {
                 logger.warn("Job {} timed out but no fallback-src specified. Marking as failed.", job.jobId());
-                cliAgent.updateJobStatusInDatabase(job, AgentState.FAILED);
+                cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
                 return;
             }
 
@@ -916,7 +916,7 @@ public class JobProcessor {
             } else {
                 logger.info("Launching job {} with fallback prompt", job.jobId());
                 String cursorAgentId = cliAgent.launchAgentForJob(job, fallbackContent, type, bindValue, true);
-                cliAgent.updateJobCursorIdInDatabase(job, cursorAgentId, AgentState.CREATING);
+                cliAgent.updateJobCursorIdInDatabase(job, cursorAgentId, AgentState.CREATING());
 
                 // Set workflowStartTime if timeout is configured
                 if (job.timeoutMillis() != null) {
@@ -936,7 +936,7 @@ public class JobProcessor {
         } catch (Exception e) {
             logger.error("Error executing fallback for job {}: {}", job.jobId(), e.getMessage(), e);
             try {
-                cliAgent.updateJobStatusInDatabase(job, AgentState.FAILED);
+                cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
             } catch (Exception updateError) {
                 logger.error("Error updating job status to FAILED: {}", updateError.getMessage());
             }
@@ -960,7 +960,7 @@ public class JobProcessor {
             String fallbackSrc = parallelData.getFallbackSrc();
             if (fallbackSrc == null || fallbackSrc.trim().isEmpty()) {
                 logger.warn("Parallel workflow {} timed out but no fallback-src specified. Marking as failed.", parentJob.jobId());
-                cliAgent.updateJobStatusInDatabase(parentJob, AgentState.FAILED);
+                cliAgent.updateJobStatusInDatabase(parentJob, AgentState.ERROR());
                 return;
             }
 
@@ -1001,7 +1001,7 @@ public class JobProcessor {
                     } else {
                         logger.info("Launching child job {} with fallback prompt", childJob.jobId());
                         String cursorAgentId = cliAgent.launchAgentForJob(childJob, fallbackContent, type, bindValue, true);
-                        cliAgent.updateJobCursorIdInDatabase(childJob, cursorAgentId, AgentState.CREATING);
+                        cliAgent.updateJobCursorIdInDatabase(childJob, cursorAgentId, AgentState.CREATING());
 
                         // Set workflowStartTime if timeout is configured
                         if (childJob.timeoutMillis() != null) {

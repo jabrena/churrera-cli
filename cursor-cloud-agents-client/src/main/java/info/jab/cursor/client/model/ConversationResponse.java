@@ -15,13 +15,14 @@ public record ConversationResponse(
         // messages can be null
     }
 
+
     /**
-     * Factory method to create ConversationResponse from generated OpenAPI model.
+     * Factory method to create ConversationResponse from GetAgentConversation200Response.
      *
      * @param generated the generated OpenAPI model
      * @return domain model instance, or null if input is null
      */
-    public static ConversationResponse from(info.jab.cursor.generated.client.model.ConversationResponse generated) {
+    public static ConversationResponse from(info.jab.cursor.generated.client.model.GetAgentConversation200Response generated) {
         if (generated == null) {
             return null;
         }

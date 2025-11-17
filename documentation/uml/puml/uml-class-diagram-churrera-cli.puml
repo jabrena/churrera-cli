@@ -6,14 +6,14 @@ package "info.jab.churrera.cli" {
   class ChurreraCLI {
     -logger: Logger
     +main(String[]): void
-    +createCLICommand(): ChurreraCLICommand
+    +createCLICommand(): CliCommand
     +createRunCommand(): RunCommand
     -printBanner(): void
   }
 }
 
 package "info.jab.churrera.cli.command" {
-  class ChurreraCLICommand {
+  class CliCommand {
     -jobRepository: JobRepository
     -jobProcessor: JobProcessor
     -propertyResolver: PropertyResolver
@@ -233,12 +233,12 @@ package "info.jab.churrera.cli.util" {
 }
 
 ' Relationships
-ChurreraCLI --> ChurreraCLICommand : creates
+ChurreraCLI --> CliCommand : creates
 ChurreraCLI --> RunCommand : creates
-ChurreraCLICommand --> JobRepository : uses
-ChurreraCLICommand --> JobProcessor : uses
-ChurreraCLICommand --> CLIAgent : uses
-ChurreraCLICommand --> PropertyResolver : uses
+CliCommand --> JobRepository : uses
+CliCommand --> JobProcessor : uses
+CliCommand --> CLIAgent : uses
+CliCommand --> PropertyResolver : uses
 RunCommand --> JobRepository : uses
 RunCommand --> JobProcessor : uses
 RunCommand --> WorkflowValidator : uses

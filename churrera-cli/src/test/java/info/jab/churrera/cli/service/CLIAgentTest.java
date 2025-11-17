@@ -5,7 +5,9 @@ import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.cursor.client.CursorAgentManagement;
 import info.jab.cursor.client.CursorAgentInformation;
+import info.jab.cursor.client.CursorAgentGeneralEndpoints;
 import info.jab.cursor.client.model.AgentResponse;
+import info.jab.cursor.client.model.AgentStatus;
 import info.jab.cursor.client.model.ConversationResponse;
 import info.jab.cursor.client.model.FollowUpResponse;
 import info.jab.cursor.client.model.Source;
@@ -45,17 +47,18 @@ class CLIAgentTest {
     @Mock
     private CursorAgentInformation cursorAgentInformation;
 
+    @Mock
+    private CursorAgentGeneralEndpoints cursorAgentGeneralEndpoints;
+
     // Helper method to create test AgentResponse
-    private AgentResponse createTestAgentResponse(String id, String status) {
+    private AgentResponse createTestAgentResponse(String id, AgentStatus status) {
         return new AgentResponse(
             id,
             "Test Agent",
             status,
             new Source(URI.create("https://github.com/test/repo"), "main"),
-            new Target("cursor/test", URI.create("https://cursor.com/agents?id=test"), false, null, false, false),
-            null,
-            OffsetDateTime.now(),
-            null
+            new Target("cursor/test", URI.create("https://cursor.com/agents?id=test"), false, false, false),
+            OffsetDateTime.now()
         );
     }
 
@@ -86,7 +89,7 @@ class CLIAgentTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.CREATING,LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.CREATING(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         testPrompt = new Prompt(
             "prompt-1",
@@ -106,10 +109,10 @@ class CLIAgentTest {
         when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
                 .thenReturn("converted markdown");
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean()))
-                .thenReturn(createTestAgentResponse("new-agent-id", "CREATING"));
+                .thenReturn(createTestAgentResponse("new-agent-id", AgentStatus.CREATING));
 
             // When
             String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", null, true);
@@ -130,10 +133,10 @@ class CLIAgentTest {
         when(mockPmlConverter.toMarkdownFromContent(anyString()))
                 .thenReturn("fallback markdown");
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean()))
-                .thenReturn(createTestAgentResponse("new-agent-id", "CREATING"));
+                .thenReturn(createTestAgentResponse("new-agent-id", AgentStatus.CREATING));
 
             // When
             String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", null, true);
@@ -154,10 +157,10 @@ class CLIAgentTest {
         when(mockPmlConverter.toMarkdownFromContent(anyString()))
                 .thenThrow(new RuntimeException("Fallback failed"));
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean()))
-                .thenReturn(createTestAgentResponse("new-agent-id", "CREATING"));
+                .thenReturn(createTestAgentResponse("new-agent-id", AgentStatus.CREATING));
 
             // When
             String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", null, true);
@@ -174,7 +177,7 @@ class CLIAgentTest {
         when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
                 .thenReturn("converted markdown");
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean()))
                 .thenThrow(new RuntimeException("Launch failed"));
@@ -191,7 +194,7 @@ class CLIAgentTest {
         when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
                 .thenReturn("converted markdown");
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentManagement.followUp(anyString(), anyString()))
                 .thenReturn(createTestFollowUpResponse("follow-up-id"));
@@ -211,7 +214,7 @@ class CLIAgentTest {
         when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
                 .thenReturn("converted markdown");
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentManagement.followUp(anyString(), anyString()))
                 .thenThrow(new RuntimeException("Follow-up failed"));
@@ -226,17 +229,17 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentInformation.getStatus(anyString()))
-                .thenReturn(createTestAgentResponse("agent-id", "FINISHED"));
+                .thenReturn(createTestAgentResponse("agent-id", AgentStatus.FINISHED));
 
             // When
             AgentState result = cliAgent.monitorAgent("agent-id", 1);
 
             // Then
             assertNotNull(result);
-            assertEquals(AgentState.FINISHED, result);
+            assertEquals(AgentState.FINISHED(), result);
             verify(cursorAgentInformation).getStatus("agent-id");
     }
 
@@ -245,16 +248,16 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentInformation.getStatus(anyString()))
-                .thenReturn(createTestAgentResponse("agent-id", "FINISHED"));
+                .thenReturn(createTestAgentResponse("agent-id", AgentStatus.FINISHED));
 
             // When - Using delay of 0 to avoid actual sleep in test
             AgentState result = cliAgent.monitorAgent("agent-id", 0);
 
             // Then
-            assertEquals(AgentState.FINISHED, result);
+            assertEquals(AgentState.FINISHED(), result);
             // Should be called at least once
             verify(cursorAgentInformation, atLeastOnce()).getStatus("agent-id");
     }
@@ -264,10 +267,10 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentInformation.getStatus(anyString()))
-                .thenReturn(createTestAgentResponse("agent-id", "RUNNING"));
+                .thenReturn(createTestAgentResponse("agent-id", AgentStatus.RUNNING));
 
             // Interrupt the current thread
             Thread.currentThread().interrupt();
@@ -284,16 +287,16 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentInformation.getStatus(anyString()))
                 .thenThrow(new RuntimeException("Temporary error"))
-                .thenReturn(createTestAgentResponse("agent-id", "FINISHED"));
+                .thenReturn(createTestAgentResponse("agent-id", AgentStatus.FINISHED));
 
             // When
             Thread monitorThread = new Thread(() -> {
                 AgentState result = cliAgent.monitorAgent("agent-id", 1);
-                assertEquals(AgentState.FINISHED, result);
+                assertEquals(AgentState.FINISHED(), result);
             });
 
             monitorThread.start();
@@ -308,7 +311,7 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             ConversationResponse testConversation = createTestConversationResponse("agent-id", List.of());
             when(cursorAgentInformation.getAgentConversation(anyString())).thenReturn(testConversation);
@@ -326,7 +329,7 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentInformation.getAgentConversation(anyString()))
                 .thenThrow(new RuntimeException("Get conversation failed"));
@@ -341,7 +344,7 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             // When
             cliAgent.deleteAgent("agent-id");
@@ -355,7 +358,7 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             doThrow(new RuntimeException("Delete failed")).when(cursorAgentManagement).delete(anyString());
 
@@ -369,10 +372,10 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             // When
-            cliAgent.updateJobCursorIdInDatabase(testJob, "new-agent-id", AgentState.CREATING);
+            cliAgent.updateJobCursorIdInDatabase(testJob, "new-agent-id", AgentState.CREATING());
 
             // Then
             verify(jobRepository).save(any(Job.class));
@@ -383,13 +386,13 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             doThrow(new RuntimeException("Save failed")).when(jobRepository).save(any(Job.class));
 
             // When & Then
             RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> cliAgent.updateJobCursorIdInDatabase(testJob, "new-agent-id", AgentState.CREATING));
+                () -> cliAgent.updateJobCursorIdInDatabase(testJob, "new-agent-id", AgentState.CREATING()));
             assertTrue(exception.getMessage().contains("Failed to update job in database"));    }
 
     @Test
@@ -397,10 +400,10 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             // When
-            cliAgent.updateJobStatusInDatabase(testJob, AgentState.FINISHED);
+            cliAgent.updateJobStatusInDatabase(testJob, AgentState.FINISHED());
 
             // Then
             verify(jobRepository).save(any(Job.class));
@@ -411,7 +414,7 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             // When
             cliAgent.updatePromptInDatabase(testPrompt, "COMPLETED");
@@ -425,7 +428,7 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             doThrow(new RuntimeException("Save failed")).when(jobRepository).savePrompt(any(Prompt.class));
 
@@ -439,7 +442,7 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             // When
             cliAgent.updateJobInDatabase(testJob);
@@ -453,16 +456,16 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentInformation.getStatus(anyString()))
-                .thenReturn(createTestAgentResponse("agent-id", "RUNNING"));
+                .thenReturn(createTestAgentResponse("agent-id", AgentStatus.RUNNING));
 
             // When
             AgentState result = cliAgent.getAgentStatus("agent-id");
 
             // Then
-            assertEquals(AgentState.RUNNING, result);
+            assertEquals(AgentState.RUNNING(), result);
             verify(cursorAgentInformation).getStatus("agent-id");
     }
 
@@ -471,7 +474,7 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentInformation.getStatus(anyString())).thenThrow(new RuntimeException("Status failed"));
 
@@ -487,10 +490,10 @@ class CLIAgentTest {
         when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
                 .thenReturn("converted markdown with <input>INPUT</input>");
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
         when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean()))
-            .thenReturn(createTestAgentResponse("new-agent-id", "CREATING"));
+            .thenReturn(createTestAgentResponse("new-agent-id", AgentStatus.CREATING));
 
         // When
         String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", "test-value", true);
@@ -506,10 +509,10 @@ class CLIAgentTest {
         when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
                 .thenReturn("converted markdown");
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean()))
-                .thenReturn(createTestAgentResponse("new-agent-id", "CREATING"));
+                .thenReturn(createTestAgentResponse("new-agent-id", AgentStatus.CREATING));
 
             // When - empty bindValue should skip replacement
             String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", "", true);
@@ -524,10 +527,10 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean()))
-                .thenReturn(createTestAgentResponse("new-agent-id", "CREATING"));
+                .thenReturn(createTestAgentResponse("new-agent-id", AgentStatus.CREATING));
 
             // When - md type should not trigger PML conversion
             String result = cliAgent.launchAgentForJob(testJob, "markdown content", "md", null, true);
@@ -543,7 +546,7 @@ class CLIAgentTest {
         when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
                 .thenReturn("converted markdown with <input>INPUT</input>");
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
         when(cursorAgentManagement.followUp(anyString(), anyString()))
             .thenReturn(createTestFollowUpResponse("follow-up-id"));
@@ -562,7 +565,7 @@ class CLIAgentTest {
         when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
                 .thenReturn("converted markdown");
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentManagement.followUp(anyString(), anyString()))
                 .thenReturn(createTestFollowUpResponse("follow-up-id"));
@@ -578,7 +581,7 @@ class CLIAgentTest {
     @Test
     void testFollowUpForPrompt_MarkdownType_NoConversion() {
         // Given
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentManagement.followUp(anyString(), anyString()))
                 .thenReturn(createTestFollowUpResponse("follow-up-id"));
@@ -594,7 +597,7 @@ class CLIAgentTest {
     @Test
     void testGetConversationContent_WithNullMessages() {
         // Given
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentInformation.getAgentConversation(anyString()))
                 .thenReturn(createTestConversationResponse("agent-id", null));
@@ -612,7 +615,7 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             ConversationMessage mockMessage = new ConversationMessage("msg-id", "user_message", null);
             when(cursorAgentInformation.getAgentConversation(anyString()))
@@ -631,7 +634,7 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentInformation.getAgentConversation(anyString()))
                 .thenThrow(new RuntimeException("Conversation content failed"));
@@ -646,7 +649,7 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             when(cursorAgentInformation.getStatus(anyString()))
                 .thenThrow(new RuntimeException("Temporary error"));
@@ -666,13 +669,13 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             doThrow(new RuntimeException("Save failed")).when(jobRepository).save(any(Job.class));
 
             // When & Then
             RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> cliAgent.updateJobStatusInDatabase(testJob, AgentState.FINISHED));
+                () -> cliAgent.updateJobStatusInDatabase(testJob, AgentState.FINISHED()));
             assertTrue(exception.getMessage().contains("Failed to update job status in database"));    }
 
     @Test
@@ -680,7 +683,7 @@ class CLIAgentTest {
 
         // Given
 
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, mockPmlConverter, mockPropertyResolver);
+        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter, mockPropertyResolver);
 
             doThrow(new RuntimeException("Save failed")).when(jobRepository).save(any(Job.class));
 

@@ -47,7 +47,7 @@ class JobLogsCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED, LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         testPrompts = List.of(
             new Prompt(
@@ -95,7 +95,7 @@ class JobLogsCommandTest {
             null, // no cursor agent
             "test-model",
             "test-repo",
-            AgentState.FINISHED, LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         jobLogsCommand = new JobLogsCommand(jobRepository, cliAgent, jobId);
 

@@ -14,6 +14,7 @@ import info.jab.churrera.workflow.ParallelWorkflowData;
 import info.jab.churrera.workflow.SequenceInfo;
 import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.service.JobProcessor;
+import info.jab.churrera.cli.service.CLIAgent;
 import org.basex.core.BaseXException;
 import org.basex.query.QueryException;
 import org.slf4j.Logger;
@@ -37,43 +38,113 @@ import java.util.UUID;
 @CommandLine.Command(
     name = "run",
     description = "Run a workflow file in blocking mode with status updates",
-    mixinStandardHelpOptions = true
+    mixinStandardHelpOptions = true,
+    usageHelpAutoWidth = true
 )
 public class RunCommand implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(RunCommand.class);
     private static final int JOB_ID_PREFIX_LENGTH = 8;
 
-    @CommandLine.Parameters(
-        index = "0",
+    @CommandLine.Option(
+        names = "--workflow",
         description = "Path to the workflow XML file"
     )
     private String workflowPath;
+
+    @CommandLine.Option(
+        names = "--delete-on-completion",
+        description = "Delete the job and all child jobs when the workflow completes"
+    )
+    private boolean deleteOnCompletion;
+
+    @CommandLine.Option(
+        names = "--delete-on-success-completion",
+        description = "Delete the job and all child jobs only when the workflow completes successfully"
+    )
+    private boolean deleteOnSuccessCompletion;
+
+    @CommandLine.Option(
+        names = "--retrieve-models",
+        description = "Retrieve and display available models from Cursor API"
+    )
+    private boolean retrieveModels;
+
+    @CommandLine.Option(
+        names = "--retrieve-repositories",
+        description = "Retrieve and display available repositories from Cursor API"
+    )
+    private boolean retrieveRepositories;
+
+    @CommandLine.Option(
+        names = "--polling-interval",
+        description = "Polling interval in seconds (overrides value from application.properties)"
+    )
+    private Integer pollingIntervalOverride;
 
     private final JobRepository jobRepository;
     private final JobProcessor jobProcessor;
     private final WorkflowValidator workflowValidator;
     private final WorkflowParser workflowParser;
     private final PmlValidator pmlValidator;
-    private final int pollingIntervalSeconds;
+    private int pollingIntervalSeconds;
+    private final CLIAgent cliAgent;
 
     /**
      * Constructor with dependency injection.
      */
     public RunCommand(JobRepository jobRepository, JobProcessor jobProcessor,
                      WorkflowValidator workflowValidator, WorkflowParser workflowParser,
-                     PmlValidator pmlValidator, int pollingIntervalSeconds) {
+                     PmlValidator pmlValidator, int pollingIntervalSeconds, CLIAgent cliAgent) {
         this.jobRepository = jobRepository;
         this.jobProcessor = jobProcessor;
         this.workflowValidator = workflowValidator;
         this.workflowParser = workflowParser;
         this.pmlValidator = pmlValidator;
         this.pollingIntervalSeconds = pollingIntervalSeconds;
+        this.cliAgent = cliAgent;
+    }
+
+    /**
+     * Gets the effective polling interval in seconds.
+     * Returns the command-line option value if provided, otherwise returns the value from application.properties.
+     *
+     * @return the polling interval in seconds
+     */
+    private int getEffectivePollingIntervalSeconds() {
+        return pollingIntervalOverride != null ? pollingIntervalOverride : pollingIntervalSeconds;
     }
 
     @Override
     public void run() {
+        // Handle --retrieve-models option
+        if (retrieveModels) {
+            retrieveAndDisplayModels();
+            return;
+        }
+
+        // Handle --retrieve-repositories option
+        if (retrieveRepositories) {
+            retrieveAndDisplayRepositories();
+            return;
+        }
+
+        // Validate that if --workflow is used, it must have a value
+        if (workflowPath != null && workflowPath.trim().isEmpty()) {
+            logger.error("--workflow option was used but no value provided");
+            System.err.println("Error: --workflow option requires a value (path to workflow XML file)");
+            return;
+        }
+
         logger.info("Running workflow file in blocking mode: {}", workflowPath);
+
+        // Log polling interval being used
+        if (pollingIntervalOverride != null) {
+            logger.info("Using polling interval from command-line option: {} seconds (overriding application.properties value: {} seconds)",
+                pollingIntervalOverride, pollingIntervalSeconds);
+        } else {
+            logger.info("Using polling interval from application.properties: {} seconds", pollingIntervalSeconds);
+        }
 
         try {
             // Create the job (reusing logic from NewJobRunCommand)
@@ -135,24 +206,44 @@ public class RunCommand implements Runnable {
                             logger.info("Parent job {} and all {} child jobs reached terminal state", finalJobId, childJobs.size());
                             System.out.println("\nJob completed with status: " + job.status());
                             System.out.println("All " + childJobs.size() + " child jobs completed.");
+
+                            // Delete job and all child jobs if --delete-on-completion is set (regardless of status)
+                            if (deleteOnCompletion) {
+                                deleteJobAndChildren(finalJobId);
+                            }
+                            // Delete job and all child jobs if --delete-on-success-completion is set (only on success)
+                            else if (deleteOnSuccessCompletion && isJobAndChildrenSuccessful(finalJobId, childJobs)) {
+                                deleteJobAndChildren(finalJobId);
+                            }
                             break;
                         } else {
                             logger.debug("Parent job {} is terminal but {} of {} child jobs are still active",
                                 finalJobId, activeChildren, childJobs.size());
                         }
+
                     }
                 } else {
                     // For non-parallel workflows, just check if the job is terminal
                     if (job.status().isTerminal()) {
                         logger.info("Job {} reached terminal state: {}", finalJobId, job.status());
                         System.out.println("\nJob completed with status: " + job.status());
+
+                        // Delete job if --delete-on-completion is set (regardless of status)
+                        if (deleteOnCompletion) {
+                            deleteJobAndChildren(finalJobId);
+                        }
+                        // Delete job if --delete-on-success-completion is set (only on success)
+                        else if (deleteOnSuccessCompletion && job.status().isSuccessful()) {
+                            deleteJobAndChildren(finalJobId);
+                        }
                         break;
                     }
                 }
 
                 // Sleep for polling interval
                 try {
-                    Thread.sleep(pollingIntervalSeconds * 1000L);
+                    int effectiveInterval = getEffectivePollingIntervalSeconds();
+                    Thread.sleep(effectiveInterval * 1000L);
                 } catch (InterruptedException e) {
                     logger.warn("Polling interrupted: {}", e.getMessage());
                     Thread.currentThread().interrupt();
@@ -274,7 +365,7 @@ public class RunCommand implements Runnable {
                 null, // cursorAgentId is initially null until launched in Cursor
                 model,
                 repository,
-                AgentState.UNKNOWN,
+                AgentState.CREATING(),
                 now,
                 now,
                 null, // parentJobId is null for top-level jobs
@@ -397,7 +488,11 @@ public class RunCommand implements Runnable {
                         long minutes = totalSeconds / 60;
                         long seconds = totalSeconds % 60;
 
-                        timeAgo = String.format("%02d:%02d min", minutes, seconds);
+                        if (minutes == 0) {
+                            timeAgo = String.format("%02d secs", seconds);
+                        } else {
+                            timeAgo = String.format("%02d:%02d min", minutes, seconds);
+                        }
                     } else {
                         // For active jobs, calculate time elapsed since job creation
                         Duration duration = Duration.between(j.createdAt(), LocalDateTime.now());
@@ -562,6 +657,178 @@ public class RunCommand implements Runnable {
      */
     public JobRepository getJobRepository() {
         return jobRepository;
+    }
+
+    /**
+     * Check if a job and all its child jobs completed successfully.
+     *
+     * @param jobId the parent job ID
+     * @param childJobs the list of child jobs
+     * @return true if the parent job and all child jobs are successful, false otherwise
+     */
+    private boolean isJobAndChildrenSuccessful(String jobId, List<Job> childJobs) {
+        try {
+            // Check parent job status
+            Job parentJob = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found: " + jobId));
+
+            if (!parentJob.status().isSuccessful()) {
+                logger.info("Parent job {} did not complete successfully (status: {}), skipping deletion",
+                    jobId, parentJob.status());
+                return false;
+            }
+
+            // Check all child jobs are successful
+            for (Job childJob : childJobs) {
+                if (!childJob.status().isSuccessful()) {
+                    logger.info("Child job {} did not complete successfully (status: {}), skipping deletion",
+                        childJob.jobId(), childJob.status());
+                    return false;
+                }
+            }
+
+            logger.info("Parent job {} and all {} child jobs completed successfully", jobId, childJobs.size());
+            return true;
+        } catch (Exception e) {
+            logger.error("Error checking job success status for {}: {}", jobId, e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
+     * Delete a job and all its child jobs recursively.
+     *
+     * @param jobId the job ID to delete
+     */
+    private void deleteJobAndChildren(String jobId) {
+        try {
+            String reason = deleteOnCompletion ? "--delete-on-completion" : "--delete-on-success-completion";
+            logger.info("Deleting job {} and all child jobs ({} enabled)", jobId, reason);
+            System.out.println("Deleting job and all child jobs...");
+
+            // Delete child jobs recursively first
+            deleteChildJobsRecursively(jobId);
+
+            // Delete the parent job
+            var jobOpt = jobRepository.findById(jobId);
+            if (jobOpt.isPresent()) {
+                deleteJob(jobOpt.get());
+                System.out.println("Job and all child jobs deleted successfully");
+            }
+        } catch (Exception e) {
+            logger.error("Error deleting job {}: {}", jobId, e.getMessage(), e);
+            System.err.println("Error deleting job: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Recursively delete all child jobs of a parent job.
+     *
+     * @param parentJobId the parent job ID
+     */
+    private void deleteChildJobsRecursively(String parentJobId) throws BaseXException, QueryException {
+        List<Job> childJobs = jobRepository.findJobsByParentId(parentJobId);
+
+        for (Job childJob : childJobs) {
+            // First delete this child's children (depth-first)
+            deleteChildJobsRecursively(childJob.jobId());
+
+            // Then delete this child job
+            deleteJob(childJob);
+            logger.info("Deleted child job: {}", childJob.jobId());
+        }
+    }
+
+    /**
+     * Retrieves and displays available models from the Cursor API.
+     */
+    private void retrieveAndDisplayModels() {
+        try {
+            logger.info("Retrieving available models from Cursor API");
+            System.out.println("Retrieving available models...");
+            System.out.println();
+
+            List<String> models = cliAgent.getModels();
+
+            if (models == null || models.isEmpty()) {
+                System.out.println("No models available.");
+                logger.warn("No models returned from API");
+                return;
+            }
+
+            System.out.println("Available models:");
+            System.out.println();
+            for (int i = 0; i < models.size(); i++) {
+                System.out.println("  " + (i + 1) + ". " + models.get(i));
+            }
+            System.out.println();
+            System.out.println("Total: " + models.size() + " model(s)");
+            logger.info("Retrieved {} models successfully", models.size());
+
+        } catch (Exception e) {
+            logger.error("Error retrieving models: {}", e.getMessage(), e);
+            System.err.println("Error retrieving models: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Retrieves and displays available repositories from the Cursor API.
+     */
+    private void retrieveAndDisplayRepositories() {
+        try {
+            logger.info("Retrieving available repositories from Cursor API");
+            System.out.println("Retrieving available repositories...");
+            System.out.println();
+
+            List<String> repositories = cliAgent.getRepositories();
+
+            if (repositories == null || repositories.isEmpty()) {
+                System.out.println("No repositories available.");
+                logger.warn("No repositories returned from API");
+                return;
+            }
+
+            System.out.println("Available repositories:");
+            System.out.println();
+            for (int i = 0; i < repositories.size(); i++) {
+                System.out.println("  " + (i + 1) + ". " + repositories.get(i));
+            }
+            System.out.println();
+            System.out.println("Total: " + repositories.size() + " repository(ies)");
+            logger.info("Retrieved {} repositories successfully", repositories.size());
+
+        } catch (Exception e) {
+            logger.error("Error retrieving repositories: {}", e.getMessage(), e);
+            System.err.println("Error retrieving repositories: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Delete a single job including its Cursor agent and prompts.
+     *
+     * @param job the job to delete
+     */
+    private void deleteJob(Job job) throws BaseXException, QueryException {
+        // Delete Cursor agent if it exists
+        if (job.cursorAgentId() != null) {
+            try {
+                cliAgent.deleteAgent(job.cursorAgentId());
+                logger.info("Deleted Cursor agent for job {}: {}", job.jobId(), job.cursorAgentId());
+            } catch (Exception e) {
+                logger.error("Failed to delete Cursor agent {} for job {}: {}",
+                        job.cursorAgentId(), job.jobId(), e.getMessage());
+                System.err.println("  ⚠️  Failed to delete Cursor agent for job " + job.jobId() + ": " + e.getMessage());
+                // Continue with database deletion even if Cursor API fails
+            }
+        }
+
+        // Delete all prompts from database
+        jobRepository.deletePromptsByJobId(job.jobId());
+
+        // Delete the job from database
+        jobRepository.deleteById(job.jobId());
     }
 }
 

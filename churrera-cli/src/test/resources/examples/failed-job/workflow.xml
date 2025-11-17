@@ -2,8 +2,7 @@
 <pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.3.0/pml-workflow.xsd">
     <sequence model="default" repository="https://github.com/jabrena/wjax25-demos"
-        timeout="4m" fallback-src="fallback.xml" >
-        <prompt src="pml-java25-installation-v5.xml" />
-        <prompt src="pml-hello-world-java-v2.xml" />
+        timeout="2m" fallback-src="fallback.xml" >
+        <prompt src="pml-force-failure-example.xml" />
     </sequence>
 </pml-workflow>

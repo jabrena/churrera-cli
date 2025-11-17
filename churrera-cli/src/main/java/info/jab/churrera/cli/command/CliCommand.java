@@ -23,11 +23,12 @@ import java.util.regex.Pattern;
 @CommandLine.Command(
     name = "cli",
     description = "Start interactive REPL mode for managing jobs",
-    mixinStandardHelpOptions = true
+    mixinStandardHelpOptions = true,
+    usageHelpAutoWidth = true
 )
-public class ChurreraCLICommand implements Runnable {
+public class CliCommand implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(ChurreraCLICommand.class);
+    private static final Logger logger = LoggerFactory.getLogger(CliCommand.class);
 
     private static final Pattern JOB_STATUS_PATTERN = Pattern.compile("^jobs\\s+status\\s+(.+)$");
     private static final Pattern JOB_LOGS_PATTERN = Pattern.compile("^jobs\\s+logs\\s+(.+)$");
@@ -42,7 +43,7 @@ public class ChurreraCLICommand implements Runnable {
     private final CLIAgent cliAgent;
     private ScheduledExecutorService scheduledExecutor;
 
-    public ChurreraCLICommand(JobRepository jobRepository, JobProcessor jobProcessor,
+    public CliCommand(JobRepository jobRepository, JobProcessor jobProcessor,
                               PropertyResolver propertyResolver, Scanner scanner, CLIAgent cliAgent) {
         this.jobRepository = jobRepository;
         this.jobProcessor = jobProcessor;
@@ -205,7 +206,7 @@ public class ChurreraCLICommand implements Runnable {
         System.out.println("Available commands:");
         System.out.println("  jobs                    - List all jobs");
         System.out.println("  jobs new {path}         - Create a new job with specified path");
-        System.out.println("  jobs status {uuid}      - Show details for specific job ID");
+        System.out.println("  jobs status {uuid}     - Show details for specific job ID");
         System.out.println("  jobs logs {uuid}        - Show logs for specific job ID");
         System.out.println("  jobs pr {uuid}          - Show the PR link for a finished job");
         System.out.println("  jobs delete {uuid}      - Delete a job by UUID (cascade deletes child jobs)");

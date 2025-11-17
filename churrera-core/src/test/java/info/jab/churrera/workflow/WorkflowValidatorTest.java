@@ -215,5 +215,401 @@ class WorkflowValidatorTest {
         assertTrue(formattedErrors.contains("1. Error 1"));
         assertTrue(formattedErrors.contains("10. Error 10"));
     }
+
+    @Test
+    void testValidateTimeoutAndFallback_NoTimeoutNoFallback() {
+        // Given
+        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, null, null);
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_TimeoutWithoutFallback() {
+        // Given
+        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
+        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, null);
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_FallbackWithoutTimeout() {
+        // Given
+        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, null, "fallback.xml");
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertFalse(errors.isEmpty());
+        assertEquals(1, errors.size());
+        assertTrue(errors.get(0).contains("fallback-src is specified but timeout is not"));
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_FallbackWithTimeout_FileExists() throws IOException {
+        // Given
+        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
+        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
+        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.xml");
+        fallbackFile.createNewFile();
+        fallbackFile.deleteOnExit();
+
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "fallback.xml");
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_FallbackWithTimeout_FileDoesNotExist() {
+        // Given
+        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
+        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "nonexistent.xml");
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertFalse(errors.isEmpty());
+        assertTrue(errors.stream().anyMatch(e -> e.contains("Fallback file not found")));
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_FallbackWithTimeout_InvalidExtension() {
+        // Given
+        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
+        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "fallback.exe");
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertFalse(errors.isEmpty());
+        assertTrue(errors.stream().anyMatch(e -> e.contains("must have extension .xml, .md, or .txt")));
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_FallbackWithTimeout_ValidXmlExtension() throws IOException {
+        // Given
+        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
+        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
+        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.XML");
+        fallbackFile.createNewFile();
+        fallbackFile.deleteOnExit();
+
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "fallback.XML");
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_FallbackWithTimeout_ValidMdExtension() throws IOException {
+        // Given
+        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
+        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
+        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.md");
+        fallbackFile.createNewFile();
+        fallbackFile.deleteOnExit();
+
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "fallback.md");
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_FallbackWithTimeout_ValidTxtExtension() throws IOException {
+        // Given
+        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
+        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
+        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.txt");
+        fallbackFile.createNewFile();
+        fallbackFile.deleteOnExit();
+
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "fallback.txt");
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_EmptyFallback() {
+        // Given
+        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
+        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "");
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_WhitespaceFallback() {
+        // Given
+        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
+        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "   ");
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_ParallelWorkflow_SequenceFallbackWithoutTimeout() throws IOException {
+        // Given
+        PromptInfo parallelPrompt = new PromptInfo("parallel.xml", "xml");
+        PromptInfo seqPrompt = new PromptInfo("seq.xml", "xml");
+        SequenceInfo sequence = new SequenceInfo("model", "repo", List.of(seqPrompt), null, "seq-fallback.xml");
+        ParallelWorkflowData parallelData = new ParallelWorkflowData(parallelPrompt, null, List.of(sequence), null, null);
+        WorkflowData workflowData = new WorkflowData(null, null, null, List.of(), parallelData, null, null);
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertFalse(errors.isEmpty());
+        assertTrue(errors.stream().anyMatch(e -> e.contains("Sequence fallback-src is specified but timeout is not")));
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_ParallelWorkflow_SequenceFallbackWithTimeout_FileExists() throws IOException {
+        // Given
+        PromptInfo parallelPrompt = new PromptInfo("parallel.xml", "xml");
+        PromptInfo seqPrompt = new PromptInfo("seq.xml", "xml");
+        File fallbackFile = new File(testWorkflowFile.getParentFile(), "seq-fallback.xml");
+        fallbackFile.createNewFile();
+        fallbackFile.deleteOnExit();
+
+        Long seqTimeout = 10L * 60 * 1000; // 10 minutes
+        SequenceInfo sequence = new SequenceInfo("model", "repo", List.of(seqPrompt), seqTimeout, "seq-fallback.xml");
+        ParallelWorkflowData parallelData = new ParallelWorkflowData(parallelPrompt, null, List.of(sequence), null, null);
+        WorkflowData workflowData = new WorkflowData(null, null, null, List.of(), parallelData, null, null);
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_ParallelWorkflow_SequenceFallbackWithTimeout_FileDoesNotExist() {
+        // Given
+        PromptInfo parallelPrompt = new PromptInfo("parallel.xml", "xml");
+        PromptInfo seqPrompt = new PromptInfo("seq.xml", "xml");
+        Long seqTimeout = 10L * 60 * 1000; // 10 minutes
+        SequenceInfo sequence = new SequenceInfo("model", "repo", List.of(seqPrompt), seqTimeout, "nonexistent-seq.xml");
+        ParallelWorkflowData parallelData = new ParallelWorkflowData(parallelPrompt, null, List.of(sequence), null, null);
+        WorkflowData workflowData = new WorkflowData(null, null, null, List.of(), parallelData, null, null);
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertFalse(errors.isEmpty());
+        assertTrue(errors.stream().anyMatch(e -> e.contains("Fallback file not found")));
+    }
+
+    @Test
+    void testValidateTimeoutAndFallback_ParallelWorkflow_MultipleSequences() throws IOException {
+        // Given
+        PromptInfo parallelPrompt = new PromptInfo("parallel.xml", "xml");
+        PromptInfo seq1Prompt = new PromptInfo("seq1.xml", "xml");
+        PromptInfo seq2Prompt = new PromptInfo("seq2.xml", "xml");
+
+        File fallback1 = new File(testWorkflowFile.getParentFile(), "fallback1.xml");
+        fallback1.createNewFile();
+        fallback1.deleteOnExit();
+
+        Long timeout1 = 5L * 60 * 1000;
+        Long timeout2 = 10L * 60 * 1000;
+        SequenceInfo sequence1 = new SequenceInfo("model1", "repo1", List.of(seq1Prompt), timeout1, "fallback1.xml");
+        SequenceInfo sequence2 = new SequenceInfo("model2", "repo2", List.of(seq2Prompt), timeout2, "nonexistent.xml");
+
+        ParallelWorkflowData parallelData = new ParallelWorkflowData(parallelPrompt, null, List.of(sequence1, sequence2), null, null);
+        WorkflowData workflowData = new WorkflowData(null, null, null, List.of(), parallelData, null, null);
+
+        // When
+        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
+
+        // Then
+        assertFalse(errors.isEmpty());
+        assertTrue(errors.stream().anyMatch(e -> e.contains("Fallback file not found")));
+    }
+
+    @Test
+    void testValidateFallbackFile_NullFallbackSrc() {
+        // When
+        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, null);
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateFallbackFile_EmptyFallbackSrc() {
+        // When
+        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "");
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateFallbackFile_WhitespaceFallbackSrc() {
+        // When
+        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "   ");
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateFallbackFile_ValidXmlExtension_FileExists() throws IOException {
+        // Given
+        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.xml");
+        fallbackFile.createNewFile();
+        fallbackFile.deleteOnExit();
+
+        // When
+        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "fallback.xml");
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateFallbackFile_ValidMdExtension_FileExists() throws IOException {
+        // Given
+        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.md");
+        fallbackFile.createNewFile();
+        fallbackFile.deleteOnExit();
+
+        // When
+        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "fallback.md");
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateFallbackFile_ValidTxtExtension_FileExists() throws IOException {
+        // Given
+        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.txt");
+        fallbackFile.createNewFile();
+        fallbackFile.deleteOnExit();
+
+        // When
+        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "fallback.txt");
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateFallbackFile_ValidExtension_CaseInsensitive() throws IOException {
+        // Given
+        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.XML");
+        fallbackFile.createNewFile();
+        fallbackFile.deleteOnExit();
+
+        // When
+        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "fallback.XML");
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateFallbackFile_InvalidExtension() {
+        // When
+        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "fallback.exe");
+
+        // Then
+        assertFalse(errors.isEmpty());
+        assertEquals(1, errors.size());
+        assertTrue(errors.get(0).contains("must have extension .xml, .md, or .txt"));
+    }
+
+    @Test
+    void testValidateFallbackFile_ValidExtension_FileDoesNotExist() {
+        // When
+        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "nonexistent.xml");
+
+        // Then
+        assertFalse(errors.isEmpty());
+        assertEquals(1, errors.size());
+        assertTrue(errors.get(0).contains("Fallback file not found"));
+    }
+
+    @Test
+    void testValidateFallbackFile_RelativePath() throws IOException {
+        // Given
+        File subDir = new File(testWorkflowFile.getParentFile(), "subdir");
+        subDir.mkdirs();
+        subDir.deleteOnExit();
+
+        File fallbackFile = new File(subDir, "fallback.xml");
+        fallbackFile.createNewFile();
+        fallbackFile.deleteOnExit();
+
+        // When
+        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "subdir/fallback.xml");
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
+
+    @Test
+    void testValidateFallbackFile_WorkflowFileInRoot() throws IOException {
+        // Given
+        File rootWorkflowFile = new File("/tmp", "workflow.xml");
+        rootWorkflowFile.createNewFile();
+        rootWorkflowFile.deleteOnExit();
+
+        File fallbackFile = new File("/tmp", "fallback.xml");
+        fallbackFile.createNewFile();
+        fallbackFile.deleteOnExit();
+
+        // When
+        List<String> errors = workflowValidator.validateFallbackFile(rootWorkflowFile, "fallback.xml");
+
+        // Then
+        assertTrue(errors.isEmpty());
+    }
 }
 

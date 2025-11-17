@@ -2,10 +2,10 @@ package info.jab.cursor.client;
 
 import info.jab.cursor.client.impl.CursorAgentInformationImpl;
 import info.jab.cursor.generated.client.ApiException;
-import info.jab.cursor.generated.client.api.AgentInformationApi;
-import info.jab.cursor.generated.client.model.AgentResponse;
-import info.jab.cursor.generated.client.model.AgentsList;
-import info.jab.cursor.generated.client.model.ConversationResponse;
+import info.jab.cursor.generated.client.api.DefaultApi;
+import info.jab.cursor.generated.client.model.ListAgents200ResponseAgentsInner;
+import info.jab.cursor.generated.client.model.ListAgents200Response;
+import info.jab.cursor.generated.client.model.GetAgentConversation200Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 class CursorAgentInformationImplTest {
 
     @Mock
-    private AgentInformationApi agentInformationApi;
+    private DefaultApi defaultApi;
 
     private CursorAgentInformationImpl cursorAgentInformation;
     private static final String TEST_API_KEY = "test-api-key";
@@ -36,15 +36,7 @@ class CursorAgentInformationImplTest {
 
     @BeforeEach
     void setUp() {
-        cursorAgentInformation = new CursorAgentInformationImpl(TEST_API_KEY, TEST_BASE_URL);
-        // Use reflection to inject mock API for testing validation branches
-        try {
-            java.lang.reflect.Field field = CursorAgentInformationImpl.class.getDeclaredField("agentInformationApi");
-            field.setAccessible(true);
-            field.set(cursorAgentInformation, agentInformationApi);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to inject mock", e);
-        }
+        cursorAgentInformation = new CursorAgentInformationImpl(TEST_API_KEY, defaultApi);
     }
 
     @Nested
@@ -62,7 +54,7 @@ class CursorAgentInformationImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Agent ID cannot be null or empty");
 
-            verifyNoInteractions(agentInformationApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -76,7 +68,7 @@ class CursorAgentInformationImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Agent ID cannot be null or empty");
 
-            verifyNoInteractions(agentInformationApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -90,7 +82,7 @@ class CursorAgentInformationImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Agent ID cannot be null or empty");
 
-            verifyNoInteractions(agentInformationApi);
+            verifyNoInteractions(defaultApi);
         }
     }
 
@@ -105,7 +97,7 @@ class CursorAgentInformationImplTest {
             String agentId = TEST_AGENT_ID;
             ApiException unexpectedValueException = new ApiException("Unexpected value 'UNKNOWN_STATUS' for status");
 
-            when(agentInformationApi.getAgent(eq(agentId), any())).thenThrow(unexpectedValueException);
+            when(defaultApi.getAgent(eq(agentId), any())).thenThrow(unexpectedValueException);
 
             // When & Then
             assertThatThrownBy(() -> cursorAgentInformation.getStatus(agentId))
@@ -121,7 +113,7 @@ class CursorAgentInformationImplTest {
             String agentId = TEST_AGENT_ID;
             ApiException otherException = new ApiException("Agent not found");
 
-            when(agentInformationApi.getAgent(eq(agentId), any())).thenThrow(otherException);
+            when(defaultApi.getAgent(eq(agentId), any())).thenThrow(otherException);
 
             // When & Then
             assertThatThrownBy(() -> cursorAgentInformation.getStatus(agentId))
@@ -136,7 +128,7 @@ class CursorAgentInformationImplTest {
             String agentId = TEST_AGENT_ID;
             ApiException exceptionWithNullMessage = new ApiException((String) null);
 
-            when(agentInformationApi.getAgent(eq(agentId), any())).thenThrow(exceptionWithNullMessage);
+            when(defaultApi.getAgent(eq(agentId), any())).thenThrow(exceptionWithNullMessage);
 
             // When & Then
             assertThatThrownBy(() -> cursorAgentInformation.getStatus(agentId))
@@ -160,7 +152,7 @@ class CursorAgentInformationImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Agent ID cannot be null or empty");
 
-            verifyNoInteractions(agentInformationApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -174,7 +166,7 @@ class CursorAgentInformationImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Agent ID cannot be null or empty");
 
-            verifyNoInteractions(agentInformationApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -188,7 +180,7 @@ class CursorAgentInformationImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Agent ID cannot be null or empty");
 
-            verifyNoInteractions(agentInformationApi);
+            verifyNoInteractions(defaultApi);
         }
     }
 
@@ -203,7 +195,7 @@ class CursorAgentInformationImplTest {
             String agentId = TEST_AGENT_ID;
             ApiException exception = new ApiException("Agent conversation not found");
 
-            when(agentInformationApi.getAgentConversation(eq(agentId), any())).thenThrow(exception);
+            when(defaultApi.getAgentConversation(eq(agentId), any())).thenThrow(exception);
 
             // When & Then
             assertThatThrownBy(() -> cursorAgentInformation.getAgentConversation(agentId))
@@ -222,7 +214,7 @@ class CursorAgentInformationImplTest {
             // Given
             ApiException exception = new ApiException("Failed to retrieve agents");
 
-            when(agentInformationApi.listAgents(any(), any(), any())).thenThrow(exception);
+            when(defaultApi.listAgents(any(), any(), any())).thenThrow(exception);
 
             // When & Then
             assertThatThrownBy(() -> cursorAgentInformation.getAgents(null, null))

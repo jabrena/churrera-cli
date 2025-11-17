@@ -2,12 +2,12 @@ package info.jab.cursor.client;
 
 import info.jab.cursor.client.impl.CursorAgentManagementImpl;
 import info.jab.cursor.generated.client.ApiException;
-import info.jab.cursor.generated.client.api.AgentManagementApi;
-import info.jab.cursor.generated.client.model.AgentResponse;
-import info.jab.cursor.generated.client.model.DeleteAgentResponse;
-import info.jab.cursor.generated.client.model.FollowUpResponse;
-import info.jab.cursor.generated.client.model.LaunchAgentRequest;
-import info.jab.cursor.generated.client.model.TargetRequest;
+import info.jab.cursor.generated.client.api.DefaultApi;
+import info.jab.cursor.generated.client.model.CreateAgent201Response;
+import info.jab.cursor.generated.client.model.DeleteAgent200Response;
+import info.jab.cursor.generated.client.model.CreateAgentRequest;
+import info.jab.cursor.generated.client.model.CreateAgent201ResponseSource;
+import info.jab.cursor.generated.client.model.CreateAgent201ResponseTarget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 class CursorAgentManagementImplTest {
 
     @Mock
-    private AgentManagementApi agentManagementApi;
+    private DefaultApi defaultApi;
 
     private CursorAgentManagementImpl cursorAgentManagement;
     private static final String TEST_API_KEY = "test-api-key";
@@ -39,15 +39,7 @@ class CursorAgentManagementImplTest {
 
     @BeforeEach
     void setUp() {
-        cursorAgentManagement = new CursorAgentManagementImpl(TEST_API_KEY, TEST_BASE_URL);
-        // Use reflection to inject mock API for testing validation branches
-        try {
-            java.lang.reflect.Field field = CursorAgentManagementImpl.class.getDeclaredField("agentManagementApi");
-            field.setAccessible(true);
-            field.set(cursorAgentManagement, agentManagementApi);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to inject mock", e);
-        }
+        cursorAgentManagement = new CursorAgentManagementImpl(TEST_API_KEY, defaultApi);
     }
 
     @Nested
@@ -67,7 +59,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prompt cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -83,7 +75,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prompt cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -99,7 +91,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prompt cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -115,7 +107,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Model cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -131,7 +123,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Model cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -147,7 +139,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Model cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -163,7 +155,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Repository cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -179,7 +171,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Repository cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -195,7 +187,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Repository cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
     }
 
@@ -215,7 +207,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Agent ID cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -230,7 +222,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Agent ID cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -245,7 +237,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Agent ID cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -260,7 +252,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prompt cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -275,7 +267,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prompt cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -290,7 +282,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Prompt cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
     }
 
@@ -309,7 +301,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Agent ID cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -323,7 +315,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Agent ID cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
 
         @Test
@@ -337,7 +329,7 @@ class CursorAgentManagementImplTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Agent ID cannot be null or empty");
 
-            verifyNoInteractions(agentManagementApi);
+            verifyNoInteractions(defaultApi);
         }
     }
 
@@ -354,7 +346,7 @@ class CursorAgentManagementImplTest {
             String repository = "https://github.com/jabrena/churrera";
             ApiException apiException = new ApiException(400, "Bad Request");
 
-            when(agentManagementApi.launchAgent(any(), any())).thenThrow(apiException);
+            when(defaultApi.createAgent(any(), any())).thenThrow(apiException);
 
             // When & Then
             assertThatThrownBy(() -> cursorAgentManagement.launch(prompt, model, repository, true))
@@ -371,7 +363,7 @@ class CursorAgentManagementImplTest {
             String prompt = "Also add unit tests";
             ApiException apiException = new ApiException(404, "Not Found");
 
-            when(agentManagementApi.addFollowUp(eq(agentId), any(), any())).thenThrow(apiException);
+            when(defaultApi.addFollowup(eq(agentId), any(), any())).thenThrow(apiException);
 
             // When & Then
             assertThatThrownBy(() -> cursorAgentManagement.followUp(agentId, prompt))
@@ -387,7 +379,7 @@ class CursorAgentManagementImplTest {
             String agentId = TEST_AGENT_ID;
             ApiException apiException = new ApiException(404, "Not Found");
 
-            when(agentManagementApi.deleteAgent(eq(agentId), any())).thenThrow(apiException);
+            when(defaultApi.deleteAgent(eq(agentId), any())).thenThrow(apiException);
 
             // When & Then
             assertThatThrownBy(() -> cursorAgentManagement.delete(agentId))
@@ -410,29 +402,29 @@ class CursorAgentManagementImplTest {
             String repository = "https://github.com/jabrena/churrera";
             boolean pr = true;
 
-            AgentResponse mockResponse = new AgentResponse();
+            CreateAgent201Response mockResponse = new CreateAgent201Response();
             mockResponse.setId(TEST_AGENT_ID);
             mockResponse.setName("Test Agent");
-            mockResponse.setStatus(AgentResponse.StatusEnum.CREATING);
+            mockResponse.setStatus(CreateAgent201Response.StatusEnum.CREATING);
             mockResponse.setCreatedAt(java.time.OffsetDateTime.now());
-            info.jab.cursor.generated.client.model.Source source = new info.jab.cursor.generated.client.model.Source();
-            source.setRepository(java.net.URI.create(repository));
+            CreateAgent201ResponseSource source = new CreateAgent201ResponseSource();
+            source.setRepository(repository);
             source.setRef("main");
             mockResponse.setSource(source);
-            info.jab.cursor.generated.client.model.Target target = new info.jab.cursor.generated.client.model.Target();
+            CreateAgent201ResponseTarget target = new CreateAgent201ResponseTarget();
             target.setBranchName("cursor/test");
-            target.setUrl(java.net.URI.create("https://cursor.com/agents?id=" + TEST_AGENT_ID));
+            target.setUrl("https://cursor.com/agents?id=" + TEST_AGENT_ID);
             target.setAutoCreatePr(false);
             mockResponse.setTarget(target);
-            when(agentManagementApi.launchAgent(any(), any())).thenReturn(mockResponse);
+            when(defaultApi.createAgent(any(), any())).thenReturn(mockResponse);
 
             // When
             cursorAgentManagement.launch(prompt, model, repository, pr);
 
             // Then
-            ArgumentCaptor<LaunchAgentRequest> requestCaptor = ArgumentCaptor.forClass(LaunchAgentRequest.class);
-            verify(agentManagementApi).launchAgent(requestCaptor.capture(), any());
-            LaunchAgentRequest capturedRequest = requestCaptor.getValue();
+            ArgumentCaptor<CreateAgentRequest> requestCaptor = ArgumentCaptor.forClass(CreateAgentRequest.class);
+            verify(defaultApi).createAgent(requestCaptor.capture(), any());
+            CreateAgentRequest capturedRequest = requestCaptor.getValue();
             assertThat(capturedRequest.getTarget()).isNotNull();
             assertThat(capturedRequest.getTarget().getAutoCreatePr()).isTrue();
         }
@@ -446,29 +438,29 @@ class CursorAgentManagementImplTest {
             String repository = "https://github.com/jabrena/churrera";
             boolean pr = false;
 
-            AgentResponse mockResponse = new AgentResponse();
+            CreateAgent201Response mockResponse = new CreateAgent201Response();
             mockResponse.setId(TEST_AGENT_ID);
             mockResponse.setName("Test Agent");
-            mockResponse.setStatus(AgentResponse.StatusEnum.CREATING);
+            mockResponse.setStatus(CreateAgent201Response.StatusEnum.CREATING);
             mockResponse.setCreatedAt(java.time.OffsetDateTime.now());
-            info.jab.cursor.generated.client.model.Source source = new info.jab.cursor.generated.client.model.Source();
-            source.setRepository(java.net.URI.create(repository));
+            CreateAgent201ResponseSource source = new CreateAgent201ResponseSource();
+            source.setRepository(repository);
             source.setRef("main");
             mockResponse.setSource(source);
-            info.jab.cursor.generated.client.model.Target target = new info.jab.cursor.generated.client.model.Target();
+            CreateAgent201ResponseTarget target = new CreateAgent201ResponseTarget();
             target.setBranchName("cursor/test");
-            target.setUrl(java.net.URI.create("https://cursor.com/agents?id=" + TEST_AGENT_ID));
+            target.setUrl("https://cursor.com/agents?id=" + TEST_AGENT_ID);
             target.setAutoCreatePr(false);
             mockResponse.setTarget(target);
-            when(agentManagementApi.launchAgent(any(), any())).thenReturn(mockResponse);
+            when(defaultApi.createAgent(any(), any())).thenReturn(mockResponse);
 
             // When
             cursorAgentManagement.launch(prompt, model, repository, pr);
 
             // Then
-            ArgumentCaptor<LaunchAgentRequest> requestCaptor = ArgumentCaptor.forClass(LaunchAgentRequest.class);
-            verify(agentManagementApi).launchAgent(requestCaptor.capture(), any());
-            LaunchAgentRequest capturedRequest = requestCaptor.getValue();
+            ArgumentCaptor<CreateAgentRequest> requestCaptor = ArgumentCaptor.forClass(CreateAgentRequest.class);
+            verify(defaultApi).createAgent(requestCaptor.capture(), any());
+            CreateAgentRequest capturedRequest = requestCaptor.getValue();
             assertThat(capturedRequest.getTarget()).isNotNull();
             assertThat(capturedRequest.getTarget().getAutoCreatePr()).isFalse();
         }

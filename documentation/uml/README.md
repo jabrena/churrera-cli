@@ -23,7 +23,7 @@ The CLI module contains the command-line interface components, including command
 ![Churrera CLI Class Diagram](uml-class-diagram-churrera-cli.png)
 
 **Key Components:**
-- **Commands**: `ChurreraCLICommand`, `RunCommand`, `JobsCommand`, and other CLI commands
+- **Commands**: `CliCommand`, `RunCommand`, `JobsCommand`, and other CLI commands
 - **Services**: `CLIAgent` for agent management, `JobProcessor` for job processing
 - **Repository**: `JobRepository` for data persistence
 - **Models**: `Job`, `JobWithDetails`, `Prompt` for data representation

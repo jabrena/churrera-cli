@@ -7,7 +7,7 @@ package "churrera-cli" {
     class ChurreraCLI
   }
   package "info.jab.churrera.cli.command" {
-    class ChurreraCLICommand
+    class CliCommand
     class RunCommand
     class JobsCommand
     class NewJobCommand
@@ -87,11 +87,11 @@ package "cursor-cloud-agents-client" {
 }
 
 ' Cross-module relationships
-ChurreraCLI --> ChurreraCLICommand
+ChurreraCLI --> CliCommand
 ChurreraCLI --> RunCommand
-ChurreraCLICommand --> JobRepository
-ChurreraCLICommand --> JobProcessor
-ChurreraCLICommand --> CLIAgent
+CliCommand --> JobRepository
+CliCommand --> JobProcessor
+CliCommand --> CLIAgent
 RunCommand --> JobRepository
 RunCommand --> JobProcessor
 RunCommand --> WorkflowValidator

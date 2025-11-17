@@ -12,13 +12,14 @@ public record FollowUpResponse(
         Objects.requireNonNull(id, "ID cannot be null");
     }
 
+
     /**
-     * Factory method to create FollowUpResponse from generated OpenAPI model.
+     * Factory method to create FollowUpResponse from DeleteAgent200Response.
      *
      * @param generated the generated OpenAPI model
      * @return domain model instance, or null if input is null
      */
-    public static FollowUpResponse from(info.jab.cursor.generated.client.model.FollowUpResponse generated) {
+    public static FollowUpResponse from(info.jab.cursor.generated.client.model.DeleteAgent200Response generated) {
         if (generated == null) {
             return null;
         }

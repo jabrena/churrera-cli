@@ -69,8 +69,8 @@ class JobsCommandTest {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
-            new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null),
-            new Job("job-2", "/path/2", null, "model2", "repo2", AgentState.UNKNOWN, now, now, null, null, null, null, null, null, null)
+            new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.CREATING(), now, now, null, null, null, null, null, null, null),
+            new Job("job-2", "/path/2", null, "model2", "repo2", AgentState.CREATING(), now, now, null, null, null, null, null, null, null)
         );
         when(jobRepository.findAll()).thenReturn(jobs);
         when(jobRepository.findPromptsByJobId("job-1")).thenReturn(Arrays.asList(
@@ -127,7 +127,7 @@ class JobsCommandTest {
 
         List<Job> jobs = Arrays.asList(
             new Job("job-finished", "/path/finished", "agent-123", "model1", "repo1",
-                AgentState.FINISHED, createdAt, updatedAt, null, null,
+                AgentState.FINISHED(), createdAt, updatedAt, null, null,
                 WorkflowType.SEQUENCE, null, null, null, null)
         );
 
@@ -154,7 +154,7 @@ class JobsCommandTest {
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
             new Job("child-job-1", "/path/child", null, "model1", "repo1",
-                AgentState.RUNNING, now, now, "parent-job-123", "item1",
+                AgentState.RUNNING(), now, now, "parent-job-123", "item1",
                 WorkflowType.SEQUENCE, null, null, null, null)
         );
 
@@ -182,13 +182,13 @@ class JobsCommandTest {
 
         List<Job> jobs = Arrays.asList(
             new Job("job-1h", "/path/1", null, "model1", "repo1",
-                AgentState.RUNNING, oneHourAgo, oneHourAgo, null, null,
+                AgentState.RUNNING(), oneHourAgo, oneHourAgo, null, null,
                 WorkflowType.SEQUENCE, null, null, null, null),
             new Job("job-2m", "/path/2", null, "model2", "repo2",
-                AgentState.RUNNING, twoMinutesAgo, twoMinutesAgo, null, null,
+                AgentState.RUNNING(), twoMinutesAgo, twoMinutesAgo, null, null,
                 WorkflowType.SEQUENCE, null, null, null, null),
             new Job("job-30s", "/path/3", null, "model3", "repo3",
-                AgentState.RUNNING, thirtySecondsAgo, thirtySecondsAgo, null, null,
+                AgentState.RUNNING(), thirtySecondsAgo, thirtySecondsAgo, null, null,
                 WorkflowType.SEQUENCE, null, null, null, null)
         );
 
@@ -213,7 +213,7 @@ class JobsCommandTest {
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
             new Job("parallel-job", "/path/parallel", null, "model1", "repo1",
-                AgentState.RUNNING, now, now, null, null,
+                AgentState.RUNNING(), now, now, null, null,
                 WorkflowType.PARALLEL, null, null, null, null)
         );
 
@@ -235,7 +235,7 @@ class JobsCommandTest {
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
             new Job("error-job", "/path/error", null, "model1", "repo1",
-                AgentState.RUNNING, now, now, null, null, null, null, null, null, null)
+                AgentState.RUNNING(), now, now, null, null, null, null, null, null, null)
         );
 
         when(jobRepository.findAll()).thenReturn(jobs);
@@ -256,7 +256,7 @@ class JobsCommandTest {
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
             new Job("job-mixed", "/path/mixed", "agent-123", "model1", "repo1",
-                AgentState.RUNNING, now, now, null, null,
+                AgentState.RUNNING(), now, now, null, null,
                 WorkflowType.SEQUENCE, null, null, null, null)
         );
 
@@ -282,7 +282,7 @@ class JobsCommandTest {
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
             new Job("job-null-type", "/path/null", null, "model1", "repo1",
-                AgentState.RUNNING, now, now, null, null, null, null, null, null, null)
+                AgentState.RUNNING(), now, now, null, null, null, null, null, null, null)
         );
 
         when(jobRepository.findAll()).thenReturn(jobs);
@@ -302,7 +302,7 @@ class JobsCommandTest {
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
             new Job("failed-job", "/path/failed", "agent-123", "model1", "repo1",
-                AgentState.FAILED, now, now, null, null,
+                AgentState.ERROR(), now, now, null, null,
                 WorkflowType.SEQUENCE, null, null, null, null)
         );
 
@@ -317,6 +317,6 @@ class JobsCommandTest {
         // Then
         String output = outputStream.toString();
         assertThat(output).contains("failed-j");
-        assertThat(output).contains("FAILED");
+        assertThat(output).contains("ERROR");
     }
 }

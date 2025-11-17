@@ -16,13 +16,14 @@ public record Repository(
         Objects.requireNonNull(repository, "Repository cannot be null");
     }
 
+
     /**
-     * Factory method to create Repository from generated OpenAPI model.
+     * Factory method to create Repository from ListRepositories200ResponseRepositoriesInner.
      *
      * @param generated the generated OpenAPI model
      * @return domain model instance, or null if input is null
      */
-    public static Repository from(info.jab.cursor.generated.client.model.Repository generated) {
+    public static Repository from(info.jab.cursor.generated.client.model.ListRepositories200ResponseRepositoriesInner generated) {
         if (generated == null) {
             return null;
         }
