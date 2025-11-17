@@ -38,4 +38,8 @@ Can you update the current changelog for 0.2.0 comparing git commits in relation
 git tag --list
 git tag 0.1.0
 git push --tags
+
+# Update Snapshot
+git tag -f 0.2.0-SNAPSHOT
+git push --force --tags
 ```
