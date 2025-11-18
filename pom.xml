@@ -575,7 +575,7 @@
                 <sonar.projectKey>jabrena_churrera-cli</sonar.projectKey>
                 <sonar.projectName>Churrera CLI</sonar.projectName>
                 <sonar.projectVersion>${project.version}</sonar.projectVersion>
-                <sonar.coverage.jacoco.xmlReportPaths>$(pwd)/jacoco-report-aggregated/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+                <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/jacoco-report-aggregated/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
                 <sonar.java.source>${java.version}</sonar.java.source>
             </properties>
             <build>
