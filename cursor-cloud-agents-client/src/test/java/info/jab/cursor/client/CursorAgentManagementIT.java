@@ -5,6 +5,8 @@ import info.jab.cursor.client.model.AgentResponse;
 import info.jab.cursor.client.model.AgentStatus;
 import info.jab.cursor.client.model.DeleteAgentResponse;
 import info.jab.cursor.client.model.FollowUpResponse;
+import info.jab.cursor.generated.client.ApiClient;
+import info.jab.cursor.generated.client.api.DefaultApi;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -39,7 +41,10 @@ class CursorAgentManagementIT {
         WireMock.configureFor("localhost", 8080);
 
         // Create CursorAgentManagement instance pointing to WireMock server
-        cursorAgentManagement = new CursorAgentManagementImpl(TEST_API_KEY, WIREMOCK_BASE_URL);
+        ApiClient apiClient = new ApiClient();
+        apiClient.updateBaseUri(WIREMOCK_BASE_URL);
+        DefaultApi defaultApi = new DefaultApi(apiClient);
+        cursorAgentManagement = new CursorAgentManagementImpl(TEST_API_KEY, defaultApi);
     }
 
     @AfterEach

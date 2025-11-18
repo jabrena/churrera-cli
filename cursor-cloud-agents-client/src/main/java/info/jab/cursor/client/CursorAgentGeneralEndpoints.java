@@ -1,7 +1,6 @@
 package info.jab.cursor.client;
 
 import info.jab.cursor.client.model.ApiKeyInfo;
-import info.jab.cursor.client.model.RepositoriesList;
 import java.util.List;
 
 /**
@@ -33,7 +32,7 @@ public interface CursorAgentGeneralEndpoints {
     /**
      * Gets the repositories available for this agent.
      *
-     * @return The repositories
+     * @return The repositories as a list of URLs
      */
-    RepositoriesList getRepositories();
+    List<String> getRepositories();
 }

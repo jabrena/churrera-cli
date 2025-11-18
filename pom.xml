@@ -26,7 +26,8 @@
         <maven.version>3.9.10</maven.version>
 
         <!-- Dependency versions -->
-        <jackson-databind.version>2.18.2</jackson-databind.version>
+        <jackson-annotations.version>2.20</jackson-annotations.version>
+        <jackson.version>2.20.1</jackson.version>
         <jcolor.version>5.5.1</jcolor.version>
         <jfiglet.version>0.0.9</jfiglet.version>
 
@@ -34,6 +35,7 @@
         <junit-jupiter.version>6.0.1</junit-jupiter.version>
         <assertj-core.version>3.27.6</assertj-core.version>
         <mockito.version>5.20.0</mockito.version>
+        <archunit.version>1.4.1</archunit.version>
 
         <!-- Additional dependencies for churrera modules -->
         <swagger.version>2.2.40</swagger.version>
@@ -63,9 +65,11 @@
         <maven-plugin-pmd.version>3.28.0</maven-plugin-pmd.version>
         <maven-plugin-checkstyle.version>3.6.0</maven-plugin-checkstyle.version>
         <maven-plugin-project-info-reports.version>3.9.0</maven-plugin-project-info-reports.version>
+        <maven-plugin-antrun.version>3.2.0</maven-plugin-antrun.version>
+        <maven-plugin-shade.version>3.6.1</maven-plugin-shade.version>
 
         <!-- Quality thresholds -->
-        <coverage.level>55</coverage.level>
+        <coverage.level>70</coverage.level>
 
         <!-- Surefire argLine property (overridden by JaCoCo when active) -->
         <argLine></argLine>
@@ -85,22 +89,22 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson-databind.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>${jackson-databind.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${jackson-databind.version}</version>
+                <version>${jackson-annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${jackson-databind.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.lalyos</groupId>
@@ -111,6 +115,41 @@
                 <groupId>com.diogonunes</groupId>
                 <artifactId>JColor</artifactId>
                 <version>${jcolor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>${jakarta.annotation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.cdimascio</groupId>
+                <artifactId>dotenv-java</artifactId>
+                <version>${dotenv-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.basex</groupId>
+                <artifactId>basex</artifactId>
+                <version>${basex.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logback-json.version}</version>
             </dependency>
 
             <!-- Testing -->
@@ -156,18 +195,6 @@
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
-
-            <!-- Additional dependencies for churrera modules -->
-            <dependency>
-                <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.annotation</groupId>
-                <artifactId>jakarta.annotation-api</artifactId>
-                <version>${jakarta.annotation.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.wiremock</groupId>
                 <artifactId>wiremock</artifactId>
@@ -175,32 +202,24 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>io.github.cdimascio</groupId>
-                <artifactId>dotenv-java</artifactId>
-                <version>${dotenv-java.version}</version>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit</artifactId>
+                <version>${archunit.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.basex</groupId>
-                <artifactId>basex</artifactId>
-                <version>${basex.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>info.picocli</groupId>
-                <artifactId>picocli</artifactId>
-                <version>${picocli.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.logstash.logback</groupId>
-                <artifactId>logstash-logback-encoder</artifactId>
-                <version>${logback-json.version}</version>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5-api</artifactId>
+                <version>${archunit.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <!-- Internal module dependencies -->
+            <dependency>
+                <groupId>info.jab</groupId>
+                <artifactId>cursor-cloud-agents-openapi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>info.jab</groupId>
                 <artifactId>cursor-cloud-agents-client</artifactId>
@@ -250,7 +269,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-plugin-surefire.version}</version>
                     <configuration>
-                        <!--<skipAfterFailureCount>1</skipAfterFailureCount>-->
                         <includes>
                             <include>**/*Test.java</include>
                         </includes>
@@ -370,10 +388,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven-plugin-failsafe.version}</version>
@@ -392,6 +406,10 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

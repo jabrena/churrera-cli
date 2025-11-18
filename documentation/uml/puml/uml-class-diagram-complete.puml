@@ -79,8 +79,6 @@ package "cursor-cloud-agents-client" {
     class ConversationMessage
     class AgentsList
     class ApiKeyInfo
-    class RepositoriesList
-    class Repository
     class Source
     class Target
   }

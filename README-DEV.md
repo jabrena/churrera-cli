@@ -1,3 +1,23 @@
+# Git Hooks Setup
+
+This project uses git hooks to validate commit messages against the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) specification.
+
+## Install Git Hooks
+
+Run the installation script to set up the commit message validation hook:
+
+```bash
+./scripts/install-git-hooks.sh
+```
+
+After installation, all commit messages will be validated. Example valid formats:
+- `feat: add new feature`
+- `fix(parser): resolve parsing bug`
+- `docs: update README`
+- `feat!: breaking change`
+
+---
+
 # Essential Maven Goals:
 
 ```bash
@@ -39,10 +59,6 @@ jwebserver -p 8020 -d "$(pwd)/cursor-cloud-agents-openapi/target/swagger-ui/"
 jwebserver -p 8000 -d "$(pwd)/target/site/"
 jwebserver -p 8015 -d "$(pwd)/jacoco-report-aggregated/target/site/"
 jwebserver -p 8020 -d "$(pwd)/docs"
-
-# Record E2E API responses for WireMock testing
-# Set CURSOR_API_KEY in .env file or as environment variable first
-./mvnw compile exec:java -pl cursor-cloud-agents-client -Pe2e -Dexec.mainClass="info.jab.cursor.ApiResponseRecorder"
 
 # Check for dependency updates
 ./mvnw versions:display-property-updates

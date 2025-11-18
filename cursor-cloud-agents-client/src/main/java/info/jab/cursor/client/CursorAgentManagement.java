@@ -27,7 +27,7 @@ public interface CursorAgentManagement {
      * @param pr Whether to automatically create a pull request when the agent completes
      * @return Agent instance representing the launched agent
      */
-    AgentResponse launch(String prompt, String model, String repository, boolean pr);
+    AgentResponse launch(String prompt, String model, String repository, Boolean pr);
 
     /**
      * Gets the current status of an agent.

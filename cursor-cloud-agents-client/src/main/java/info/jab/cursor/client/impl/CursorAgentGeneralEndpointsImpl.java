@@ -2,7 +2,6 @@ package info.jab.cursor.client.impl;
 
 import info.jab.cursor.client.CursorAgentGeneralEndpoints;
 import info.jab.cursor.client.model.ApiKeyInfo;
-import info.jab.cursor.client.model.RepositoriesList;
 import info.jab.cursor.generated.client.ApiClient;
 import info.jab.cursor.generated.client.api.DefaultApi;
 import info.jab.cursor.generated.client.ApiException;
@@ -12,6 +11,7 @@ import java.util.Map;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Objects;
 
 /**
  * Implementation of the CursorAgentGeneralEndpoints interface that provides general endpoints operations.
@@ -26,18 +26,15 @@ public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoi
     private final DefaultApi defaultApi;
 
     /**
-     * Creates a new CursorAgentGeneralEndpointsImpl with the specified API key and base URL.
+     * Creates a new CursorAgentGeneralEndpointsImpl with the specified API key and DefaultApi.
+     * This constructor allows dependency injection for better testability and flexibility.
      *
      * @param apiKey The API key for authentication with Cursor API
-     * @param apiBaseUrl The base URL for the Cursor API
+     * @param defaultApi The DefaultApi instance to use (can be a mock in tests or real instance)
      */
-    public CursorAgentGeneralEndpointsImpl(String apiKey, String apiBaseUrl) {
+    public CursorAgentGeneralEndpointsImpl(String apiKey, DefaultApi defaultApi) {
         this.apiKey = apiKey;
-
-        // Initialize API client
-        ApiClient apiClient = new ApiClient();
-        apiClient.updateBaseUri(apiBaseUrl);
-        this.defaultApi = new DefaultApi(apiClient);
+        this.defaultApi = defaultApi;
     }
 
     /**
@@ -72,9 +69,16 @@ public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoi
     }
 
     @Override
-    public RepositoriesList getRepositories() {
+    public List<String> getRepositories() {
         try {
-            return RepositoriesList.from(defaultApi.listRepositories(getAuthHeaders()));
+            var response = defaultApi.listRepositories(getAuthHeaders());
+            if (response == null || response.getRepositories() == null) {
+                return List.of();
+            }
+            return response.getRepositories().stream()
+                .map(repo -> repo.getRepository() != null ? repo.getRepository().toString() : null)
+                .filter(Objects::nonNull)
+                .toList();
         } catch (ApiException e) {
             logger.error("Failed to get repositories: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to get repositories: " + e.getMessage(), e);

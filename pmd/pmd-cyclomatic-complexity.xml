@@ -11,8 +11,8 @@
     <!-- https://pmd.github.io/pmd/pmd_rules_java_design.html#cyclomaticcomplexity -->
     <rule ref="category/java/design.xml/CyclomaticComplexity">
         <properties>
-            <property name="classReportLevel" value="80" />
-            <property name="methodReportLevel" value="10" />
+            <property name="classReportLevel" value="70" />
+            <property name="methodReportLevel" value="25" />
             <property name="cycloOptions" value="" />
         </properties>
     </rule>

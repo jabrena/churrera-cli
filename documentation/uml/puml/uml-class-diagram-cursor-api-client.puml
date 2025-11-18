@@ -14,11 +14,13 @@ package "info.jab.cursor.client" {
     +getAgentConversation(String): ConversationResponse
     +listAgents(): AgentsList
     +getApiKeyInfo(): ApiKeyInfo
-    +listRepositories(): RepositoriesList
+    +listRepositories(): List<String>
   }
 
   interface CursorAgentGeneralEndpoints {
     +getApiKeyInfo(): ApiKeyInfo
+    +getModels(): List<String>
+    +getRepositories(): List<String>
   }
 }
 
@@ -40,14 +42,16 @@ package "info.jab.cursor.client.impl" {
     +getAgentConversation(String): ConversationResponse
     +listAgents(): AgentsList
     +getApiKeyInfo(): ApiKeyInfo
-    +listRepositories(): RepositoriesList
+    +listRepositories(): List<String>
     -getAuthHeaders(): Map<String, String>
   }
 
   class CursorAgentGeneralEndpointsImpl {
     -apiKey: String
-    -generalEndpointsApi: GeneralEndpointsApi
+    -defaultApi: DefaultApi
     +getApiKeyInfo(): ApiKeyInfo
+    +getModels(): List<String>
+    +getRepositories(): List<String>
     -getAuthHeaders(): Map<String, String>
   }
 }
@@ -92,17 +96,6 @@ package "info.jab.cursor.client.model" {
     +from(ApiKey): ApiKeyInfo
   }
 
-  class RepositoriesList {
-    +repositories(): List<Repository>
-    +from(Repositories): RepositoriesList
-  }
-
-  class Repository {
-    +name(): String
-    +url(): String
-    +from(RepositoryInfo): Repository
-  }
-
   class Source {
     +repository(): URI
     +ref(): String
@@ -124,10 +117,8 @@ CursorAgentInformationImpl --> AgentResponse : returns
 CursorAgentInformationImpl --> ConversationResponse : returns
 CursorAgentInformationImpl --> AgentsList : returns
 CursorAgentInformationImpl --> ApiKeyInfo : returns
-CursorAgentInformationImpl --> RepositoriesList : returns
 CursorAgentGeneralEndpointsImpl --> ApiKeyInfo : returns
 ConversationResponse --> ConversationMessage : contains
-RepositoriesList --> Repository : contains
 AgentResponse --> Source : uses
 AgentResponse --> Target : uses
 

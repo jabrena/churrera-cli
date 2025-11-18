@@ -14,12 +14,6 @@
     <artifactId>churrera-cli</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <jcolor.version>5.5.1</jcolor.version>
-        <jfiglet.version>0.0.9</jfiglet.version>
-        <maven-plugins-git-commit-id.version>4.9.10</maven-plugins-git-commit-id.version>
-    </properties>
-
     <!-- Dependencies -->
     <dependencies>
         <!-- Churrera Core dependency -->
@@ -60,7 +54,6 @@
         <dependency>
             <groupId>com.diogonunes</groupId>
             <artifactId>JColor</artifactId>
-            <version>${jcolor.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.lalyos</groupId>
@@ -126,7 +119,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>${maven-plugin-shade.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -192,7 +185,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>${maven-plugin-antrun.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -212,7 +205,6 @@
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>${maven-plugins-git-commit-id.version}</version>
             </plugin>
         </plugins>
     </build>
