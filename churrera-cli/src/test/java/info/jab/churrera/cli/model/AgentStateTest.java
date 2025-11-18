@@ -325,4 +325,175 @@ public class AgentStateTest {
         AgentState result = AgentState.of((AgentStatus) null);
         assertEquals(AgentState.CREATING(), result);
     }
+
+    @Test
+    public void testOfWithStringCreating() {
+        // Test uppercase
+        assertEquals(AgentState.CREATING(), AgentState.of("CREATING"));
+        assertEquals(AgentStatus.CREATING, AgentState.of("CREATING").getStatus());
+
+        // Test lowercase
+        assertEquals(AgentState.CREATING(), AgentState.of("creating"));
+        assertEquals(AgentStatus.CREATING, AgentState.of("creating").getStatus());
+
+        // Test mixed case
+        assertEquals(AgentState.CREATING(), AgentState.of("Creating"));
+        assertEquals(AgentState.CREATING(), AgentState.of("CrEaTiNg"));
+    }
+
+    @Test
+    public void testOfWithStringRunning() {
+        // Test uppercase
+        assertEquals(AgentState.RUNNING(), AgentState.of("RUNNING"));
+        assertEquals(AgentStatus.RUNNING, AgentState.of("RUNNING").getStatus());
+
+        // Test lowercase
+        assertEquals(AgentState.RUNNING(), AgentState.of("running"));
+        assertEquals(AgentStatus.RUNNING, AgentState.of("running").getStatus());
+
+        // Test mixed case
+        assertEquals(AgentState.RUNNING(), AgentState.of("Running"));
+        assertEquals(AgentState.RUNNING(), AgentState.of("RuNnInG"));
+    }
+
+    @Test
+    public void testOfWithStringFinished() {
+        // Test uppercase
+        assertEquals(AgentState.FINISHED(), AgentState.of("FINISHED"));
+        assertEquals(AgentStatus.FINISHED, AgentState.of("FINISHED").getStatus());
+
+        // Test lowercase
+        assertEquals(AgentState.FINISHED(), AgentState.of("finished"));
+        assertEquals(AgentStatus.FINISHED, AgentState.of("finished").getStatus());
+
+        // Test mixed case
+        assertEquals(AgentState.FINISHED(), AgentState.of("Finished"));
+        assertEquals(AgentState.FINISHED(), AgentState.of("FiNiShEd"));
+    }
+
+    @Test
+    public void testOfWithStringError() {
+        // Test uppercase
+        assertEquals(AgentState.ERROR(), AgentState.of("ERROR"));
+        assertEquals(AgentStatus.ERROR, AgentState.of("ERROR").getStatus());
+
+        // Test lowercase
+        assertEquals(AgentState.ERROR(), AgentState.of("error"));
+        assertEquals(AgentStatus.ERROR, AgentState.of("error").getStatus());
+
+        // Test mixed case
+        assertEquals(AgentState.ERROR(), AgentState.of("Error"));
+        assertEquals(AgentState.ERROR(), AgentState.of("ErRoR"));
+    }
+
+    @Test
+    public void testOfWithStringExpired() {
+        // Test uppercase
+        assertEquals(AgentState.EXPIRED(), AgentState.of("EXPIRED"));
+        assertEquals(AgentStatus.EXPIRED, AgentState.of("EXPIRED").getStatus());
+
+        // Test lowercase
+        assertEquals(AgentState.EXPIRED(), AgentState.of("expired"));
+        assertEquals(AgentStatus.EXPIRED, AgentState.of("expired").getStatus());
+
+        // Test mixed case
+        assertEquals(AgentState.EXPIRED(), AgentState.of("Expired"));
+        assertEquals(AgentState.EXPIRED(), AgentState.of("ExPiReD"));
+    }
+
+    @Test
+    public void testOfWithStringNull() {
+        // Test that null string defaults to CREATING
+        AgentState result = AgentState.of((String) null);
+        assertEquals(AgentState.CREATING(), result);
+        assertEquals(AgentStatus.CREATING, result.getStatus());
+    }
+
+    @Test
+    public void testOfWithStringEmpty() {
+        // Test that empty string defaults to CREATING
+        AgentState result = AgentState.of("");
+        assertEquals(AgentState.CREATING(), result);
+        assertEquals(AgentStatus.CREATING, result.getStatus());
+    }
+
+    @Test
+    public void testOfWithStringWhitespace() {
+        // Test that whitespace-only string defaults to CREATING
+        assertEquals(AgentState.CREATING(), AgentState.of("   "));
+        assertEquals(AgentState.CREATING(), AgentState.of("\t"));
+        assertEquals(AgentState.CREATING(), AgentState.of("\n"));
+        assertEquals(AgentState.CREATING(), AgentState.of(" \t\n "));
+    }
+
+    @Test
+    public void testOfWithStringWithWhitespace() {
+        // Test that strings with leading/trailing whitespace are trimmed and parsed correctly
+        assertEquals(AgentState.RUNNING(), AgentState.of("  RUNNING  "));
+        assertEquals(AgentState.FINISHED(), AgentState.of("\tFINISHED\t"));
+        assertEquals(AgentState.ERROR(), AgentState.of("  error  "));
+        assertEquals(AgentState.CREATING(), AgentState.of("  creating  "));
+    }
+
+    @Test
+    public void testOfWithStringInvalid() {
+        // Test that invalid status strings default to CREATING
+        assertEquals(AgentState.CREATING(), AgentState.of("INVALID"));
+        assertEquals(AgentState.CREATING(), AgentState.of("UNKNOWN"));
+        assertEquals(AgentState.CREATING(), AgentState.of("PENDING"));
+        assertEquals(AgentState.CREATING(), AgentState.of("123"));
+        assertEquals(AgentState.CREATING(), AgentState.of("CREATING_EXTRA"));
+    }
+
+    @Test
+    public void testOfWithStringAllValidStatuses() {
+        // Test all valid status values with different cases
+        String[] validStatuses = {"CREATING", "RUNNING", "FINISHED", "ERROR", "EXPIRED"};
+        AgentState[] expectedStates = {
+            AgentState.CREATING(),
+            AgentState.RUNNING(),
+            AgentState.FINISHED(),
+            AgentState.ERROR(),
+            AgentState.EXPIRED()
+        };
+
+        for (int i = 0; i < validStatuses.length; i++) {
+            // Test uppercase
+            assertEquals(expectedStates[i], AgentState.of(validStatuses[i]));
+            // Test lowercase
+            assertEquals(expectedStates[i], AgentState.of(validStatuses[i].toLowerCase()));
+            // Test mixed case
+            String mixedCase = validStatuses[i].charAt(0) + validStatuses[i].substring(1).toLowerCase();
+            assertEquals(expectedStates[i], AgentState.of(mixedCase));
+        }
+    }
+
+    @Test
+    public void testOfWithStringCaseInsensitivity() {
+        // Verify case insensitivity for all statuses
+        assertEquals(AgentState.CREATING(), AgentState.of("creating"));
+        assertEquals(AgentState.CREATING(), AgentState.of("CREATING"));
+        assertEquals(AgentState.CREATING(), AgentState.of("Creating"));
+        assertEquals(AgentState.CREATING(), AgentState.of("CrEaTiNg"));
+
+        assertEquals(AgentState.RUNNING(), AgentState.of("running"));
+        assertEquals(AgentState.RUNNING(), AgentState.of("RUNNING"));
+        assertEquals(AgentState.RUNNING(), AgentState.of("Running"));
+        assertEquals(AgentState.RUNNING(), AgentState.of("RuNnInG"));
+
+        assertEquals(AgentState.FINISHED(), AgentState.of("finished"));
+        assertEquals(AgentState.FINISHED(), AgentState.of("FINISHED"));
+        assertEquals(AgentState.FINISHED(), AgentState.of("Finished"));
+        assertEquals(AgentState.FINISHED(), AgentState.of("FiNiShEd"));
+
+        assertEquals(AgentState.ERROR(), AgentState.of("error"));
+        assertEquals(AgentState.ERROR(), AgentState.of("ERROR"));
+        assertEquals(AgentState.ERROR(), AgentState.of("Error"));
+        assertEquals(AgentState.ERROR(), AgentState.of("ErRoR"));
+
+        assertEquals(AgentState.EXPIRED(), AgentState.of("expired"));
+        assertEquals(AgentState.EXPIRED(), AgentState.of("EXPIRED"));
+        assertEquals(AgentState.EXPIRED(), AgentState.of("Expired"));
+        assertEquals(AgentState.EXPIRED(), AgentState.of("ExPiReD"));
+    }
 }

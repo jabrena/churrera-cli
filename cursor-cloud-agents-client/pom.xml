@@ -23,34 +23,28 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <!-- Version managed by parent -->
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <!-- Version managed by parent -->
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <!-- Version managed by parent -->
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <!-- Version managed by parent -->
         </dependency>
 
         <!-- API documentation and annotation dependencies -->
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <!-- Version managed by parent -->
         </dependency>
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
-            <!-- Version managed by parent -->
         </dependency>
 
         <!-- Logback for logging -->
@@ -67,21 +61,18 @@
         <dependency>
             <groupId>io.github.cdimascio</groupId>
             <artifactId>dotenv-java</artifactId>
-            <!-- Version managed by parent -->
         </dependency>
 
         <!-- OpenAPI generated code dependency -->
         <dependency>
             <groupId>info.jab</groupId>
             <artifactId>cursor-cloud-agents-openapi</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <!-- Version and scope managed by parent -->
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -96,32 +87,27 @@
         <dependency>
             <groupId>org.wiremock</groupId>
             <artifactId>wiremock</artifactId>
-            <!-- Version and scope managed by parent -->
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
-            <!-- Version managed by parent -->
+        </dependency>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5-api</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
     <!-- Build Configuration -->
     <build>
         <plugins>
-            <!-- Core Maven plugins -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <release>${java.version}</release>
-                </configuration>
-            </plugin>
-
-            <!-- Maven Enforcer Plugin - Inherited from parent POM -->
-
-
-
             <!-- Test execution plugins -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -158,46 +144,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <!-- Profiles -->
-    <profiles>
-        <!-- E2E Profile - Adds src/e2e/java for recording API responses -->
-        <profile>
-            <id>e2e</id>
-            <build>
-                <plugins>
-                    <!-- Add e2e sources to classpath -->
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>add-e2e-source</id>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>add-source</goal>
-                                </goals>
-                                <configuration>
-                                    <sources>
-                                        <source>${project.basedir}/src/e2e/java</source>
-                                    </sources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <!-- Exec plugin for running E2E utilities -->
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <configuration>
-                            <mainClass>info.jab.cursor.ApiResponseRecorder</mainClass>
-                            <cleanupDaemonThreads>false</cleanupDaemonThreads>
-                            <skip>false</skip>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

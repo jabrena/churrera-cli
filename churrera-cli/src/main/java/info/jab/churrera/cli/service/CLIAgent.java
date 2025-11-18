@@ -9,7 +9,6 @@ import info.jab.cursor.client.impl.CursorAgentInformationImpl;
 import info.jab.cursor.client.model.FollowUpResponse;
 import info.jab.cursor.client.model.ConversationResponse;
 import info.jab.cursor.client.model.ConversationMessage;
-import info.jab.cursor.client.model.RepositoriesList;
 import java.util.List;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.model.Prompt;
@@ -318,13 +317,7 @@ public class CLIAgent {
      */
     public List<String> getRepositories() {
         try {
-            RepositoriesList repositoriesList = cursorAgentGeneralEndpoints.getRepositories();
-            if (repositoriesList == null || repositoriesList.repositories() == null) {
-                return List.of();
-            }
-            return repositoriesList.repositories().stream()
-                .map(repo -> repo.repository())
-                .toList();
+            return cursorAgentGeneralEndpoints.getRepositories();
         } catch (Exception e) {
             logger.error("Failed to get repositories: {}", e.getMessage());
             throw new RuntimeException("Failed to get repositories: " + e.getMessage(), e);

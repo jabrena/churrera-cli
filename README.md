@@ -161,7 +161,7 @@ Follow the output from the tool:
 A CLI tool designed to orchestrate Cursor Cloud Agents REST API.
 
 Version: 0.2.0-SNAPSHOT
-Commit: 5253edc
+Commit: 1ccefe4
 
 ✓ CURSOR_API_KEY validated
 
@@ -169,18 +169,20 @@ Job registered
 
 | Job ID   | Parent Job | Type     | Prompts | Status   | Last update    | Completed      |
 +----------+------------+----------+---------+----------+----------------+----------------+
-| 26d271f0 | NA         | SEQUENCE | 0/1     | CREATING | 11/11/25 18:00 | Started 3s ago |
+| 492f5d67 | NA         | SEQUENCE | 0/1     | CREATING | 11/18/25 19:20 | Started 4s ago |
 
 | Job ID   | Parent Job | Type     | Prompts | Status  | Last update    | Completed       |
 +----------+------------+----------+---------+---------+----------------+-----------------+
-| 26d271f0 | NA         | SEQUENCE | 0/1     | RUNNING | 11/11/25 18:00 | Started 14s ago |
+| 492f5d67 | NA         | SEQUENCE | 0/1     | RUNNING | 11/18/25 19:20 | Started 10s ago |
 
 | Job ID   | Parent Job | Type     | Prompts | Status   | Last update    | Completed |
 +----------+------------+----------+---------+----------+----------------+-----------+
-| 26d271f0 | NA         | SEQUENCE | 1/1     | FINISHED | 11/11/25 18:00 | 00:25 min |
+| 492f5d67 | NA         | SEQUENCE | 1/1     | FINISHED | 11/18/25 19:20 | 15 secs   |
 
 
 Job completed with status: FINISHED
+Deleting job and all child jobs...
+Job and all child jobs deleted successfully
 
 Thanks for using Churrera! ✨
 ```
@@ -220,9 +222,9 @@ jobs pr     <job-id>    # Show PR link
 ## Build in local
 
 ```bash
-./mvnw clean test verify
+./mvnw clean package -DskipTests
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --help
-java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml --delete-on-success-completion --polling-interval 5
+java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml --delete-on-success-completion --polling-interval 10
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml --delete-on-completion
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/hello-world/workflow-hello-world.xml --delete-on-success-completion
 java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/euler-problems/workflow-euler.xml --delete-on-success-completion --polling-interval 5

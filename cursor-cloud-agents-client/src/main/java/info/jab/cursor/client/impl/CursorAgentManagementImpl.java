@@ -11,6 +11,7 @@ import info.jab.cursor.generated.client.model.CreateAgentRequestPrompt;
 import info.jab.cursor.generated.client.model.CreateAgentRequestSource;
 import info.jab.cursor.generated.client.model.CreateAgentRequestTarget;
 import info.jab.cursor.generated.client.model.AddFollowupRequest;
+import info.jab.cursor.generated.client.model.AddFollowupRequestPrompt;
 import info.jab.cursor.generated.client.ApiException;
 
 import java.util.HashMap;
@@ -33,29 +34,21 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
     private final DefaultApi defaultApi;
 
     /**
-     * Creates a new CursorAgentManagementImpl with the specified API key and base URL.
+     * Creates a new CursorAgentManagementImpl with the specified API key and DefaultApi.
+     * This constructor allows dependency injection for better testability and flexibility.
      *
      * @param apiKey The API key for authentication with Cursor API
-     * @param apiBaseUrl The base URL for the Cursor API
-     */
-    public CursorAgentManagementImpl(String apiKey, String apiBaseUrl) {
-        this.apiKey = apiKey;
-
-        // Initialize API client
-        ApiClient apiClient = new ApiClient();
-        apiClient.updateBaseUri(apiBaseUrl);
-        this.defaultApi = new DefaultApi(apiClient);
-    }
-
-    /**
-     * Constructor for testing purposes.
-     * Allows injection of a mock DefaultApi for unit testing.
-     * This constructor is public to allow tests in different packages to use it.
-     *
-     * @param apiKey The API key for authentication with Cursor API
-     * @param defaultApi The DefaultApi instance to use (typically a mock in tests)
+     * @param defaultApi The DefaultApi instance to use (can be a mock in tests or real instance)
      */
     public CursorAgentManagementImpl(String apiKey, DefaultApi defaultApi) {
+        // Preconditions
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            throw new IllegalArgumentException("API key cannot be null or empty");
+        }
+        if (defaultApi == null) {
+            throw new IllegalArgumentException("DefaultApi cannot be null");
+        }
+
         this.apiKey = apiKey;
         this.defaultApi = defaultApi;
     }
@@ -81,7 +74,7 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
      * @return Agent instance representing the launched agent
      */
     @Override
-    public AgentResponse launch(String prompt, String model, String repository, boolean pr) {
+    public AgentResponse launch(String prompt, String model, String repository, Boolean pr) {
         // Preconditions
         if (prompt == null || prompt.trim().isEmpty()) {
             throw new IllegalArgumentException("Prompt cannot be null or empty");
@@ -91,6 +84,9 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
         }
         if (repository == null || repository.trim().isEmpty()) {
             throw new IllegalArgumentException("Repository cannot be null or empty");
+        }
+        if (pr == null) {
+            throw new IllegalArgumentException("PR cannot be null");
         }
 
         // Create the launch request
@@ -152,7 +148,7 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
         }
 
         // Create the prompt
-        info.jab.cursor.generated.client.model.AddFollowupRequestPrompt promptObj = new info.jab.cursor.generated.client.model.AddFollowupRequestPrompt();
+        AddFollowupRequestPrompt promptObj = new AddFollowupRequestPrompt();
         promptObj.setText(prompt);
 
         // Create the follow-up request

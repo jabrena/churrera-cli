@@ -49,7 +49,6 @@ class JobRepositoryTest {
                 .thenReturn(Optional.of(tempDir.toString()));
 
         jobRepository = new JobRepository(propertyResolver);
-        jobRepository.initialize();
     }
 
     @AfterEach
@@ -470,35 +469,23 @@ class JobRepositoryTest {
 
         // Then
         assertThat(found).isPresent();
-        // Note: The current implementation escapes but doesn't unescape, so we get the escaped version
-        assertThat(found.get().path()).contains("&lt;special&gt;").contains("&amp;");
-        assertThat(found.get().result()).contains("&lt;tags&gt;").contains("&amp;");
+        // XML values are unescaped when parsed, so we get the original text back
+        assertThat(found.get().path()).isEqualTo("/path/with <special> & \"chars\" 'test'");
+        assertThat(found.get().result()).isEqualTo("Result with <tags> & \"quotes\"");
     }
 
     @Test
-    void shouldCloseRepositoryWhenContextIsNull() {
-        // Given
-        when(propertyResolver.getProperty(eq("application.properties"), eq("basex.database.path")))
-                .thenReturn(Optional.of(tempDir.toString()));
-        JobRepository repo = new JobRepository(propertyResolver);
+    void shouldCloseRepositorySuccessfully(@TempDir Path testTempDir) throws IOException, BaseXException {
+        // Given - use a separate temp directory to avoid conflicts
+        PropertyResolver testPropertyResolver = mock(PropertyResolver.class);
+        when(testPropertyResolver.getProperty(eq("application.properties"), eq("basex.database.path")))
+                .thenReturn(Optional.of(testTempDir.toString()));
+        JobRepository repo = new JobRepository(testPropertyResolver);
 
-        // When & Then - should not throw exception even with uninitialized context
+        // When & Then - should close without throwing exception
         assertDoesNotThrow(() -> repo.close());
     }
 
-    @Test
-    void shouldThrowExceptionWhenNotInitialized() {
-        // Given
-        when(propertyResolver.getProperty(eq("application.properties"), eq("basex.database.path")))
-                .thenReturn(Optional.of(tempDir.toString()));
-        JobRepository uninitializedRepo = new JobRepository(propertyResolver);
-
-        // When & Then
-        assertThat(org.junit.jupiter.api.Assertions.assertThrows(
-            IllegalStateException.class,
-            () -> uninitializedRepo.findAll()
-        )).hasMessage("Repository not initialized. Call initialize() first.");
-    }
 
     @Test
     void shouldHandleInitializeWhenDatabaseExists() throws BaseXException, IOException, QueryException {
@@ -512,7 +499,6 @@ class JobRepositoryTest {
         when(propertyResolver.getProperty(eq("application.properties"), eq("basex.database.path")))
                 .thenReturn(Optional.of(tempDir.toString()));
         JobRepository newRepo = new JobRepository(propertyResolver);
-        newRepo.initialize();
 
         // Then - should open existing database and find the job
         Optional<Job> found = newRepo.findById("test-job");
@@ -589,22 +575,6 @@ class JobRepositoryTest {
         assertThat(found.get().type()).isEqualTo(info.jab.churrera.workflow.WorkflowType.SEQUENCE);
     }
 
-    @Test
-    void shouldFindAllJobsWhenDatabaseContainsInternalReference() throws BaseXException, IOException, QueryException {
-        // Given - Add multiple jobs to trigger different code paths in findAll
-        LocalDateTime now = LocalDateTime.now();
-        for (int i = 0; i < 5; i++) {
-            Job job = new Job("job-" + i, "/path/" + i, null, "model", "repo",
-                            AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
-            jobRepository.save(job);
-        }
-
-        // When
-        List<Job> jobs = jobRepository.findAll();
-
-        // Then
-        assertThat(jobs).hasSize(5);
-    }
 
     @Test
     void shouldHandleChildJobsInFindJobsByParentId() throws BaseXException, IOException, QueryException {
@@ -672,7 +642,6 @@ class JobRepositoryTest {
                 .thenReturn(Optional.of(testTempDir.toString()));
 
         JobRepository defaultRepo = new JobRepository(propertyResolver);
-        defaultRepo.initialize();
 
         // When
         LocalDateTime now = LocalDateTime.now();

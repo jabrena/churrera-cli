@@ -60,10 +60,6 @@ jwebserver -p 8000 -d "$(pwd)/target/site/"
 jwebserver -p 8015 -d "$(pwd)/jacoco-report-aggregated/target/site/"
 jwebserver -p 8020 -d "$(pwd)/docs"
 
-# Record E2E API responses for WireMock testing
-# Set CURSOR_API_KEY in .env file or as environment variable first
-./mvnw compile exec:java -pl cursor-cloud-agents-client -Pe2e -Dexec.mainClass="info.jab.cursor.ApiResponseRecorder"
-
 # Check for dependency updates
 ./mvnw versions:display-property-updates
 ./mvnw versions:display-dependency-updates

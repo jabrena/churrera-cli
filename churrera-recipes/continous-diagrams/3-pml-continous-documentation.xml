@@ -18,7 +18,7 @@
                 To update the diagrams, remove the previous diagrams in the path: ./documentation/uml/ and
                 the .puml files in the path: ./documentation/uml/puml/
 
-                later, run the command:
+                later, run the command to generate the diagrams in png format from the .puml files:
 
                 <![CDATA[
                 ```bash
@@ -28,7 +28,7 @@
 
                 And later:
 
-                `Create UML class diagrams with @171-java-diagrams without any question
+                `Create UML class diagrams for all modules: churrera-cli, churrera-core, cursor-api-client and cursor-cloud-agents-openapi with @171-java-diagrams without any question
                 for all modules finally create a complete diagram from all`
 
                 Fetch the rule from the following URL:
@@ -36,11 +36,22 @@
                 put the diagrams in the path: ./documentation/uml/ and move the .puml files to the
                 path: ./documentation/uml/puml/
 
-                Update the ./documentation/uml/README.md file with the new diagrams
+                Review that png image appear all elements described in the .puml files or change the orientation in the .puml files
+                to visualize better the diagrams.
+
+                Update the ./documentation/uml/README.md file with the all diagrams.
+                Verify that the document include 5 diagrams:
+                - 1 complete diagram from all modules.
+                - 1 diagram for the churrera-cli module.
+                - 1 diagram for the churrera-core module.
+                - 1 diagram for the cursor-api-client module.
+                - 1 diagram for the cursor-cloud-agents-openapi module.
 
                 The document located in the path: ./documentation/uml/README.md should show
                 a diagram per maven module and a complete diagram from all modules.
 
+
+                After the diagrams are generated, verify that the document include 5 diagrams:
                 Review that png files show all elements from the .puml files. In other case, make chages in the .puml files.
             </step-content>
         </step>

@@ -44,6 +44,30 @@ public final class AgentState {
     }
 
     /**
+     * Creates an AgentState from a string representation.
+     * If the string is null, empty, or cannot be parsed, defaults to CREATING.
+     *
+     * @param statusStr the status string to parse (can be null or empty)
+     * @return AgentState instance, defaults to CREATING if parsing fails
+     */
+    public static AgentState of(String statusStr) {
+        if (statusStr == null || statusStr.trim().isEmpty()) {
+            return CREATING();
+        }
+
+        String upperStatus = statusStr.toUpperCase().trim();
+
+        return switch (upperStatus) {
+            case "CREATING" -> CREATING();
+            case "RUNNING" -> RUNNING();
+            case "FINISHED" -> FINISHED();
+            case "ERROR" -> ERROR();
+            case "EXPIRED" -> EXPIRED();
+            default -> CREATING();
+        };
+    }
+
+    /**
      * Creates a CREATING state.
      *
      * @return AgentState with CREATING status

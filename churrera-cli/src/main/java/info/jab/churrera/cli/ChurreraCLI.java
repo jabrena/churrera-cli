@@ -1,7 +1,7 @@
 package info.jab.churrera.cli;
 
-import info.jab.churrera.cli.command.CliCommand;
-import info.jab.churrera.cli.command.RunCommand;
+import info.jab.churrera.cli.command.cli.CliCommand;
+import info.jab.churrera.cli.command.run.RunCommand;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.workflow.WorkflowParser;
 import info.jab.churrera.cli.service.JobProcessor;
@@ -14,6 +14,8 @@ import info.jab.churrera.workflow.PmlValidator;
 import info.jab.cursor.client.impl.CursorAgentManagementImpl;
 import info.jab.cursor.client.impl.CursorAgentInformationImpl;
 import info.jab.cursor.client.impl.CursorAgentGeneralEndpointsImpl;
+import info.jab.cursor.generated.client.ApiClient;
+import info.jab.cursor.generated.client.api.DefaultApi;
 import org.basex.core.BaseXException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,8 @@ import com.github.lalyos.jfiglet.FigletFont;
 
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.function.Supplier;
+import java.io.InputStream;
 
 /**
  * Main CLI application for churrera.
@@ -33,7 +37,6 @@ import java.util.Scanner;
  */
 @CommandLine.Command(
     name = "churrera",
-    subcommands = {CliCommand.class, RunCommand.class},
     mixinStandardHelpOptions = true,
     usageHelpAutoWidth = true
 )
@@ -41,101 +44,104 @@ public class ChurreraCLI implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(ChurreraCLI.class);
 
-    public ChurreraCLI() {
-        // Empty constructor for picocli
-    }
+    // Dependencies
+    private final CursorApiKeyResolver apiKeyResolver;
+    final PropertyResolver propertyResolver;
+    final JobRepository jobRepository;
+    private final ApiClient apiClient;
+    private final DefaultApi defaultApi;
+    final CLIAgent cliAgent;
+    private final WorkflowParser workflowParser;
+    final JobProcessor jobProcessor;
+    final WorkflowValidator workflowValidator;
+    final PmlValidator pmlValidator;
+    private final String apiKey;
 
     /**
-     * Creates and initializes the CLI command with all required dependencies.
-     * This method is used by the CLI subcommand to get initialized components.
+     * Default constructor that initializes all dependencies.
      */
-    static CliCommand createCLICommand() throws IOException, BaseXException {
+    public ChurreraCLI() throws IOException, BaseXException {
         // Validate API key at startup
-        CursorApiKeyResolver apiKeyResolver = new CursorApiKeyResolver();
-        String apiKey = apiKeyResolver.resolveApiKey();
-        logger.info("CURSOR_API_KEY validated");
-        System.out.println("✓ CURSOR_API_KEY validated");
-
-        logger.info("Initializing Churrera CLI");
-
-        PropertyResolver propertyResolver = new PropertyResolver();
-        JobRepository jobRepository = new JobRepository(propertyResolver);
-        logger.debug("JobRepository initialized");
-
-        // Create CLIAgent with dependencies
-        String apiBaseUrl = "https://api.cursor.com";
-        CLIAgent cliAgent = new CLIAgent(
-            jobRepository,
-            new CursorAgentManagementImpl(apiKey, apiBaseUrl),
-            new CursorAgentInformationImpl(apiKey, apiBaseUrl),
-            new CursorAgentGeneralEndpointsImpl(apiKey, apiBaseUrl),
-            new PmlConverter(),
-            propertyResolver
-        );
-
-        // Create WorkflowParser
-        WorkflowParser workflowParser = new WorkflowParser();
-
-        // Read polling interval from properties
-        int pollingIntervalSeconds = propertyResolver.getProperty("application.properties", "cli.polling.interval.seconds")
-                .map(Integer::parseInt)
-                .orElseThrow(() -> new RuntimeException("Required property 'cli.polling.interval.seconds' not found in application.properties"));
-        JobProcessor jobProcessor = new JobProcessor(jobRepository, cliAgent, workflowParser, pollingIntervalSeconds);
-        Scanner scanner = new Scanner(System.in);
-
-        // Initialize the repository
-        jobRepository.initialize();
-        logger.info("Churrera CLI initialized successfully");
-
-        return new CliCommand(jobRepository, jobProcessor, propertyResolver, scanner, cliAgent);
-    }
-
-    /**
-     * Creates and initializes the Run command with all required dependencies.
-     * This method is used by the Run subcommand to get initialized components.
-     */
-    static RunCommand createRunCommand() throws IOException, BaseXException {
-        // Validate API key at startup
-        CursorApiKeyResolver apiKeyResolver = new CursorApiKeyResolver();
-        String apiKey = apiKeyResolver.resolveApiKey();
+        this.apiKeyResolver = new CursorApiKeyResolver();
+        this.apiKey = apiKeyResolver.resolveApiKey();
         logger.info("CURSOR_API_KEY validated");
         System.out.println("✓ CURSOR_API_KEY validated");
         System.out.println();
 
-        logger.info("Initializing Churrera Run command");
-
-        PropertyResolver propertyResolver = new PropertyResolver();
-        JobRepository jobRepository = new JobRepository(propertyResolver);
+        this.propertyResolver = new PropertyResolver();
+        this.jobRepository = new JobRepository(propertyResolver);
         logger.debug("JobRepository initialized");
 
         // Create CLIAgent with dependencies
         String apiBaseUrl = "https://api.cursor.com";
-        CLIAgent cliAgent = new CLIAgent(
+        this.apiClient = new ApiClient();
+        this.apiClient.updateBaseUri(apiBaseUrl);
+        this.defaultApi = new DefaultApi(apiClient);
+        this.cliAgent = new CLIAgent(
             jobRepository,
-            new CursorAgentManagementImpl(apiKey, apiBaseUrl),
-            new CursorAgentInformationImpl(apiKey, apiBaseUrl),
-            new CursorAgentGeneralEndpointsImpl(apiKey, apiBaseUrl),
+            new CursorAgentManagementImpl(apiKey, defaultApi),
+            new CursorAgentInformationImpl(apiKey, defaultApi),
+            new CursorAgentGeneralEndpointsImpl(apiKey, defaultApi),
             new PmlConverter(),
             propertyResolver
         );
 
         // Create WorkflowParser
-        WorkflowParser workflowParser = new WorkflowParser();
+        this.workflowParser = new WorkflowParser();
 
         // Read polling interval from properties
         int pollingIntervalSeconds = propertyResolver.getProperty("application.properties", "cli.polling.interval.seconds")
                 .map(Integer::parseInt)
                 .orElseThrow(() -> new RuntimeException("Required property 'cli.polling.interval.seconds' not found in application.properties"));
-        JobProcessor jobProcessor = new JobProcessor(jobRepository, cliAgent, workflowParser, pollingIntervalSeconds);
+        this.jobProcessor = new JobProcessor(jobRepository, cliAgent, workflowParser, pollingIntervalSeconds);
 
         // Create validators
-        WorkflowValidator workflowValidator = new WorkflowValidator();
-        PmlValidator pmlValidator = new PmlValidator();
+        this.workflowValidator = new WorkflowValidator();
+        this.pmlValidator = new PmlValidator();
+    }
 
-        // Initialize the repository
-        jobRepository.initialize();
+    /**
+     * Constructor for testing that accepts all dependencies.
+     */
+    ChurreraCLI(
+            CursorApiKeyResolver apiKeyResolver,
+            String apiKey,
+            PropertyResolver propertyResolver,
+            JobRepository jobRepository,
+            ApiClient apiClient,
+            DefaultApi defaultApi,
+            CLIAgent cliAgent,
+            WorkflowParser workflowParser,
+            JobProcessor jobProcessor,
+            WorkflowValidator workflowValidator,
+            PmlValidator pmlValidator) {
+        this.apiKeyResolver = apiKeyResolver;
+        this.apiKey = apiKey;
+        this.propertyResolver = propertyResolver;
+        this.jobRepository = jobRepository;
+        this.apiClient = apiClient;
+        this.defaultApi = defaultApi;
+        this.cliAgent = cliAgent;
+        this.workflowParser = workflowParser;
+        this.jobProcessor = jobProcessor;
+        this.workflowValidator = workflowValidator;
+        this.pmlValidator = pmlValidator;
+    }
+
+
+    /**
+     * Creates and initializes the Run command with all required dependencies.
+     */
+    RunCommand createRunCmd() {
+        logger.info("Initializing Churrera Run command");
+        logger.debug("JobRepository initialized");
+
+        // Read polling interval from properties
+        int pollingIntervalSeconds = propertyResolver.getProperty("application.properties", "cli.polling.interval.seconds")
+                .map(Integer::parseInt)
+                .orElseThrow(() -> new RuntimeException("Required property 'cli.polling.interval.seconds' not found in application.properties"));
+
         logger.info("Churrera Run command initialized successfully");
-
         return new RunCommand(jobRepository, jobProcessor, workflowValidator, workflowParser, pmlValidator, pollingIntervalSeconds, cliAgent);
     }
 
@@ -152,52 +158,39 @@ public class ChurreraCLI implements Runnable {
      */
     public static void main(String[] args) {
         // Print banner first in all cases
-        printBanner();
+        printBanner(() -> new GitInfo());
 
         try {
-            ChurreraCLI cli = new ChurreraCLI();
+            // Create ChurreraCLI instance with dependencies initialized
+            final ChurreraCLI cli = new ChurreraCLI();
 
-            // Store references for shutdown hook
-            final CliCommand[] cliCommandRef = new CliCommand[1];
-            final RunCommand[] runCommandRef = new RunCommand[1];
+            // Create CommandLine with root command
+            CommandLine commandLine = new CommandLine(cli);
 
-            // Set up factory for creating subcommands
-            CommandLine.IFactory factory = new CommandLine.IFactory() {
-                @Override
-                public <T> T create(Class<T> cls) throws Exception {
-                    if (cls == CliCommand.class) {
-                        @SuppressWarnings("unchecked")
-                        T cmd = (T) createCLICommand();
-                        cliCommandRef[0] = (CliCommand) cmd; // Store reference for shutdown hook
-                        return cmd;
-                    }
-                    if (cls == RunCommand.class) {
-                        @SuppressWarnings("unchecked")
-                        T cmd = (T) createRunCommand();
-                        runCommandRef[0] = (RunCommand) cmd; // Store reference for shutdown hook
-                        return cmd;
-                    }
-                    // Default: try to instantiate using default constructor
-                    return cls.getDeclaredConstructor().newInstance();
-                }
-            };
-            CommandLine commandLine = new CommandLine(cli, factory);
+            // Create and register subcommands manually
+            logger.info("Initializing Churrera CLI");
+            final CliCommand cliCommand = new CliCommand(cli.jobRepository, cli.jobProcessor, cli.propertyResolver, new Scanner(System.in), cli.cliAgent);
+            logger.info("Churrera CLI initialized successfully");
+            final RunCommand runCommand = cli.createRunCmd();
+
+            commandLine.addSubcommand("cli", cliCommand);
+            commandLine.addSubcommand("run", runCommand);
 
             // Add shutdown hook to ensure proper cleanup
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 logger.info("Shutdown hook triggered");
-                if (cliCommandRef[0] != null) {
-                    if (cliCommandRef[0].getScheduledExecutor() != null) {
-                        cliCommandRef[0].getScheduledExecutor().shutdownNow();
+                if (cliCommand != null) {
+                    if (cliCommand.getScheduledExecutor() != null) {
+                        cliCommand.getScheduledExecutor().shutdownNow();
                     }
-                    if (cliCommandRef[0].getJobRepository() != null) {
-                        cliCommandRef[0].getJobRepository().close();
+                    if (cliCommand.getJobRepository() != null) {
+                        cliCommand.getJobRepository().close();
                     }
                 }
                 // Cleanup for RunCommand
-                if (runCommandRef[0] != null) {
-                    if (runCommandRef[0].getJobRepository() != null) {
-                        runCommandRef[0].getJobRepository().close();
+                if (runCommand != null) {
+                    if (runCommand.getJobRepository() != null) {
+                        runCommand.getJobRepository().close();
                     }
                 }
             }));
@@ -216,16 +209,26 @@ public class ChurreraCLI implements Runnable {
         }
     }
 
-    private static void printBanner() {
+    /**
+     * Prints the application banner.
+     * Package-private method for testing with injected GitInfo supplier.
+     *
+     * @param gitInfoSupplier Supplier for creating GitInfo instance
+     */
+    static void printBanner(Supplier<GitInfo> gitInfoSupplier) {
         try {
             logger.debug("Printing application banner");
             System.out.println();
             String asciiArt = FigletFont.convertOneLine("Churrera CLI");
             System.out.println(colorize(asciiArt, Attribute.GREEN_TEXT()));
-            new GitInfo().print();
+            gitInfoSupplier.get().print();
         } catch (IOException e) {
+            logger.error("Error printing banner: {}", e.getMessage(), e);
+            System.out.println("Error printing banner: " + e.getMessage());
+        } catch (RuntimeException e) {
             logger.error("Error printing banner: {}", e.getMessage(), e);
             System.out.println("Error printing banner: " + e.getMessage());
         }
     }
+
 }

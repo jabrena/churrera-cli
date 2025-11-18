@@ -26,29 +26,21 @@ public class CursorAgentInformationImpl implements CursorAgentInformation {
     private final DefaultApi defaultApi;
 
     /**
-     * Creates a new CursorAgentInformationImpl with the specified API key and base URL.
+     * Creates a new CursorAgentInformationImpl with the specified API key and DefaultApi.
+     * This constructor allows dependency injection for better testability and flexibility.
      *
      * @param apiKey The API key for authentication with Cursor API
-     * @param apiBaseUrl The base URL for the Cursor API
-     */
-    public CursorAgentInformationImpl(String apiKey, String apiBaseUrl) {
-        this.apiKey = apiKey;
-
-        // Initialize API client
-        ApiClient apiClient = new ApiClient();
-        apiClient.updateBaseUri(apiBaseUrl);
-        this.defaultApi = new DefaultApi(apiClient);
-    }
-
-    /**
-     * Constructor for testing purposes.
-     * Allows injection of a mock DefaultApi for unit testing.
-     * This constructor is public to allow tests in different packages to use it.
-     *
-     * @param apiKey The API key for authentication with Cursor API
-     * @param defaultApi The DefaultApi instance to use (typically a mock in tests)
+     * @param defaultApi The DefaultApi instance to use (can be a mock in tests or real instance)
      */
     public CursorAgentInformationImpl(String apiKey, DefaultApi defaultApi) {
+        // Preconditions
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            throw new IllegalArgumentException("API key cannot be null or empty");
+        }
+        if (defaultApi == null) {
+            throw new IllegalArgumentException("DefaultApi cannot be null");
+        }
+
         this.apiKey = apiKey;
         this.defaultApi = defaultApi;
     }
@@ -73,6 +65,14 @@ public class CursorAgentInformationImpl implements CursorAgentInformation {
      */
     @Override
     public AgentsList getAgents(Integer limit, String cursor) {
+        // Preconditions
+        if (limit != null && limit <= 0) {
+            throw new IllegalArgumentException("Limit must be greater than 0");
+        }
+        if (cursor != null && cursor.trim().isEmpty()) {
+            throw new IllegalArgumentException("Cursor cannot be empty");
+        }
+
         try {
             return AgentsList.from(defaultApi.listAgents(limit, cursor, getAuthHeaders()));
         } catch (ApiException e) {
@@ -90,6 +90,7 @@ public class CursorAgentInformationImpl implements CursorAgentInformation {
      */
     @Override
     public AgentResponse getStatus(String agentId) {
+        // Preconditions
         if (agentId == null || agentId.trim().isEmpty()) {
             throw new IllegalArgumentException("Agent ID cannot be null or empty");
         }
@@ -117,6 +118,7 @@ public class CursorAgentInformationImpl implements CursorAgentInformation {
      */
     @Override
     public ConversationResponse getAgentConversation(String agentId) {
+        // Preconditions
         if (agentId == null || agentId.trim().isEmpty()) {
             throw new IllegalArgumentException("Agent ID cannot be null or empty");
         }
