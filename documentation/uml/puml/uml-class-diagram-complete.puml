@@ -1,129 +1,137 @@
 @startuml
 !theme plain
-title Complete Project - Class Diagram
+title Complete Project - Class Diagram (All Modules)
 
-package "churrera-cli" {
-  package "info.jab.churrera.cli" {
-    class ChurreraCLI
-  }
-  package "info.jab.churrera.cli.command" {
-    class CliCommand
-    class RunCommand
-    class JobsCommand
-    class NewJobCommand
-    class NewJobRunCommand
-    class JobsPrCommand
-    class JobStatusCommand
-    class JobLogsCommand
-    class DeleteJobCommand
-    class TableFormatter
-  }
-  package "info.jab.churrera.cli.service" {
-    class CLIAgent
-    class JobProcessor
-  }
-  package "info.jab.churrera.cli.repository" {
-    class JobRepository
-  }
-  package "info.jab.churrera.cli.model" {
-    class Job
-    class JobWithDetails
-    class Prompt
-    enum AgentState
-  }
-  package "info.jab.churrera.cli.util" {
-    class GitInfo
-  }
+!define CHURRERA_CLI package "churrera-cli" #LightBlue
+!define CHURRERA_CORE package "churrera-core" #LightGreen
+!define CURSOR_CLIENT package "cursor-cloud-agents-client" #LightYellow
+!define CURSOR_OPENAPI package "cursor-cloud-agents-openapi" #LightCoral
+
+CHURRERA_CLI {
+  [ChurreraCLI] as CLI
+  [CliCommand] as CliCmd
+  [RunCommand] as RunCmd
+  [JobProcessor] as JobProc
+  [CLIAgent] as CLIAgent
+  [JobRepository] as JobRepo
+  [Job] as Job
+  [Prompt] as Prompt
+  [SequenceWorkflowHandler] as SeqHandler
+  [ParallelWorkflowHandler] as ParHandler
+  [ChildWorkflowHandler] as ChildHandler
 }
 
-package "churrera-core" {
-  package "info.jab.churrera.workflow" {
-    class WorkflowParser
-    class WorkflowData
-    class WorkflowValidator
-    class PmlValidator
-    class WorkflowParseException
-    class PromptInfo
-    class ParallelWorkflowData
-    class SequenceInfo
-    class TimeoutParser
-    class ExpressionEvaluator
-    class BindResultTypeMapper
-    enum WorkflowType
-  }
-  package "info.jab.churrera.util" {
-    class PmlConverter
-    class PropertyResolver
-    class CursorApiKeyResolver
-    class ClasspathResolver
-    class ConversationJsonDeserializer
-  }
+CHURRERA_CORE {
+  [WorkflowParser] as WFParser
+  [WorkflowData] as WFData
+  [WorkflowValidator] as WFValidator
+  [PmlValidator] as PmlValidator
+  [WorkflowType] as WFType
+  [PromptInfo] as PromptInfo
+  [PropertyResolver] as PropResolver
+  [CursorApiKeyResolver] as ApiKeyResolver
+  [PmlConverter] as PmlConverter
+  [ExpressionEvaluator] as ExprEval
 }
 
-package "cursor-cloud-agents-client" {
-  package "info.jab.cursor.client" {
-    interface CursorAgentManagement
-    interface CursorAgentInformation
-    interface CursorAgentGeneralEndpoints
-  }
-  package "info.jab.cursor.client.impl" {
-    class CursorAgentManagementImpl
-    class CursorAgentInformationImpl
-    class CursorAgentGeneralEndpointsImpl
-  }
-  package "info.jab.cursor.client.model" {
-    class AgentResponse
-    class FollowUpResponse
-    class DeleteAgentResponse
-    class ConversationResponse
-    class ConversationMessage
-    class AgentsList
-    class ApiKeyInfo
-    class Source
-    class Target
-  }
+CURSOR_CLIENT {
+  [CursorAgentManagement] as AgentMgmt
+  [CursorAgentInformation] as AgentInfo
+  [CursorAgentGeneralEndpoints] as AgentGen
+  [CursorAgentManagementImpl] as AgentMgmtImpl
+  [CursorAgentInformationImpl] as AgentInfoImpl
+  [CursorAgentGeneralEndpointsImpl] as AgentGenImpl
+  [AgentResponse] as AgentResp
+  [AgentStatus] as AgentStatus
+  [ConversationResponse] as ConvResp
 }
 
-' Cross-module relationships
-ChurreraCLI --> CliCommand
-ChurreraCLI --> RunCommand
-CliCommand --> JobRepository
-CliCommand --> JobProcessor
-CliCommand --> CLIAgent
-RunCommand --> JobRepository
-RunCommand --> JobProcessor
-RunCommand --> WorkflowValidator
-RunCommand --> WorkflowParser
-RunCommand --> PmlValidator
-CLIAgent --> JobRepository
-CLIAgent --> CursorAgentManagement
-CLIAgent --> CursorAgentInformation
+CURSOR_OPENAPI {
+  [OpenAPISpecification] as OpenAPI
+}
+
+' Main relationships
+CLI --> JobRepo
+CLI --> CLIAgent
+CLI --> JobProc
+CLI --> WFParser
+CLI --> WFValidator
+
+CliCmd --> JobRepo
+CliCmd --> JobProc
+CliCmd --> CLIAgent
+
+RunCmd --> JobRepo
+RunCmd --> JobProc
+
+JobProc --> JobRepo
+JobProc --> CLIAgent
+JobProc --> SeqHandler
+JobProc --> ParHandler
+JobProc --> ChildHandler
+JobProc --> WFParser
+
+SeqHandler --> CLIAgent
+ParHandler --> CLIAgent
+ChildHandler --> CLIAgent
+
+CLIAgent --> AgentMgmt
+CLIAgent --> AgentInfo
+CLIAgent --> AgentGen
+CLIAgent --> JobRepo
 CLIAgent --> PmlConverter
-CLIAgent --> PropertyResolver
-JobProcessor --> JobRepository
-JobProcessor --> CLIAgent
-JobProcessor --> WorkflowParser
-JobRepository --> Job
-JobRepository --> Prompt
-JobRepository --> JobWithDetails
-Job --> AgentState
-Job --> WorkflowType
-JobWithDetails --> Job
-JobWithDetails --> Prompt
-WorkflowParser --> WorkflowData
-WorkflowParser --> WorkflowType
-WorkflowData --> PromptInfo
-WorkflowData --> ParallelWorkflowData
-WorkflowData --> WorkflowType
-ParallelWorkflowData --> PromptInfo
-ParallelWorkflowData --> SequenceInfo
-SequenceInfo --> PromptInfo
-CursorAgentManagementImpl ..|> CursorAgentManagement
-CursorAgentInformationImpl ..|> CursorAgentInformation
-CursorAgentGeneralEndpointsImpl ..|> CursorAgentGeneralEndpoints
-CursorAgentManagementImpl --> AgentResponse
-CursorAgentInformationImpl --> AgentResponse
-CursorAgentInformationImpl --> ConversationResponse
-ConversationResponse --> ConversationMessage
+CLIAgent --> PropResolver
+CLIAgent --> ExprEval
+
+AgentMgmtImpl ..|> AgentMgmt
+AgentInfoImpl ..|> AgentInfo
+AgentGenImpl ..|> AgentGen
+
+AgentMgmtImpl --> AgentResp
+AgentInfoImpl --> AgentResp
+AgentInfoImpl --> ConvResp
+
+AgentResp --> AgentStatus
+
+JobRepo --> Job
+JobRepo --> Prompt
+
+Job --> AgentStatus
+Job --> WFType
+
+WFParser --> WFData
+WFParser --> WFType
+WFParser --> PromptInfo
+
+WFData --> PromptInfo
+WFData --> WFType
+
+WFValidator --> WFParser
+PmlValidator --> WFParser
+
+note right of CLI
+  Main CLI application
+  Entry point for all commands
+end note
+
+note right of JobProc
+  Background processor
+  Handles job execution workflows
+end note
+
+note right of CLIAgent
+  Service layer for
+  Cursor API interactions
+end note
+
+note right of WFParser
+  Parses workflow XML files
+  Supports sequence and parallel workflows
+end note
+
+note right of AgentMgmt
+  Interface for agent
+  lifecycle management
+end note
 
 @enduml

@@ -4,145 +4,186 @@ title Churrera Core Module - Class Diagram
 
 package "info.jab.churrera.workflow" {
   class WorkflowParser {
-    -logger: Logger
-    +parse(File): WorkflowData
-    +parse(Path): WorkflowData
-    +determineWorkflowType(File): WorkflowType
-    -parseV2Workflow(Node): WorkflowData
-    -parseParallelWorkflow(Element): WorkflowData
-    -parseSequenceInfo(Element): SequenceInfo
-    -inferTypeFromExtension(String): String
+    + parse(File) : WorkflowData
+    + parse(Path) : WorkflowData
+    + {static} determineWorkflowType(File) : WorkflowType
+    - parseV2Workflow(Node) : WorkflowData
+    - parseParallelWorkflow(Element) : WorkflowData
+    - parseSequenceInfo(Element) : SequenceInfo
+    - {static} inferTypeFromExtension(String) : String
   }
 
   class WorkflowData {
-    -launchPrompt: PromptInfo
-    -model: String
-    -repository: String
-    -updatePrompts: List<PromptInfo>
-    -parallelWorkflowData: ParallelWorkflowData
-    -timeoutMillis: Long
-    -fallbackSrc: String
-    +getLaunchPrompt(): PromptInfo
-    +getModel(): String
-    +getRepository(): String
-    +getUpdatePrompts(): List<PromptInfo>
-    +getParallelWorkflowData(): ParallelWorkflowData
-    +isParallelWorkflow(): boolean
-    +getUpdateAgentCount(): int
-    +hasUpdateAgents(): boolean
-    +getTimeoutMillis(): Long
-    +getFallbackSrc(): String
+    - PromptInfo launchPrompt
+    - String model
+    - String repository
+    - List<PromptInfo> updatePrompts
+    - ParallelWorkflowData parallelWorkflowData
+    - Long timeoutMillis
+    - String fallbackSrc
+    + WorkflowData(...)
+    + getLaunchPrompt() : PromptInfo
+    + getModel() : String
+    + getRepository() : String
+    + getUpdatePrompts() : List<PromptInfo>
+    + getParallelWorkflowData() : ParallelWorkflowData
+    + isParallelWorkflow() : boolean
+    + getUpdateAgentCount() : int
+    + hasUpdateAgents() : boolean
+    + getTimeoutMillis() : Long
+    + getFallbackSrc() : String
   }
 
   class WorkflowValidator {
-    +validate(WorkflowData): void
+    + validate(File) : void
+    + validate(Path) : void
+    - validateStructure(Document) : void
+    - validateSequence(Element) : void
+    - validateParallel(Element) : void
   }
 
   class PmlValidator {
-    +validate(String): void
+    + validate(File) : void
+    + validate(Path) : void
+    - validateStructure(Document) : void
+    - validatePromptElements(Element) : void
   }
 
-  class WorkflowParseException {
-    -message: String
-    -cause: Throwable
-  }
-
-  class PromptInfo {
-    -srcFile: String
-    -type: String
-    -bindResultExp: String
-    +getSrcFile(): String
-    +getType(): String
-    +getBindResultExp(): String
-    +hasBindResultExp(): boolean
-  }
-
-  class ParallelWorkflowData {
-    -parallelPrompt: PromptInfo
-    -bindResultType: String
-    -sequences: List<SequenceInfo>
-    -timeoutMillis: Long
-    -fallbackSrc: String
-    +getParallelPrompt(): PromptInfo
-    +getBindResultType(): String
-    +hasBindResultType(): boolean
-    +getSequences(): List<SequenceInfo>
-    +getTimeoutMillis(): Long
-    +getFallbackSrc(): String
-  }
-
-  class SequenceInfo {
-    -model: String
-    -repository: String
-    -prompts: List<PromptInfo>
-    -timeoutMillis: Long
-    -fallbackSrc: String
-    +getModel(): String
-    +getRepository(): String
-    +getPrompts(): List<PromptInfo>
-    +getTimeoutMillis(): Long
-    +getFallbackSrc(): String
-  }
-
-  class TimeoutParser {
-    +parseToMillis(String): Long
-  }
-
-  class ExpressionEvaluator {
-    +replaceInputPlaceholder(String, String): String
-  }
-
-  class BindResultTypeMapper {
-    +isListType(String): boolean
-    +mapToElementType(String): Class<?>
+  class WorkflowParseException extends Exception {
+    + WorkflowParseException(String)
+    + WorkflowParseException(String, Throwable)
   }
 
   enum WorkflowType {
     SEQUENCE
     PARALLEL
   }
+
+  class PromptInfo {
+    - String srcFile
+    - String type
+    - String bindResultExp
+    + PromptInfo(String, String)
+    + PromptInfo(String, String, String)
+    + getSrcFile() : String
+    + getType() : String
+    + getBindResultExp() : String
+    + hasBindResultExp() : boolean
+    + isPml() : boolean
+  }
+
+  class SequenceInfo {
+    - String model
+    - String repository
+    - List<PromptInfo> prompts
+    - Long timeoutMillis
+    - String fallbackSrc
+    + SequenceInfo(...)
+    + getModel() : String
+    + getRepository() : String
+    + getPrompts() : List<PromptInfo>
+    + getTimeoutMillis() : Long
+    + getFallbackSrc() : String
+  }
+
+  class ParallelWorkflowData {
+    - PromptInfo parallelPrompt
+    - String bindResultType
+    - List<SequenceInfo> sequences
+    - Long timeoutMillis
+    - String fallbackSrc
+    + ParallelWorkflowData(...)
+    + getParallelPrompt() : PromptInfo
+    + getBindResultType() : String
+    + getSequences() : List<SequenceInfo>
+    + getTimeoutMillis() : Long
+    + getFallbackSrc() : String
+  }
+
+  class TimeoutParser {
+    + {static} parseToMillis(String) : Long
+    - {static} parseDuration(String) : long
+  }
+
+  class ExpressionEvaluator {
+    + {static} replaceInputPlaceholder(String, String) : String
+    + {static} evaluateBindResultExp(String, String) : String
+  }
+
+  class BindResultTypeMapper {
+    + {static} map(String) : String
+  }
 }
 
 package "info.jab.churrera.util" {
-  class PmlConverter {
-    +toMarkdownFromContent(String): String
-    +toMarkdownFromContent(String, String): String
-  }
-
   class PropertyResolver {
-    +getProperty(String, String): Optional<String>
+    + getProperty(String, String) : Optional<String>
+    - loadProperties(String) : Properties
   }
 
   class CursorApiKeyResolver {
-    +resolveApiKey(): String
+    + resolveApiKey() : String
+    - getApiKeyFromEnv() : Optional<String>
+    - getApiKeyFromFile() : Optional<String>
   }
 
-  class ClasspathResolver {
-    +resolve(String): String
+  class PmlConverter {
+    + toMarkdownFromContent(String) : String
+    + toMarkdownFromContent(String, String) : String
+    - transform(String, String) : String
   }
 
   class ConversationJsonDeserializer {
-    +deserializeList(String, Class<?>, String): Optional<List<?>>
+    + deserialize methods
+  }
+
+  class ClasspathResolver {
+    + {static} resolve(String) : InputStream
   }
 }
 
 ' Relationships
-WorkflowParser --> WorkflowData : creates
-WorkflowParser --> WorkflowParseException : throws
-WorkflowParser --> PromptInfo : creates
-WorkflowParser --> ParallelWorkflowData : creates
-WorkflowParser --> SequenceInfo : creates
-WorkflowParser --> TimeoutParser : uses
-WorkflowParser --> WorkflowType : uses
-WorkflowData --> PromptInfo : contains
-WorkflowData --> ParallelWorkflowData : contains
-WorkflowData --> WorkflowType : uses
-ParallelWorkflowData --> PromptInfo : contains
-ParallelWorkflowData --> SequenceInfo : contains
-SequenceInfo --> PromptInfo : contains
-WorkflowValidator --> WorkflowData : validates
-PmlValidator --> String : validates
-ExpressionEvaluator --> String : processes
-BindResultTypeMapper --> Class : maps
+WorkflowParser --> WorkflowData
+WorkflowParser --> WorkflowType
+WorkflowParser --> SequenceInfo
+WorkflowParser --> PromptInfo
+WorkflowParser --> ParallelWorkflowData
+WorkflowParser --> TimeoutParser
+WorkflowParser --> WorkflowParseException
+
+WorkflowData --> PromptInfo
+WorkflowData --> ParallelWorkflowData
+WorkflowData --> SequenceInfo
+
+WorkflowValidator --> WorkflowParseException
+PmlValidator --> WorkflowParseException
+
+ParallelWorkflowData --> PromptInfo
+ParallelWorkflowData --> SequenceInfo
+
+SequenceInfo --> PromptInfo
+
+ExpressionEvaluator --> BindResultTypeMapper
+
+PropertyResolver --> ClasspathResolver
+PmlConverter --> ClasspathResolver
+
+note right of WorkflowParser
+  Parses workflow XML files
+  Supports v2 (sequence) and v3 (parallel) schemas
+end note
+
+note right of WorkflowData
+  Contains parsed workflow information
+  Supports both sequence and parallel workflows
+end note
+
+note right of WorkflowValidator
+  Validates workflow XML structure
+end note
+
+note right of PmlValidator
+  Validates PML prompt files
+end note
 
 @enduml

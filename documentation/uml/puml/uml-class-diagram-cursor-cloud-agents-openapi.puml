@@ -1,0 +1,27 @@
+@startuml
+!theme plain
+title Cursor Cloud Agents OpenAPI Module - Class Diagram
+
+package "cursor-cloud-agents-openapi" {
+  class OpenAPISpecification {
+    + String title = "Cursor Cloud Agents API"
+    + String version = "0.1.0"
+    + String description
+    + String baseUrl = "https://api.cursor.com"
+  }
+
+  note right of OpenAPISpecification
+    OpenAPI 3.0.3 specification file
+    Located at: src/main/resources/cloud-agents-openapi.yaml
+    
+    Defines:
+    - API endpoints for agent management
+    - Request/response schemas
+    - Security schemes (bearerAuth)
+    - Server configurations
+    
+    Used to generate Java client code
+  end note
+}
+
+@enduml

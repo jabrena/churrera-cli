@@ -27,6 +27,7 @@ The CLI module contains the command-line interface components, including command
 - **Services**: `CLIAgent` for agent management, `JobProcessor` for job processing
 - **Repository**: `JobRepository` for data persistence
 - **Models**: `Job`, `JobWithDetails`, `Prompt` for data representation
+- **Workflow Handlers**: `SequenceWorkflowHandler`, `ParallelWorkflowHandler`, `ChildWorkflowHandler` for different workflow types
 
 ### Churrera Core Module
 
@@ -38,6 +39,7 @@ The core module provides workflow parsing, validation, and utility functions use
 - **Workflow**: `WorkflowParser`, `WorkflowData`, `WorkflowValidator` for workflow management
 - **Types**: `WorkflowType` enum, `AgentState` enum
 - **Utilities**: `PmlConverter`, `PropertyResolver`, `CursorApiKeyResolver`
+- **Data Models**: `PromptInfo`, `SequenceInfo`, `ParallelWorkflowData` for workflow representation
 
 ### Cursor API Client Module
 
@@ -49,6 +51,17 @@ The client module provides interfaces and implementations for interacting with t
 - **Interfaces**: `CursorAgentManagement`, `CursorAgentInformation`, `CursorAgentGeneralEndpoints`
 - **Implementations**: `CursorAgentManagementImpl`, `CursorAgentInformationImpl`, `CursorAgentGeneralEndpointsImpl`
 - **Models**: `AgentResponse`, `FollowUpResponse`, `ConversationResponse` for API responses
+- **Enums**: `AgentStatus` for agent state management
+
+### Cursor Cloud Agents OpenAPI Module
+
+The OpenAPI module contains the OpenAPI 3.0.3 specification file that defines the Cursor Cloud Agents API.
+
+![Cursor Cloud Agents OpenAPI Class Diagram](uml-class-diagram-cursor-cloud-agents-openapi.png)
+
+**Key Components:**
+- **OpenAPI Specification**: `cloud-agents-openapi.yaml` - Defines API endpoints, request/response schemas, and security schemes
+- Used to generate Java client code for the Cursor API
 
 ## Diagram Generation
 
