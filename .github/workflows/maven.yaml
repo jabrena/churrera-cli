@@ -15,6 +15,8 @@ jobs:
           distribution: 'graalvm' # See 'Supported distributions' for available options
           java-version: '25'
       - name: Maven build
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./mvnw --batch-mode --no-transfer-progress clean test verify site sonar:sonar -Pjacoco -Psonar --file pom.xml
 
       - name: Get Maven project version
