@@ -67,6 +67,7 @@
         <maven-plugin-project-info-reports.version>3.9.0</maven-plugin-project-info-reports.version>
         <maven-plugin-antrun.version>3.2.0</maven-plugin-antrun.version>
         <maven-plugin-shade.version>3.6.1</maven-plugin-shade.version>
+        <maven-plugin-sonar.version>3.11.0.4384</maven-plugin-sonar.version>
 
         <!-- Quality thresholds -->
         <coverage.level>70</coverage.level>
@@ -365,6 +366,11 @@
                         <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
                         <commitIdGenerationMode>full</commitIdGenerationMode>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${maven-plugin-sonar.version}</version>
                 </plugin>
             </plugins>
 
