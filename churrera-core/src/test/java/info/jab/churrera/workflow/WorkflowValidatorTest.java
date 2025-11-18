@@ -1,7 +1,8 @@
 package info.jab.churrera.workflow;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Unit tests for WorkflowValidator.
  */
 @ExtendWith(MockitoExtension.class)
+@DisplayName("WorkflowValidator Tests")
 class WorkflowValidatorTest {
 
     private WorkflowValidator workflowValidator;
@@ -33,187 +35,235 @@ class WorkflowValidatorTest {
         testWorkflowFile.deleteOnExit();
     }
 
-    @Test
-    void testValidate_ValidWorkflow() throws Exception {
-        // Given
-        String workflowContent = """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:noNamespaceSchemaLocation="schema/pml-workflow.xsd">
-                <sequence model="test-model" repository="test-repo">
-                    <prompt pml="prompt1.pml"/>
-                    <prompt pml="prompt2.pml"/>
-                </sequence>
-            </pml-workflow>
-            """;
-        Files.write(testWorkflowFile.toPath(), workflowContent.getBytes());
+    @Nested
+    @DisplayName("Validation Tests")
+    class ValidationTests {
 
-        // When
-        WorkflowValidator.ValidationResult result = workflowValidator.validate(testWorkflowFile);
+        @Test
+        @DisplayName("Should validate valid workflow file")
+        void shouldValidateValidWorkflowFile() throws Exception {
+            // Given
+            String workflowContent = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                             xsi:noNamespaceSchemaLocation="schema/pml-workflow.xsd">
+                    <sequence model="test-model" repository="test-repo">
+                        <prompt pml="prompt1.pml"/>
+                        <prompt pml="prompt2.pml"/>
+                    </sequence>
+                </pml-workflow>
+                """;
+            Files.write(testWorkflowFile.toPath(), workflowContent.getBytes());
 
-        // Then
-        assertThat(result).isNotNull();
-        // Note: This test might fail if the XSD schema is not found or doesn't match
-        // In a real scenario, you would need to ensure the schema is available
+            // When
+            WorkflowValidator.ValidationResult result = workflowValidator.validate(testWorkflowFile);
+
+            // Then
+            assertThat(result).isNotNull();
+            // Note: This test might fail if the XSD schema is not found or doesn't match
+            // In a real scenario, you would need to ensure the schema is available
+        }
+
+        @Test
+        @DisplayName("Should validate valid workflow file using Path")
+        void shouldValidateValidWorkflowFileUsingPath() throws Exception {
+            // Given
+            String workflowContent = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                             xsi:noNamespaceSchemaLocation="schema/pml-workflow.xsd">
+                    <sequence model="test-model" repository="test-repo">
+                        <prompt pml="prompt1.pml"/>
+                    </sequence>
+                </pml-workflow>
+                """;
+            Files.write(testWorkflowFile.toPath(), workflowContent.getBytes());
+
+            // When
+            WorkflowValidator.ValidationResult result = workflowValidator.validate(testWorkflowFile.toPath());
+
+            // Then
+            assertThat(result).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should return invalid result for invalid XML")
+        void shouldReturnInvalidResultForInvalidXml() throws Exception {
+            // Given
+            String invalidXmlContent = "invalid xml content";
+            Files.write(testWorkflowFile.toPath(), invalidXmlContent.getBytes());
+
+            // When
+            WorkflowValidator.ValidationResult result = workflowValidator.validate(testWorkflowFile);
+
+            // Then
+            assertThat(result)
+                .isNotNull()
+                .satisfies(r -> {
+                    assertThat(r.isValid()).isFalse();
+                    assertThat(r.getErrors()).isNotEmpty();
+                });
+        }
+
+        @Test
+        @DisplayName("Should return invalid result when file does not exist")
+        void shouldReturnInvalidResultWhenFileDoesNotExist() {
+            // Given
+            File nonExistentFile = new File("/non/existent/file.xml");
+
+            // When
+            WorkflowValidator.ValidationResult result = workflowValidator.validate(nonExistentFile);
+
+            // Then
+            assertThat(result)
+                .isNotNull()
+                .satisfies(r -> {
+                    assertThat(r.isValid()).isFalse();
+                    assertThat(r.getErrors()).isNotEmpty();
+                });
+        }
+
+        @Test
+        @DisplayName("Should return invalid result when Path file does not exist")
+        void shouldReturnInvalidResultWhenPathFileDoesNotExist() {
+            // Given
+            Path nonExistentPath = Paths.get("/non/existent/file.xml");
+
+            // When
+            WorkflowValidator.ValidationResult result = workflowValidator.validate(nonExistentPath);
+
+            // Then
+            assertThat(result)
+                .isNotNull()
+                .satisfies(r -> {
+                    assertThat(r.isValid()).isFalse();
+                    assertThat(r.getErrors()).isNotEmpty();
+                });
+        }
     }
 
-    @Test
-    void testValidate_ValidWorkflowWithPath() throws Exception {
-        // Given
-        String workflowContent = """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <pml-workflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:noNamespaceSchemaLocation="schema/pml-workflow.xsd">
-                <sequence model="test-model" repository="test-repo">
-                    <prompt pml="prompt1.pml"/>
-                </sequence>
-            </pml-workflow>
-            """;
-        Files.write(testWorkflowFile.toPath(), workflowContent.getBytes());
+    @Nested
+    @DisplayName("ValidationResult Tests")
+    class ValidationResultTests {
 
-        // When
-        WorkflowValidator.ValidationResult result = workflowValidator.validate(testWorkflowFile.toPath());
+        @Test
+        @DisplayName("Should create valid result with no errors")
+        void shouldCreateValidResultWithNoErrors() {
+            // Given
+            List<String> errors = List.of();
+            WorkflowValidator.ValidationResult result = new WorkflowValidator.ValidationResult(true, errors);
 
-        // Then
-        assertThat(result).isNotNull();
-    }
+            // When & Then
+            assertThat(result)
+                .satisfies(r -> {
+                    assertThat(r.isValid()).isTrue();
+                    assertThat(r.getErrors()).isEmpty();
+                    assertThat(r.getFormattedErrors()).isEqualTo("No validation errors.");
+                });
+        }
 
-    @Test
-    void testValidate_InvalidXml() throws Exception {
-        // Given
-        String invalidXmlContent = "invalid xml content";
-        Files.write(testWorkflowFile.toPath(), invalidXmlContent.getBytes());
+        @Test
+        @DisplayName("Should create invalid result with multiple errors")
+        void shouldCreateInvalidResultWithMultipleErrors() {
+            // Given
+            List<String> errors = List.of("Error 1", "Error 2", "Error 3");
+            WorkflowValidator.ValidationResult result = new WorkflowValidator.ValidationResult(false, errors);
 
-        // When
-        WorkflowValidator.ValidationResult result = workflowValidator.validate(testWorkflowFile);
+            // When & Then
+            assertThat(result)
+                .satisfies(r -> {
+                    assertThat(r.isValid()).isFalse();
+                    assertThat(r.getErrors())
+                        .hasSize(3)
+                        .containsExactly("Error 1", "Error 2", "Error 3");
+                });
 
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).isNotEmpty();
-    }
+            String formattedErrors = result.getFormattedErrors();
+            assertThat(formattedErrors)
+                .contains("Validation errors:")
+                .contains("1. Error 1")
+                .contains("2. Error 2")
+                .contains("3. Error 3");
+        }
 
-    @Test
-    void testValidate_FileNotFound() {
-        // Given
-        File nonExistentFile = new File("/non/existent/file.xml");
+        @Test
+        @DisplayName("Should create invalid result with empty errors list")
+        void shouldCreateInvalidResultWithEmptyErrorsList() {
+            // Given
+            List<String> errors = List.of();
+            WorkflowValidator.ValidationResult result = new WorkflowValidator.ValidationResult(false, errors);
 
-        // When
-        WorkflowValidator.ValidationResult result = workflowValidator.validate(nonExistentFile);
+            // When & Then
+            assertThat(result)
+                .satisfies(r -> {
+                    assertThat(r.isValid()).isFalse();
+                    assertThat(r.getErrors()).isEmpty();
+                    assertThat(r.getFormattedErrors()).isEqualTo("No validation errors.");
+                });
+        }
 
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).isNotEmpty();
-    }
+        @Test
+        @DisplayName("Should return immutable errors list")
+        void shouldReturnImmutableErrorsList() {
+            // Given
+            List<String> originalErrors = List.of("Error 1", "Error 2");
+            WorkflowValidator.ValidationResult result = new WorkflowValidator.ValidationResult(false, originalErrors);
 
-    @Test
-    void testValidate_PathFileNotFound() {
-        // Given
-        Path nonExistentPath = Paths.get("/non/existent/file.xml");
+            // When
+            List<String> returnedErrors = result.getErrors();
+            returnedErrors.add("Error 3");
 
-        // When
-        WorkflowValidator.ValidationResult result = workflowValidator.validate(nonExistentPath);
+            // Then
+            assertThat(result.getErrors())
+                .hasSize(2)
+                .containsExactly("Error 1", "Error 2");
+        }
 
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).isNotEmpty();
-    }
+        @Test
+        @DisplayName("Should format single error correctly")
+        void shouldFormatSingleErrorCorrectly() {
+            // Given
+            List<String> errors = List.of("Single error message");
+            WorkflowValidator.ValidationResult result = new WorkflowValidator.ValidationResult(false, errors);
 
-    @Test
-    void testValidationResult_ValidResult() {
-        // Given
-        List<String> errors = List.of();
-        WorkflowValidator.ValidationResult result = new WorkflowValidator.ValidationResult(true, errors);
+            // When & Then
+            assertThat(result)
+                .satisfies(r -> {
+                    assertThat(r.isValid()).isFalse();
+                    assertThat(r.getErrors())
+                        .hasSize(1)
+                        .containsExactly("Single error message");
+                });
 
-        // When & Then
-        assertThat(result.isValid()).isTrue();
-        assertThat(result.getErrors()).isEmpty();
-        assertThat(result.getFormattedErrors()).isEqualTo("No validation errors.");
-    }
+            String formattedErrors = result.getFormattedErrors();
+            assertThat(formattedErrors)
+                .contains("Validation errors:")
+                .contains("1. Single error message");
+        }
 
-    @Test
-    void testValidationResult_InvalidResult() {
-        // Given
-        List<String> errors = List.of("Error 1", "Error 2", "Error 3");
-        WorkflowValidator.ValidationResult result = new WorkflowValidator.ValidationResult(false, errors);
+        @Test
+        @DisplayName("Should format many errors correctly")
+        void shouldFormatManyErrorsCorrectly() {
+            // Given
+            List<String> errors = List.of(
+                "Error 1", "Error 2", "Error 3", "Error 4", "Error 5",
+                "Error 6", "Error 7", "Error 8", "Error 9", "Error 10"
+            );
+            WorkflowValidator.ValidationResult result = new WorkflowValidator.ValidationResult(false, errors);
 
-        // When & Then
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).hasSize(3);
-        assertThat(result.getErrors().get(0)).isEqualTo("Error 1");
-        assertThat(result.getErrors().get(1)).isEqualTo("Error 2");
-        assertThat(result.getErrors().get(2)).isEqualTo("Error 3");
+            // When & Then
+            assertThat(result)
+                .satisfies(r -> {
+                    assertThat(r.isValid()).isFalse();
+                    assertThat(r.getErrors()).hasSize(10);
+                });
 
-        String formattedErrors = result.getFormattedErrors();
-        assertThat(formattedErrors).contains("Validation errors:");
-        assertThat(formattedErrors).contains("1. Error 1");
-        assertThat(formattedErrors).contains("2. Error 2");
-        assertThat(formattedErrors).contains("3. Error 3");
-    }
-
-    @Test
-    void testValidationResult_EmptyErrorsList() {
-        // Given
-        List<String> errors = List.of();
-        WorkflowValidator.ValidationResult result = new WorkflowValidator.ValidationResult(false, errors);
-
-        // When & Then
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).isEmpty();
-        assertThat(result.getFormattedErrors()).isEqualTo("No validation errors.");
-    }
-
-    @Test
-    void testValidationResult_Immutability() {
-        // Given
-        List<String> originalErrors = List.of("Error 1", "Error 2");
-        WorkflowValidator.ValidationResult result = new WorkflowValidator.ValidationResult(false, originalErrors);
-
-        // When
-        List<String> returnedErrors = result.getErrors();
-        returnedErrors.add("Error 3");
-
-        // Then
-        assertThat(result.getErrors()).hasSize(2);
-        assertThat(result.getErrors().get(0)).isEqualTo("Error 1");
-        assertThat(result.getErrors().get(1)).isEqualTo("Error 2");
-    }
-
-    @Test
-    void testValidationResult_SingleError() {
-        // Given
-        List<String> errors = List.of("Single error message");
-        WorkflowValidator.ValidationResult result = new WorkflowValidator.ValidationResult(false, errors);
-
-        // When & Then
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).hasSize(1);
-        assertThat(result.getErrors().get(0)).isEqualTo("Single error message");
-
-        String formattedErrors = result.getFormattedErrors();
-        assertThat(formattedErrors).contains("Validation errors:");
-        assertThat(formattedErrors).contains("1. Single error message");
-    }
-
-    @Test
-    void testValidationResult_ManyErrors() {
-        // Given
-        List<String> errors = List.of(
-            "Error 1", "Error 2", "Error 3", "Error 4", "Error 5",
-            "Error 6", "Error 7", "Error 8", "Error 9", "Error 10"
-        );
-        WorkflowValidator.ValidationResult result = new WorkflowValidator.ValidationResult(false, errors);
-
-        // When & Then
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).hasSize(10);
-
-        String formattedErrors = result.getFormattedErrors();
-        assertThat(formattedErrors).contains("Validation errors:");
-        assertThat(formattedErrors).contains("1. Error 1");
-        assertThat(formattedErrors).contains("10. Error 10");
+            String formattedErrors = result.getFormattedErrors();
+            assertThat(formattedErrors)
+                .contains("Validation errors:")
+                .contains("1. Error 1")
+                .contains("10. Error 10");
+        }
     }
 
     @Test

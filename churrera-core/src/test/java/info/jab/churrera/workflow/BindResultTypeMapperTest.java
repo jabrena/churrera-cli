@@ -1,127 +1,142 @@
 package info.jab.churrera.workflow;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Unit tests for BindResultTypeMapper.
  */
+@DisplayName("BindResultTypeMapper Tests")
 class BindResultTypeMapperTest {
 
-    @Test
-    void testMapToElementType_ListInteger() {
-        // When
-        Class<?> result = BindResultTypeMapper.mapToElementType("List_Integer");
+    @Nested
+    @DisplayName("MapToElementType Tests")
+    class MapToElementTypeTests {
 
-        // Then
-        assertNotNull(result);
-        assertEquals(Integer.class, result);
+        @Test
+        @DisplayName("Should map List_Integer to Integer class")
+        void shouldMapListIntegerToIntegerClass() {
+            // When
+            Class<?> result = BindResultTypeMapper.mapToElementType("List_Integer");
+
+            // Then
+            assertThat(result)
+                .isNotNull()
+                .isEqualTo(Integer.class);
+        }
+
+        @Test
+        @DisplayName("Should throw exception for unsupported type")
+        void shouldThrowExceptionForUnsupportedType() {
+            // When & Then
+            assertThatThrownBy(() -> BindResultTypeMapper.mapToElementType("List_String"))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining("Unsupported bindResultType: List_String")
+                .hasMessageContaining("Currently supported types: List_Integer");
+        }
+
+        @Test
+        @DisplayName("Should throw exception for invalid format")
+        void shouldThrowExceptionForInvalidFormat() {
+            // When & Then
+            assertThatThrownBy(() -> BindResultTypeMapper.mapToElementType("InvalidFormat"))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining("Unsupported bindResultType: InvalidFormat");
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @DisplayName("Should throw exception for null or empty input")
+        void shouldThrowExceptionForNullOrEmptyInput(String input) {
+            // When & Then
+            assertThatThrownBy(() -> BindResultTypeMapper.mapToElementType(input))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("bindResultType cannot be null or empty");
+        }
+
+        @Test
+        @DisplayName("Should throw exception for whitespace only input")
+        void shouldThrowExceptionForWhitespaceOnlyInput() {
+            // When & Then
+            assertThatThrownBy(() -> BindResultTypeMapper.mapToElementType("   "))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("bindResultType cannot be null or empty");
+        }
     }
 
-    @Test
-    void testMapToElementType_UnsupportedType() {
-        // When & Then
-        UnsupportedOperationException exception = assertThrows(
-            UnsupportedOperationException.class,
-            () -> BindResultTypeMapper.mapToElementType("List_String")
-        );
+    @Nested
+    @DisplayName("IsListType Tests")
+    class IsListTypeTests {
 
-        assertTrue(exception.getMessage().contains("Unsupported bindResultType: List_String"));
-        assertTrue(exception.getMessage().contains("Currently supported types: List_Integer"));
+        @Test
+        @DisplayName("Should return true for valid list type")
+        void shouldReturnTrueForValidListType() {
+            // When
+            boolean result = BindResultTypeMapper.isListType("List_Integer");
+
+            // Then
+            assertThat(result).isTrue();
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"List_String", "List_Long", "List_Custom", "List_"})
+        @DisplayName("Should return true for various list types")
+        void shouldReturnTrueForVariousListTypes(String input) {
+            // When
+            boolean result = BindResultTypeMapper.isListType(input);
+
+            // Then
+            assertThat(result).isTrue();
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"Integer", "String", "Map_Integer", "Set_String", ""})
+        @DisplayName("Should return false for non-list types")
+        void shouldReturnFalseForNonListTypes(String input) {
+            // When
+            boolean result = BindResultTypeMapper.isListType(input);
+
+            // Then
+            assertThat(result).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should return false for null input")
+        void shouldReturnFalseForNullInput() {
+            // When
+            boolean result = BindResultTypeMapper.isListType(null);
+
+            // Then
+            assertThat(result).isFalse();
+        }
     }
 
-    @Test
-    void testMapToElementType_InvalidFormat() {
-        // When & Then
-        UnsupportedOperationException exception = assertThrows(
-            UnsupportedOperationException.class,
-            () -> BindResultTypeMapper.mapToElementType("InvalidFormat")
-        );
+    @Nested
+    @DisplayName("Constructor Tests")
+    class ConstructorTests {
 
-        assertTrue(exception.getMessage().contains("Unsupported bindResultType: InvalidFormat"));
-    }
-
-    @ParameterizedTest
-    @NullAndEmptySource
-    void testMapToElementType_NullOrEmpty(String input) {
-        // When & Then
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> BindResultTypeMapper.mapToElementType(input)
-        );
-
-        assertEquals("bindResultType cannot be null or empty", exception.getMessage());
-    }
-
-    @Test
-    void testMapToElementType_WhitespaceOnly() {
-        // When & Then
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> BindResultTypeMapper.mapToElementType("   ")
-        );
-
-        assertEquals("bindResultType cannot be null or empty", exception.getMessage());
-    }
-
-    @Test
-    void testIsListType_ValidListType() {
-        // When
-        boolean result = BindResultTypeMapper.isListType("List_Integer");
-
-        // Then
-        assertTrue(result);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"List_String", "List_Long", "List_Custom", "List_"})
-    void testIsListType_VariousListTypes(String input) {
-        // When
-        boolean result = BindResultTypeMapper.isListType(input);
-
-        // Then
-        assertTrue(result);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"Integer", "String", "Map_Integer", "Set_String", ""})
-    void testIsListType_NonListTypes(String input) {
-        // When
-        boolean result = BindResultTypeMapper.isListType(input);
-
-        // Then
-        assertFalse(result);
-    }
-
-    @Test
-    void testIsListType_Null() {
-        // When
-        boolean result = BindResultTypeMapper.isListType(null);
-
-        // Then
-        assertFalse(result);
-    }
-
-    @Test
-    void testConstructor_ThrowsException() {
-        // When & Then
-        var exception = assertThrows(
-            java.lang.reflect.InvocationTargetException.class,
-            () -> {
+        @Test
+        @DisplayName("Should throw exception when trying to instantiate utility class")
+        void shouldThrowExceptionWhenTryingToInstantiateUtilityClass() {
+            // When & Then
+            assertThatThrownBy(() -> {
                 // Use reflection to access private constructor
                 var constructor = BindResultTypeMapper.class.getDeclaredConstructor();
                 constructor.setAccessible(true);
                 constructor.newInstance();
-            }
-        );
-
-        // Verify the cause is UnsupportedOperationException
-        assertTrue(exception.getCause() instanceof UnsupportedOperationException);
-        assertEquals("Utility class cannot be instantiated", exception.getCause().getMessage());
+            })
+                .isInstanceOf(java.lang.reflect.InvocationTargetException.class)
+                .extracting(Throwable::getCause)
+                .isInstanceOf(UnsupportedOperationException.class)
+                .extracting(Throwable::getMessage)
+                .isEqualTo("Utility class cannot be instantiated");
+        }
     }
 }
-

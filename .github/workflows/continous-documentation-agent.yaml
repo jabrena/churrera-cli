@@ -26,7 +26,7 @@ jobs:
           curl -Ls https://sh.jbang.dev | bash -s - app setup
           echo "$HOME/.jbang/bin" >> $GITHUB_PATH
 
-      - name: Execute AOC Agent
+      - name: Execute Cursor Cloud Agent about continuous documentation
         env:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
         run: |
