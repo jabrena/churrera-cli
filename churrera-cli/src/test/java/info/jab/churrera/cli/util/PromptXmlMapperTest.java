@@ -9,14 +9,18 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.DisplayName;
+
 /**
  * Unit tests for PromptXmlMapper.
  */
+@DisplayName("PromptXmlMapper Tests")
 class PromptXmlMapperTest {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @Test
+    @DisplayName("Should convert prompt to XML")
     void shouldConvertPromptToXml() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -35,6 +39,7 @@ class PromptXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should parse prompt from XML")
     void shouldParsePromptFromXml() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -62,6 +67,7 @@ class PromptXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should round trip prompt conversion")
     void shouldRoundTripPrompt() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -76,6 +82,7 @@ class PromptXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should parse multiple prompts from document")
     void shouldParseMultiplePromptsFromDocument() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -111,6 +118,7 @@ class PromptXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should escape XML special characters in prompt fields")
     void shouldEscapeXmlInPromptFields() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -125,6 +133,7 @@ class PromptXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should handle empty document")
     void shouldHandleEmptyDocument() {
         // Given
         String xml = "<prompts></prompts>";

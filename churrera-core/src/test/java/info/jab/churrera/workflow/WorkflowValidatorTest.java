@@ -267,6 +267,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate timeout and fallback when neither is specified")
     void testValidateTimeoutAndFallback_NoTimeoutNoFallback() {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
@@ -280,6 +281,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate timeout and fallback when timeout is specified without fallback")
     void testValidateTimeoutAndFallback_TimeoutWithoutFallback() {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
@@ -294,6 +296,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should return error when fallback is specified without timeout")
     void testValidateTimeoutAndFallback_FallbackWithoutTimeout() {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
@@ -309,6 +312,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate timeout and fallback when both are specified and file exists")
     void testValidateTimeoutAndFallback_FallbackWithTimeout_FileExists() throws IOException {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
@@ -327,6 +331,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should return error when fallback file does not exist")
     void testValidateTimeoutAndFallback_FallbackWithTimeout_FileDoesNotExist() {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
@@ -342,6 +347,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should return error when fallback file has invalid extension")
     void testValidateTimeoutAndFallback_FallbackWithTimeout_InvalidExtension() {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
@@ -357,6 +363,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate fallback file with valid XML extension")
     void testValidateTimeoutAndFallback_FallbackWithTimeout_ValidXmlExtension() throws IOException {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
@@ -375,6 +382,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate fallback file with valid MD extension")
     void testValidateTimeoutAndFallback_FallbackWithTimeout_ValidMdExtension() throws IOException {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
@@ -393,6 +401,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate fallback file with valid TXT extension")
     void testValidateTimeoutAndFallback_FallbackWithTimeout_ValidTxtExtension() throws IOException {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
@@ -411,6 +420,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate timeout and fallback when fallback is empty")
     void testValidateTimeoutAndFallback_EmptyFallback() {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
@@ -425,6 +435,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate timeout and fallback when fallback is whitespace")
     void testValidateTimeoutAndFallback_WhitespaceFallback() {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
@@ -439,6 +450,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should return error when parallel workflow sequence has fallback without timeout")
     void testValidateTimeoutAndFallback_ParallelWorkflow_SequenceFallbackWithoutTimeout() throws IOException {
         // Given
         PromptInfo parallelPrompt = new PromptInfo("parallel.xml", "xml");
@@ -456,6 +468,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate parallel workflow sequence fallback with timeout when file exists")
     void testValidateTimeoutAndFallback_ParallelWorkflow_SequenceFallbackWithTimeout_FileExists() throws IOException {
         // Given
         PromptInfo parallelPrompt = new PromptInfo("parallel.xml", "xml");
@@ -477,6 +490,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should return error when parallel workflow sequence fallback file does not exist")
     void testValidateTimeoutAndFallback_ParallelWorkflow_SequenceFallbackWithTimeout_FileDoesNotExist() {
         // Given
         PromptInfo parallelPrompt = new PromptInfo("parallel.xml", "xml");
@@ -495,6 +509,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate parallel workflow with multiple sequences")
     void testValidateTimeoutAndFallback_ParallelWorkflow_MultipleSequences() throws IOException {
         // Given
         PromptInfo parallelPrompt = new PromptInfo("parallel.xml", "xml");
@@ -522,6 +537,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate fallback file when fallback source is null")
     void testValidateFallbackFile_NullFallbackSrc() {
         // When
         List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, null);
@@ -531,6 +547,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate fallback file when fallback source is empty")
     void testValidateFallbackFile_EmptyFallbackSrc() {
         // When
         List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "");
@@ -540,6 +557,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate fallback file when fallback source is whitespace")
     void testValidateFallbackFile_WhitespaceFallbackSrc() {
         // When
         List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "   ");
@@ -549,6 +567,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate fallback file with valid XML extension when file exists")
     void testValidateFallbackFile_ValidXmlExtension_FileExists() throws IOException {
         // Given
         File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.xml");
@@ -563,6 +582,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate fallback file with valid MD extension when file exists")
     void testValidateFallbackFile_ValidMdExtension_FileExists() throws IOException {
         // Given
         File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.md");
@@ -577,6 +597,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate fallback file with valid TXT extension when file exists")
     void testValidateFallbackFile_ValidTxtExtension_FileExists() throws IOException {
         // Given
         File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.txt");
@@ -591,6 +612,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate fallback file extension case insensitively")
     void testValidateFallbackFile_ValidExtension_CaseInsensitive() throws IOException {
         // Given
         File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.XML");
@@ -605,6 +627,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should return error when fallback file has invalid extension")
     void testValidateFallbackFile_InvalidExtension() {
         // When
         List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "fallback.exe");
@@ -616,6 +639,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should return error when fallback file with valid extension does not exist")
     void testValidateFallbackFile_ValidExtension_FileDoesNotExist() {
         // When
         List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "nonexistent.xml");
@@ -627,6 +651,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate fallback file with relative path")
     void testValidateFallbackFile_RelativePath() throws IOException {
         // Given
         File subDir = new File(testWorkflowFile.getParentFile(), "subdir");
@@ -645,6 +670,7 @@ class WorkflowValidatorTest {
     }
 
     @Test
+    @DisplayName("Should validate fallback file when workflow file is in root")
     void testValidateFallbackFile_WorkflowFileInRoot() throws IOException {
         // Given
         File rootWorkflowFile = new File("/tmp", "workflow.xml");

@@ -11,14 +11,18 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.DisplayName;
+
 /**
  * Unit tests for JobXmlMapper.
  */
+@DisplayName("JobXmlMapper Tests")
 class JobXmlMapperTest {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @Test
+    @DisplayName("Should convert job to XML")
     void shouldConvertJobToXml() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -40,6 +44,7 @@ class JobXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should convert job with null values to XML")
     void shouldConvertJobWithNullValuesToXml() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -56,6 +61,7 @@ class JobXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should convert job with all fields to XML")
     void shouldConvertJobWithAllFieldsToXml() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -77,6 +83,7 @@ class JobXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should parse job from XML")
     void shouldParseJobFromXml() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -113,6 +120,7 @@ class JobXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should parse job with null cursor agent ID")
     void shouldParseJobWithNullCursorAgentId() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -144,6 +152,7 @@ class JobXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should parse job with all fields")
     void shouldParseJobWithAllFields() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -182,6 +191,7 @@ class JobXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should round trip job conversion")
     void shouldRoundTripJob() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -198,6 +208,7 @@ class JobXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should parse multiple jobs from document")
     void shouldParseMultipleJobsFromDocument() {
         // Given
         LocalDateTime now = LocalDateTime.now();
@@ -251,6 +262,7 @@ class JobXmlMapperTest {
     }
 
     @Test
+    @DisplayName("Should escape XML special characters in job fields")
     void shouldEscapeXmlInJobFields() {
         // Given
         LocalDateTime now = LocalDateTime.now();
