@@ -72,10 +72,6 @@
         <!-- Quality thresholds -->
         <coverage.level>70</coverage.level>
 
-        <!-- SonarQube properties -->
-        <sonar.coverage.jacoco.xmlReportPaths>
-            $(pwd)/jacoco-report-aggregated/target/site/jacoco-aggregate/jacoco.xml
-        </sonar.coverage.jacoco.xmlReportPaths>
         <!-- Surefire argLine property (overridden by JaCoCo when active) -->
         <argLine></argLine>
     </properties>
@@ -295,7 +291,7 @@
                     </dependencies>
                     <configuration>
                         <rules>
-                            <banCircularDependencies/>
+                            <banCircularDependencies />
                             <dependencyConvergence />
                             <banDuplicatePomDependencyVersions />
                             <requireMavenVersion>
@@ -363,7 +359,8 @@
                     </executions>
                     <configuration>
                         <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                        <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                        <generateGitPropertiesFilename>
+                            ${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
                         <commitIdGenerationMode>full</commitIdGenerationMode>
                     </configuration>
                 </plugin>
@@ -571,6 +568,16 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
+            <properties>
+                <!-- SonarCloud configuration -->
+                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+                <sonar.organization>jabrena</sonar.organization>
+                <sonar.projectKey>jabrena_churrera-cli</sonar.projectKey>
+                <sonar.projectName>Churrera CLI</sonar.projectName>
+                <sonar.projectVersion>${project.version}</sonar.projectVersion>
+                <sonar.coverage.jacoco.xmlReportPaths>$(pwd)/jacoco-report-aggregated/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+                <sonar.java.source>${java.version}</sonar.java.source>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -597,7 +604,8 @@
                         <version>${maven-plugin-pmd.version}</version>
                         <configuration>
                             <rulesets>
-                                <ruleset>${maven.multiModuleProjectDirectory}/documentation/pmd/pmd-cyclomatic-complexity.xml</ruleset>
+                                <ruleset>
+                                    ${maven.multiModuleProjectDirectory}/documentation/pmd/pmd-cyclomatic-complexity.xml</ruleset>
                             </rulesets>
                             <printFailingErrors>true</printFailingErrors>
                             <linkXRef>true</linkXRef>
@@ -632,7 +640,8 @@
                         <version>${maven-plugin-pmd.version}</version>
                         <configuration>
                             <rulesets>
-                                <ruleset>${maven.multiModuleProjectDirectory}/documentation/pmd/pmd-cyclomatic-complexity.xml</ruleset>
+                                <ruleset>
+                                    ${maven.multiModuleProjectDirectory}/documentation/pmd/pmd-cyclomatic-complexity.xml</ruleset>
                             </rulesets>
                             <linkXRef>true</linkXRef>
                         </configuration>
