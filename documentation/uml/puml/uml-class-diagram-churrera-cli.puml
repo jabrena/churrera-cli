@@ -1,7 +1,7 @@
 @startuml
 !theme plain
 left to right direction
-scale 0.75
+scale 0.6
 title Churrera CLI Module - Class Diagram
 
 package "info.jab.churrera.cli" {
