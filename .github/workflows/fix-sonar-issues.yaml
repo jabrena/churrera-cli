@@ -26,10 +26,9 @@ jobs:
           curl -Ls https://sh.jbang.dev | bash -s - app setup
           echo "$HOME/.jbang/bin" >> $GITHUB_PATH
 
-      - name: Execute Cursor Cloud Agent about continuous documentation
+      - name: Execute Cursor Cloud Agent about fix Sonar issues
         env:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           jbang trust add https://github.com/jabrena/
           jbang churrera@jabrena run --workflow churrera-recipes/fix-sonar-issues/workflow.xml --delete-on-success-completion
