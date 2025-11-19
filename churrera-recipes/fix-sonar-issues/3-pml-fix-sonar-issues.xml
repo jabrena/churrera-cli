@@ -53,6 +53,7 @@
 
                 Once the changes are verified,
                 commit the changes and push the changes to the branch to create the PR.
+                Not commit bug.json, code-smell.json and vulnerability.json files.
             </step-content>
         </step>
     </steps>
@@ -61,6 +62,8 @@
         <acceptance-criteria-list>
             <acceptance-criteria-item>The Sonar issues are fixed</acceptance-criteria-item>
             <acceptance-criteria-item>The project is verified successfully with `./mvnw clean test verify site -Pjacoco`</acceptance-criteria-item>
+            <acceptance-criteria-item>The changes are committed and pushed to the branch to create the PR</acceptance-criteria-item>
+            <acceptance-criteria-item>Not commit bug.json, code-smell.json and vulnerability.json files</acceptance-criteria-item>
         </acceptance-criteria-list>
     </acceptance-criteria>
 </prompt>
