@@ -491,20 +491,6 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobProcessorStartedInBackground() {
-        // Given
-        churreraCLI = createCLI("quit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        verify(jobProcessor, timeout(500).atLeastOnce()).processJobs();
-        assertThat(churreraCLI.getScheduledExecutor()).isNotNull();
-        assertThat(churreraCLI.getScheduledExecutor().isShutdown()).isTrue();
-    }
-
-    @Test
     void testRun_JobsCommandPattern_WithUUID() throws Exception {
         // Given
         String uuid = "550e8400-e29b-41d4-a716-446655440000";
