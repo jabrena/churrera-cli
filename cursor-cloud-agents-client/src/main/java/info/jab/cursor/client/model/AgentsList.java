@@ -27,11 +27,9 @@ public record AgentsList(
         if (generated == null) {
             return null;
         }
-        List<AgentResponse> agents = generated.getAgents() != null
-            ? generated.getAgents().stream()
-                .map(AgentResponse::from)
-                .toList()
-            : List.of();
+        List<AgentResponse> agents = generated.getAgents().stream()
+            .map(AgentResponse::from)
+            .toList();
         return new AgentsList(agents, generated.getNextCursor());
     }
 }

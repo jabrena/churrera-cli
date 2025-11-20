@@ -483,7 +483,7 @@ class JobRepositoryTest {
         JobRepository repo = new JobRepository(testPropertyResolver);
 
         // When & Then - should close without throwing exception
-        assertDoesNotThrow(() -> repo.close());
+        assertDoesNotThrow(repo::close);
     }
 
 

@@ -4,7 +4,6 @@ import info.jab.cursor.client.CursorAgentInformation;
 import info.jab.cursor.client.model.AgentResponse;
 import info.jab.cursor.client.model.AgentsList;
 import info.jab.cursor.client.model.ConversationResponse;
-import info.jab.cursor.generated.client.ApiClient;
 import info.jab.cursor.generated.client.api.DefaultApi;
 import info.jab.cursor.generated.client.ApiException;
 

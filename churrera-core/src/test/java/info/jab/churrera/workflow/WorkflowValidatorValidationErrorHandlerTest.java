@@ -39,8 +39,7 @@ class WorkflowValidatorValidationErrorHandlerTest {
         Class<?>[] innerClasses = validatorClass.getDeclaredClasses();
         
         for (Class<?> innerClass : innerClasses) {
-            if (org.xml.sax.ErrorHandler.class.isAssignableFrom(innerClass)
-                && "ValidationErrorHandler".equals(innerClass.getSimpleName())) {
+            if ("ValidationErrorHandler".equals(innerClass.getSimpleName())) {
                 errorHandlerClass = innerClass;
                 break;
             }
@@ -52,6 +51,9 @@ class WorkflowValidatorValidationErrorHandlerTest {
         Constructor<?> constructor = errorHandlerClass.getDeclaredConstructor();
         constructor.setAccessible(true);
         errorHandler = constructor.newInstance();
+        
+        // Verify it's an ErrorHandler using instanceof
+        assertThat(errorHandler instanceof org.xml.sax.ErrorHandler).isTrue();
         
         // Get methods
         warningMethod = errorHandlerClass.getMethod("warning", SAXParseException.class);

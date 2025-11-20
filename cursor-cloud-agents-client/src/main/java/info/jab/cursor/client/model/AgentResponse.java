@@ -5,8 +5,6 @@ import java.util.Objects;
 
 import info.jab.cursor.generated.client.model.CreateAgent201Response;
 import info.jab.cursor.generated.client.model.ListAgents200ResponseAgentsInner;
-import info.jab.cursor.generated.client.model.ListAgents200ResponseAgentsInnerSource;
-import info.jab.cursor.generated.client.model.ListAgents200ResponseAgentsInnerTarget;
 
 /**
  * Domain model for an agent response.

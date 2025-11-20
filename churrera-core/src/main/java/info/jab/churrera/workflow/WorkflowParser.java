@@ -308,9 +308,9 @@ public class WorkflowParser {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(false);
             DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.setEntityResolver((publicId, systemId) -> {
-                return new org.xml.sax.InputSource(new java.io.StringReader(""));
-            });
+            builder.setEntityResolver((publicId, systemId) -> 
+                new org.xml.sax.InputSource(new java.io.StringReader(""))
+            );
 
             Document document = builder.parse(workflowFile);
             Element root = document.getDocumentElement();

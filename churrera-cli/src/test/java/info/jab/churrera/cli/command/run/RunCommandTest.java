@@ -1,6 +1,4 @@
 package info.jab.churrera.cli.command.run;
-
-import info.jab.churrera.cli.command.run.ExecutionResult;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.workflow.WorkflowType;

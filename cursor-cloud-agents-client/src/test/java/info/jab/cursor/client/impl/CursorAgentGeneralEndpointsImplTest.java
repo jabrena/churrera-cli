@@ -68,7 +68,7 @@ class CursorAgentGeneralEndpointsImplTest {
             when(defaultApi.getMe(any())).thenThrow(apiException);
 
             // When & Then
-            assertThatThrownBy(() -> impl.getApiKeyInfo())
+            assertThatThrownBy(impl::getApiKeyInfo)
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Failed to get API key info")
                 .hasCause(apiException);
@@ -122,7 +122,7 @@ class CursorAgentGeneralEndpointsImplTest {
             when(defaultApi.listModels(any())).thenThrow(apiException);
 
             // When & Then
-            assertThatThrownBy(() -> impl.getModels())
+            assertThatThrownBy(impl::getModels)
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Failed to get models")
                 .hasCause(apiException);
@@ -210,7 +210,7 @@ class CursorAgentGeneralEndpointsImplTest {
             when(defaultApi.listRepositories(any())).thenThrow(apiException);
 
             // When & Then
-            assertThatThrownBy(() -> impl.getRepositories())
+            assertThatThrownBy(impl::getRepositories)
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Failed to get repositories")
                 .hasCause(apiException);

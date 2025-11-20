@@ -23,8 +23,9 @@ class TableFormatterTest {
             constructor.newInstance();
         })
             .hasCauseInstanceOf(UnsupportedOperationException.class)
-            .getCause()
-            .hasMessage("Utility class cannot be instantiated");
+            .extracting(Throwable::getCause)
+            .extracting(Throwable::getMessage)
+            .isEqualTo("Utility class cannot be instantiated");
     }
 
     @Test

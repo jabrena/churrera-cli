@@ -23,7 +23,7 @@ public class CursorApiKeyResolver {
      */
     public String resolveApiKey() {
         return resolveFromEnvFile()
-            .or(() -> resolveFromSystemEnvironment())
+            .or(this::resolveFromSystemEnvironment)
             .orElseThrow(() -> new IllegalArgumentException(
                 "API key not found. Please provide it via:\n" +
                 "  1. .env file: " + CURSOR_API_KEY + "=YOUR_API_KEY\n" +

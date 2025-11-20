@@ -1,12 +1,7 @@
 package info.jab.cursor.client.impl;
 
-import info.jab.cursor.client.model.AgentResponse;
-import info.jab.cursor.client.model.DeleteAgentResponse;
-import info.jab.cursor.client.model.FollowUpResponse;
 import info.jab.cursor.generated.client.api.DefaultApi;
 import info.jab.cursor.generated.client.ApiException;
-import info.jab.cursor.generated.client.model.CreateAgent201Response;
-import info.jab.cursor.generated.client.model.DeleteAgent200Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,8 +12,6 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.OffsetDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;

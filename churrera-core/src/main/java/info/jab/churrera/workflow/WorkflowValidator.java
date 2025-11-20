@@ -191,7 +191,7 @@ public class WorkflowValidator {
     private Schema loadSchema() throws SAXException, IOException {
         SchemaFactory factory = createSecureSchemaFactory();
         String schemaUrl = getSchemaUrl();
-        return factory.newSchema(new java.net.URL(schemaUrl));
+        return factory.newSchema(java.net.URI.create(schemaUrl).toURL());
     }
 
     /**

@@ -2,7 +2,6 @@ package info.jab.cursor.client.impl;
 
 import info.jab.cursor.client.CursorAgentGeneralEndpoints;
 import info.jab.cursor.client.model.ApiKeyInfo;
-import info.jab.cursor.generated.client.ApiClient;
 import info.jab.cursor.generated.client.api.DefaultApi;
 import info.jab.cursor.generated.client.ApiException;
 

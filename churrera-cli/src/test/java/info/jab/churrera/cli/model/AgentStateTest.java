@@ -149,7 +149,7 @@ class AgentStateTest {
     @EnumSource(AgentStatus.class)
     @DisplayName("should render enum name inside toString")
     void shouldRenderEnumName(AgentStatus status) {
-        assertThat(AgentState.of(status).toString()).isEqualTo(status.name());
+        assertThat(AgentState.of(status)).hasToString(status.name());
     }
 
     private static AgentResponse agentResponse(AgentStatus status) {

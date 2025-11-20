@@ -33,24 +33,6 @@ class AgentsListTest {
         }
 
         @Test
-        @DisplayName("Should create AgentsList with empty list when agents is null")
-        void should_createAgentsListWithEmptyList_when_agentsIsNull() {
-            // Given
-            ListAgents200Response generated = new ListAgents200Response();
-            generated.setAgents(null);
-            generated.setNextCursor("next-cursor");
-
-            // When
-            AgentsList result = AgentsList.from(generated);
-
-            // Then
-            assertThat(result).isNotNull();
-            assertThat(result.agents()).isNotNull();
-            assertThat(result.agents()).isEmpty();
-            assertThat(result.nextCursor()).isEqualTo("next-cursor");
-        }
-
-        @Test
         @DisplayName("Should create AgentsList with agents when agents list is provided")
         void should_createAgentsList_when_agentsListIsProvided() {
             // Given

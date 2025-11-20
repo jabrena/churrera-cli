@@ -4,7 +4,6 @@ import info.jab.cursor.client.CursorAgentManagement;
 import info.jab.cursor.client.model.AgentResponse;
 import info.jab.cursor.client.model.DeleteAgentResponse;
 import info.jab.cursor.client.model.FollowUpResponse;
-import info.jab.cursor.generated.client.ApiClient;
 import info.jab.cursor.generated.client.api.DefaultApi;
 import info.jab.cursor.generated.client.model.CreateAgentRequest;
 import info.jab.cursor.generated.client.model.CreateAgentRequestPrompt;
