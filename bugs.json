@@ -1,0 +1,345 @@
+✓ SONAR_TOKEN validated
+
+
+{
+  "total" : 7,
+  "p" : 1,
+  "ps" : 100,
+  "paging" : {
+    "pageIndex" : 1,
+    "pageSize" : 100,
+    "total" : 7
+  },
+  "effortTotal" : 65,
+  "debtTotal" : 65,
+  "issues" : [ {
+    "key" : "AZqdsRdBAnFnwXiNxKrT",
+    "rule" : "java:S1872",
+    "severity" : "MAJOR",
+    "component" : "jabrena_churrera-cli:churrera-core/src/test/java/info/jab/churrera/workflow/PmlValidatorValidationErrorHandlerTest.java",
+    "project" : "jabrena_churrera-cli",
+    "line" : 43,
+    "hash" : "2fdf4f86f663fb61206073e9ddbd071e",
+    "textRange" : {
+      "startLine" : 43,
+      "endLine" : 43,
+      "startOffset" : 19,
+      "endOffset" : 78
+    },
+    "flows" : [ ],
+    "status" : "OPEN",
+    "message" : "Use an \"instanceof\" comparison instead.",
+    "effort" : "5min",
+    "debt" : "5min",
+    "author" : "",
+    "tags" : [ "cert", "cwe" ],
+    "creationDate" : "2025-11-19T19:51:54+0000",
+    "updateDate" : "2025-11-19T19:51:54+0000",
+    "type" : "BUG",
+    "organization" : "jabrena",
+    "cleanCodeAttribute" : "LOGICAL",
+    "cleanCodeAttributeCategory" : "INTENTIONAL",
+    "impacts" : [ {
+      "softwareQuality" : "RELIABILITY",
+      "severity" : "MEDIUM"
+    } ],
+    "issueStatus" : "OPEN",
+    "projectName" : "Churrera CLI"
+  }, {
+    "key" : "AZqdsRdVAnFnwXiNxKrU",
+    "rule" : "java:S1872",
+    "severity" : "MAJOR",
+    "component" : "jabrena_churrera-cli:churrera-core/src/test/java/info/jab/churrera/workflow/WorkflowValidatorValidationErrorHandlerTest.java",
+    "project" : "jabrena_churrera-cli",
+    "line" : 43,
+    "hash" : "2fdf4f86f663fb61206073e9ddbd071e",
+    "textRange" : {
+      "startLine" : 43,
+      "endLine" : 43,
+      "startOffset" : 19,
+      "endOffset" : 78
+    },
+    "flows" : [ ],
+    "status" : "OPEN",
+    "message" : "Use an \"instanceof\" comparison instead.",
+    "effort" : "5min",
+    "debt" : "5min",
+    "author" : "",
+    "tags" : [ "cert", "cwe" ],
+    "creationDate" : "2025-11-19T19:51:54+0000",
+    "updateDate" : "2025-11-19T19:51:54+0000",
+    "type" : "BUG",
+    "organization" : "jabrena",
+    "cleanCodeAttribute" : "LOGICAL",
+    "cleanCodeAttributeCategory" : "INTENTIONAL",
+    "impacts" : [ {
+      "softwareQuality" : "RELIABILITY",
+      "severity" : "MEDIUM"
+    } ],
+    "issueStatus" : "OPEN",
+    "projectName" : "Churrera CLI"
+  }, {
+    "key" : "AZqdsRcVAnFnwXiNxKrS",
+    "rule" : "java:S2583",
+    "severity" : "MAJOR",
+    "component" : "jabrena_churrera-cli:cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentsList.java",
+    "project" : "jabrena_churrera-cli",
+    "line" : 30,
+    "hash" : "538f98cf92ea7f843233832228ac8616",
+    "textRange" : {
+      "startLine" : 30,
+      "endLine" : 30,
+      "startOffset" : 37,
+      "endOffset" : 66
+    },
+    "flows" : [ {
+      "locations" : [ {
+        "component" : "jabrena_churrera-cli:cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentsList.java",
+        "textRange" : {
+          "startLine" : 30,
+          "endLine" : 30,
+          "startOffset" : 37,
+          "endOffset" : 66
+        },
+        "msg" : "Expression is always false."
+      }, {
+        "component" : "jabrena_churrera-cli:cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentsList.java",
+        "textRange" : {
+          "startLine" : 30,
+          "endLine" : 30,
+          "startOffset" : 37,
+          "endOffset" : 58
+        },
+        "msg" : "'getAgents()' can return not null."
+      } ]
+    } ],
+    "status" : "OPEN",
+    "message" : "Change this condition so that it does not always evaluate to \"false\"",
+    "effort" : "15min",
+    "debt" : "15min",
+    "author" : "",
+    "tags" : [ "cert", "cwe", "pitfall", "suspicious", "symbolic-execution", "unused" ],
+    "creationDate" : "2025-11-19T19:51:54+0000",
+    "updateDate" : "2025-11-19T19:51:54+0000",
+    "type" : "BUG",
+    "organization" : "jabrena",
+    "cleanCodeAttribute" : "LOGICAL",
+    "cleanCodeAttributeCategory" : "INTENTIONAL",
+    "impacts" : [ {
+      "softwareQuality" : "RELIABILITY",
+      "severity" : "MEDIUM"
+    } ],
+    "issueStatus" : "OPEN",
+    "projectName" : "Churrera CLI"
+  }, {
+    "key" : "AZqZJmQWWyUHIeVsO2He",
+    "rule" : "java:S2583",
+    "severity" : "MAJOR",
+    "component" : "jabrena_churrera-cli:cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentsList.java",
+    "project" : "jabrena_churrera-cli",
+    "hash" : "d0509927ae3b839fb02b6ef7a2e6e4af",
+    "textRange" : {
+      "startLine" : 30,
+      "endLine" : 30,
+      "startOffset" : 37,
+      "endOffset" : 66
+    },
+    "flows" : [ {
+      "locations" : [ {
+        "component" : "jabrena_churrera-cli:cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentsList.java",
+        "textRange" : {
+          "startLine" : 30,
+          "endLine" : 30,
+          "startOffset" : 37,
+          "endOffset" : 66
+        },
+        "msg" : "Expression is always true."
+      }, {
+        "component" : "jabrena_churrera-cli:cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentsList.java",
+        "textRange" : {
+          "startLine" : 30,
+          "endLine" : 30,
+          "startOffset" : 37,
+          "endOffset" : 58
+        },
+        "msg" : "'getAgents()' can return not null."
+      } ]
+    } ],
+    "resolution" : "FIXED",
+    "status" : "CLOSED",
+    "message" : "Change this condition so that it does not always evaluate to \"true\"",
+    "effort" : "15min",
+    "debt" : "15min",
+    "assignee" : "jabrena@github",
+    "author" : "bren@juanantonio.info",
+    "tags" : [ "cert", "cwe", "pitfall", "suspicious", "symbolic-execution", "unused" ],
+    "creationDate" : "2025-11-18T22:46:16+0000",
+    "updateDate" : "2025-11-19T19:56:20+0000",
+    "closeDate" : "2025-11-19T19:56:20+0000",
+    "type" : "BUG",
+    "organization" : "jabrena",
+    "cleanCodeAttribute" : "LOGICAL",
+    "cleanCodeAttributeCategory" : "INTENTIONAL",
+    "impacts" : [ {
+      "softwareQuality" : "RELIABILITY",
+      "severity" : "MEDIUM"
+    } ],
+    "issueStatus" : "FIXED",
+    "projectName" : "Churrera CLI"
+  }, {
+    "key" : "AZqYjunDHUA2jfcj62sr",
+    "rule" : "java:S3923",
+    "severity" : "MAJOR",
+    "component" : "jabrena_churrera-cli:cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentResponse.java",
+    "project" : "jabrena_churrera-cli",
+    "hash" : "b2f074380b5ba28431d623dfa7fa7df3",
+    "textRange" : {
+      "startLine" : 83,
+      "endLine" : 83,
+      "startOffset" : 15,
+      "endOffset" : 21
+    },
+    "flows" : [ ],
+    "resolution" : "FIXED",
+    "status" : "CLOSED",
+    "message" : "Remove this conditional structure or edit its code blocks so that they're not all the same.",
+    "effort" : "15min",
+    "debt" : "15min",
+    "assignee" : "jabrena@github",
+    "author" : "bren@juanantonio.info",
+    "tags" : [ ],
+    "creationDate" : "2025-11-18T18:49:40+0000",
+    "updateDate" : "2025-11-19T19:56:20+0000",
+    "closeDate" : "2025-11-19T19:56:20+0000",
+    "type" : "BUG",
+    "organization" : "jabrena",
+    "cleanCodeAttribute" : "CLEAR",
+    "cleanCodeAttributeCategory" : "INTENTIONAL",
+    "impacts" : [ {
+      "softwareQuality" : "RELIABILITY",
+      "severity" : "MEDIUM"
+    } ],
+    "issueStatus" : "FIXED",
+    "projectName" : "Churrera CLI"
+  }, {
+    "key" : "AZqYjuoVHUA2jfcj62s-",
+    "rule" : "java:S1872",
+    "severity" : "MAJOR",
+    "component" : "jabrena_churrera-cli:churrera-core/src/test/java/info/jab/churrera/workflow/PmlValidatorValidationErrorHandlerTest.java",
+    "project" : "jabrena_churrera-cli",
+    "hash" : "0ac462d43b14bfa9e7d41c199b964266",
+    "textRange" : {
+      "startLine" : 42,
+      "endLine" : 42,
+      "startOffset" : 16,
+      "endOffset" : 75
+    },
+    "flows" : [ ],
+    "resolution" : "FIXED",
+    "status" : "CLOSED",
+    "message" : "Use an \"instanceof\" comparison instead.",
+    "effort" : "5min",
+    "debt" : "5min",
+    "assignee" : "jabrena@github",
+    "author" : "bren@juanantonio.info",
+    "tags" : [ "cert", "cwe" ],
+    "creationDate" : "2025-11-17T20:32:33+0000",
+    "updateDate" : "2025-11-19T19:56:20+0000",
+    "closeDate" : "2025-11-19T19:56:20+0000",
+    "type" : "BUG",
+    "organization" : "jabrena",
+    "cleanCodeAttribute" : "LOGICAL",
+    "cleanCodeAttributeCategory" : "INTENTIONAL",
+    "impacts" : [ {
+      "softwareQuality" : "RELIABILITY",
+      "severity" : "MEDIUM"
+    } ],
+    "issueStatus" : "FIXED",
+    "projectName" : "Churrera CLI"
+  }, {
+    "key" : "AZqYjupQHUA2jfcj62tI",
+    "rule" : "java:S1872",
+    "severity" : "MAJOR",
+    "component" : "jabrena_churrera-cli:churrera-core/src/test/java/info/jab/churrera/workflow/WorkflowValidatorValidationErrorHandlerTest.java",
+    "project" : "jabrena_churrera-cli",
+    "hash" : "0ac462d43b14bfa9e7d41c199b964266",
+    "textRange" : {
+      "startLine" : 42,
+      "endLine" : 42,
+      "startOffset" : 16,
+      "endOffset" : 75
+    },
+    "flows" : [ ],
+    "resolution" : "FIXED",
+    "status" : "CLOSED",
+    "message" : "Use an \"instanceof\" comparison instead.",
+    "effort" : "5min",
+    "debt" : "5min",
+    "assignee" : "jabrena@github",
+    "author" : "bren@juanantonio.info",
+    "tags" : [ "cert", "cwe" ],
+    "creationDate" : "2025-11-17T20:32:33+0000",
+    "updateDate" : "2025-11-19T19:56:20+0000",
+    "closeDate" : "2025-11-19T19:56:20+0000",
+    "type" : "BUG",
+    "organization" : "jabrena",
+    "cleanCodeAttribute" : "LOGICAL",
+    "cleanCodeAttributeCategory" : "INTENTIONAL",
+    "impacts" : [ {
+      "softwareQuality" : "RELIABILITY",
+      "severity" : "MEDIUM"
+    } ],
+    "issueStatus" : "FIXED",
+    "projectName" : "Churrera CLI"
+  } ],
+  "components" : [ {
+    "organization" : "jabrena",
+    "key" : "jabrena_churrera-cli:cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentResponse.java",
+    "uuid" : "AZqYjt9EHUA2jfcj62gj",
+    "enabled" : true,
+    "qualifier" : "FIL",
+    "name" : "AgentResponse.java",
+    "longName" : "cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentResponse.java",
+    "path" : "cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentResponse.java"
+  }, {
+    "organization" : "jabrena",
+    "key" : "jabrena_churrera-cli:churrera-core/src/test/java/info/jab/churrera/workflow/WorkflowValidatorValidationErrorHandlerTest.java",
+    "uuid" : "AZqYjt9FHUA2jfcj62g-",
+    "enabled" : true,
+    "qualifier" : "UTS",
+    "name" : "WorkflowValidatorValidationErrorHandlerTest.java",
+    "longName" : "churrera-core/src/test/java/info/jab/churrera/workflow/WorkflowValidatorValidationErrorHandlerTest.java",
+    "path" : "churrera-core/src/test/java/info/jab/churrera/workflow/WorkflowValidatorValidationErrorHandlerTest.java"
+  }, {
+    "organization" : "jabrena",
+    "key" : "jabrena_churrera-cli",
+    "uuid" : "AZqYjkIv6smiiI-pnAwI",
+    "enabled" : true,
+    "qualifier" : "TRK",
+    "name" : "Churrera CLI",
+    "longName" : "Churrera CLI"
+  }, {
+    "organization" : "jabrena",
+    "key" : "jabrena_churrera-cli:churrera-core/src/test/java/info/jab/churrera/workflow/PmlValidatorValidationErrorHandlerTest.java",
+    "uuid" : "AZqYjt9FHUA2jfcj62g5",
+    "enabled" : true,
+    "qualifier" : "UTS",
+    "name" : "PmlValidatorValidationErrorHandlerTest.java",
+    "longName" : "churrera-core/src/test/java/info/jab/churrera/workflow/PmlValidatorValidationErrorHandlerTest.java",
+    "path" : "churrera-core/src/test/java/info/jab/churrera/workflow/PmlValidatorValidationErrorHandlerTest.java"
+  }, {
+    "organization" : "jabrena",
+    "key" : "jabrena_churrera-cli:cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentsList.java",
+    "uuid" : "AZqYjt9EHUA2jfcj62gl",
+    "enabled" : true,
+    "qualifier" : "FIL",
+    "name" : "AgentsList.java",
+    "longName" : "cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentsList.java",
+    "path" : "cursor-cloud-agents-client/src/main/java/info/jab/cursor/client/model/AgentsList.java"
+  } ],
+  "organizations" : [ {
+    "key" : "jabrena",
+    "name" : "Juan Antonio Breña Moral"
+  } ],
+  "facets" : [ ]
+}
