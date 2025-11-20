@@ -19,9 +19,6 @@
 
                 <![CDATA[
                 ```bash
-                jbang sonar-search@jabrena --project jabrena_churrera-cli --issues BUG --quiet >> bugs.json
-                jbang sonar-search@jabrena --project jabrena_churrera-cli --issues CODE_SMELL --quiet >> code-smells.json
-                jbang sonar-search@jabrena --project jabrena_churrera-cli --issues VULNERABILITY --quiet >> vulnerabilities.json
                 jbang sonar-search@jabrena --project jabrena_churrera-cli --hotspots --quiet >> hotspots.json
                 ```
                 ]]>
@@ -33,9 +30,6 @@
                 Understand the Sonar issues for the project using the following command:
 
                 ```bash
-                cat bugs.json
-                cat code-smells.json
-                cat vulnerabilities.json
                 cat hotspots.json
                 ```
             </step-content>
@@ -54,6 +48,13 @@
                 Once the changes are verified,
                 commit the changes and push the changes to the branch to create the PR.
                 Not commit bugs.json, code-smells.json, vulnerabilities.json and hotspots.json files.
+            </step-content>
+        </step>
+        <step number="4">
+            <step-title>Clean up the PR</step-title>
+            <step-content>
+                Review if the PR has committed before the files bugs.json, code-smells.json, vulnerabilities.json and hotspots.json files.
+                If so, remove the files from the PR.
             </step-content>
         </step>
     </steps>
