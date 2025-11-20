@@ -19,7 +19,7 @@
 
                 <![CDATA[
                 ```bash
-                jbang sonar-search@jabrena --project jabrena_churrera-cli --hotspots --quiet >> hotspots.json
+                jbang sonar-search@jabrena --project jabrena_churrera-cli --issues ALL --quiet >> all-issues.json
                 ```
                 ]]>
             </step-content>
@@ -30,8 +30,10 @@
                 Understand the Sonar issues for the project using the following command:
 
                 ```bash
-                cat hotspots.json
+                cat all-issues.json
                 ```
+
+                and put focus to fix RELIABILITY issues only.
             </step-content>
         </step>
         <step number="3">
@@ -47,14 +49,14 @@
 
                 Once the changes are verified,
                 commit the changes and push the changes to the branch to create the PR.
-                Not commit bugs.json, code-smells.json, vulnerabilities.json and hotspots.json files.
+                Not commit any *.json file.
             </step-content>
         </step>
         <step number="4">
             <step-title>Clean up the PR</step-title>
             <step-content>
-                Review if the PR has committed before the files bugs.json, code-smells.json, vulnerabilities.json and hotspots.json files.
-                If so, remove the files from the PR.
+                Review if the PR has committed any file with extension *.json.
+                in that case, remove the files from the PR and push the changes to the branch to create the PR.
             </step-content>
         </step>
     </steps>
@@ -64,7 +66,7 @@
             <acceptance-criteria-item>The Sonar issues are fixed</acceptance-criteria-item>
             <acceptance-criteria-item>The project is verified successfully with `./mvnw clean test verify site -Pjacoco`</acceptance-criteria-item>
             <acceptance-criteria-item>The changes are committed and pushed to the branch to create the PR</acceptance-criteria-item>
-            <acceptance-criteria-item>Not commit bugs.json, code-smells.json, vulnerabilities.json and hotspots.json files</acceptance-criteria-item>
+            <acceptance-criteria-item>Not commit any *.json file.</acceptance-criteria-item>
         </acceptance-criteria-list>
     </acceptance-criteria>
 </prompt>
