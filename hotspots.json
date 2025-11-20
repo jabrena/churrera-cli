@@ -1,0 +1,12 @@
+✓ SONAR_TOKEN validated
+
+
+{
+  "paging" : {
+    "pageIndex" : 1,
+    "pageSize" : 100,
+    "total" : 0
+  },
+  "hotspots" : [ ],
+  "components" : [ ]
+}
