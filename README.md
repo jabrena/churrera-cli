@@ -1,5 +1,9 @@
 # Churrera
 
+[![CI Builds](https://github.com/jabrena/churrera-cli/actions/workflows/maven.yaml/badge.svg)](https://github.com/jabrena/churrera-cli/actions/workflows/maven.yaml)
+
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=jabrena_churrera-cli)
+
 ## Goal
 
 `Churrera` is a CLI tool designed to orchestrate `Cursor Cloud Agents REST API` in an easy way.

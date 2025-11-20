@@ -19,9 +19,10 @@
 
                 <![CDATA[
                 ```bash
-                jbang sonar-search.0.1.0-SNAPSHOT@jabrena --componentKeys jabrena_churrera-cli --types BUG --quiet >> bug.json
-                jbang sonar-search.0.1.0-SNAPSHOT@jabrena --componentKeys jabrena_churrera-cli --types CODE_SMELL --quiet >> code-smell.json
-                jbang sonar-search.0.1.0-SNAPSHOT@jabrena --componentKeys jabrena_churrera-cli --types VULNERABILITY --quiet >> vulnerability.json
+                jbang sonar-search@jabrena --project jabrena_churrera-cli --issues BUG --quiet >> bugs.json
+                jbang sonar-search@jabrena --project jabrena_churrera-cli --issues CODE_SMELL --quiet >> code-smells.json
+                jbang sonar-search@jabrena --project jabrena_churrera-cli --issues VULNERABILITY --quiet >> vulnerabilities.json
+                jbang sonar-search@jabrena --project jabrena_churrera-cli --hotspots --quiet >> hotspots.json
                 ```
                 ]]>
             </step-content>
@@ -31,13 +32,12 @@
             <step-content>
                 Understand the Sonar issues for the project using the following command:
 
-                <![CDATA[
                 ```bash
-                cat bug.json
-                cat code-smell.json
-                cat vulnerability.json
+                cat bugs.json
+                cat code-smells.json
+                cat vulnerabilities.json
+                cat hotspots.json
                 ```
-                ]]>
             </step-content>
         </step>
         <step number="3">
@@ -53,7 +53,7 @@
 
                 Once the changes are verified,
                 commit the changes and push the changes to the branch to create the PR.
-                Not commit bug.json, code-smell.json and vulnerability.json files.
+                Not commit bugs.json, code-smells.json, vulnerabilities.json and hotspots.json files.
             </step-content>
         </step>
     </steps>
@@ -63,7 +63,7 @@
             <acceptance-criteria-item>The Sonar issues are fixed</acceptance-criteria-item>
             <acceptance-criteria-item>The project is verified successfully with `./mvnw clean test verify site -Pjacoco`</acceptance-criteria-item>
             <acceptance-criteria-item>The changes are committed and pushed to the branch to create the PR</acceptance-criteria-item>
-            <acceptance-criteria-item>Not commit bug.json, code-smell.json and vulnerability.json files</acceptance-criteria-item>
+            <acceptance-criteria-item>Not commit bugs.json, code-smells.json, vulnerabilities.json and hotspots.json files</acceptance-criteria-item>
         </acceptance-criteria-list>
     </acceptance-criteria>
 </prompt>
