@@ -87,6 +87,8 @@ public class WorkflowParser {
 
             return result;
 
+        } catch (WorkflowParseException e) {
+            throw e;
         } catch (ParserConfigurationException e) {
             throw new WorkflowParseException("Error configuring XML parser: " + e.getMessage(), e);
         } catch (SAXException e) {
@@ -94,9 +96,6 @@ public class WorkflowParser {
         } catch (IOException e) {
             throw new WorkflowParseException("Error reading file: " + e.getMessage(), e);
         } catch (Exception e) {
-            if (e instanceof WorkflowParseException) {
-                throw e;
-            }
             throw new WorkflowParseException("Error parsing workflow XML: " + e.getMessage(), e);
         }
     }

@@ -65,14 +65,7 @@ public class JobProcessor {
                 unfinishedJobs.stream().map(Job::jobId).toList());
 
             for (Job job : unfinishedJobs) {
-                try {
-                    logger.info("Processing job: {} (cursorAgentId: {}, status: {})",
-                        job.jobId(), job.cursorAgentId(), job.status());
-                    processJob(job);
-                } catch (Exception e) {
-                    logger.error("Error processing job {}: {}", job.jobId(), e.getMessage());
-                    // Continue with other jobs
-                }
+                processSingleJob(job);
             }
         } catch (Exception e) {
             logger.error("Error finding unfinished jobs: {}", e.getMessage());
@@ -146,6 +139,22 @@ public class JobProcessor {
 
         } catch (Exception e) {
             logger.error("Error processing job workflow {}: {}", job.jobId(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Processes a single job, handling any exceptions.
+     *
+     * @param job the job to process
+     */
+    private void processSingleJob(Job job) {
+        try {
+            logger.info("Processing job: {} (cursorAgentId: {}, status: {})",
+                job.jobId(), job.cursorAgentId(), job.status());
+            processJob(job);
+        } catch (Exception e) {
+            logger.error("Error processing job {}: {}", job.jobId(), e.getMessage());
+            // Continue with other jobs
         }
     }
 }

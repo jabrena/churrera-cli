@@ -100,33 +100,11 @@ public class ParallelWorkflowHandler {
                     }
                 }
 
-                try {
-                    AgentState currentStatus = cliAgent.getAgentStatus(job.cursorAgentId());
-                    logger.info("Parent parallel job {} status polled: {} -> updating database", job.jobId(), currentStatus);
-                    cliAgent.updateJobStatusInDatabase(job, currentStatus);
-
-                    // Refresh job from database to get the updated status
-                    job = jobRepository.findById(job.jobId()).orElse(job);
-
-                    // Step 3: If successful, extract and process results
-                    if (currentStatus.isSuccessful()) {
-                        logger.info("Parent job {} completed successfully, proceeding to result extraction", job.jobId());
-                    } else if (currentStatus.isActive()) {
-                        logger.info("Parent parallel job {} is still active, will check again on next polling cycle", job.jobId());
-                        return; // Defer extraction until completion
-                    } else if (currentStatus.isTerminal()) {
-                        logger.error("Parent job {} reached terminal state: {}", job.jobId(), currentStatus);
-                        return;
-                    }
-                } catch (Exception statusError) {
-                    logger.error("Error getting agent status for parent job {}: {}", job.jobId(), statusError.getMessage());
-                    try {
-                        cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
-                    } catch (Exception updateError) {
-                        logger.error("Error updating job status to FAILED: {}", updateError.getMessage());
-                    }
+                JobStatusCheckResult result = checkParentJobStatus(job);
+                if (!result.shouldContinue()) {
                     return;
                 }
+                job = result.getUpdatedJob();
 
                 // If we reach here, status was successful → extract results and create child jobs
                 logger.info("Parent job {} completed successfully, attempting to extract results from conversation", job.jobId());
@@ -137,12 +115,7 @@ public class ParallelWorkflowHandler {
                 if (deserializedList == null) {
                     logger.error("No result to store for parent job: {}", job.jobId());
                     // If deserialization failed after a successful agent run, mark job as FAILED
-                    try {
-                        cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
-                        logger.error("Parent job {} marked as FAILED due to result deserialization issues", job.jobId());
-                    } catch (Exception updateError) {
-                        logger.error("Error updating job status to FAILED: {}", updateError.getMessage());
-                    }
+                    updateJobStatusToError(job, "Parent job " + job.jobId() + " marked as FAILED due to result deserialization issues");
                     return;
                 }
 
@@ -152,11 +125,7 @@ public class ParallelWorkflowHandler {
 
         } catch (Exception e) {
             logger.error("Error processing parallel workflow for job {}: {}", job.jobId(), e.getMessage(), e);
-            try {
-                cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
-            } catch (Exception updateError) {
-                logger.error("Error updating job status: {}", updateError.getMessage());
-            }
+            updateJobStatusToError(job, "Error updating job status");
         }
     }
 
@@ -184,57 +153,7 @@ public class ParallelWorkflowHandler {
                 Object element = resultList.get(i);
                 logger.info("Creating child job {} of {} with value: {}", i + 1, resultList.size(), element);
 
-                try {
-                    // Generate new job ID
-                    String childJobId = UUID.randomUUID().toString();
-                    LocalDateTime now = LocalDateTime.now();
-
-                    // Store the bound value in the job's result field so it can be used during prompt processing
-                    String boundValue = String.valueOf(element);
-
-                    // Use parent workflow path - no need to create physical child workflow files
-                    // Child jobs will be identified by parentJobId and will extract sequence info from parent workflow
-                    String childWorkflowPath = parentJob.path();
-
-                    // Inherit timeout and fallback from parent parallel workflow
-                    Long childTimeoutMillis = sequenceInfo.getTimeoutMillis();
-                    if (childTimeoutMillis == null) {
-                        childTimeoutMillis = parallelData.getTimeoutMillis();
-                    }
-                    String childFallbackSrc = sequenceInfo.getFallbackSrc();
-                    if (childFallbackSrc == null) {
-                        childFallbackSrc = parallelData.getFallbackSrc();
-                    }
-
-                    // Create child job with parent reference and bound value
-                    Job childJob = new Job(
-                        childJobId,
-                        childWorkflowPath, // Reuse parent workflow path
-                        null, // cursorAgentId starts as null
-                        sequenceInfo.getModel() != null ? sequenceInfo.getModel() : parentJob.model(),
-                        sequenceInfo.getRepository() != null ? sequenceInfo.getRepository() : parentJob.repository(),
-                        AgentState.CREATING(),
-                        now,
-                        now,
-                        parentJob.jobId(), // Set parent job ID
-                        boundValue, // Store the bound value from parent result
-                        info.jab.churrera.workflow.WorkflowType.SEQUENCE, // Child jobs are always SEQUENCE type
-                        childTimeoutMillis, // Inherit timeout from parent or sequence
-                        null, // workflowStartTime is null initially, set when launched if timeout is set
-                        childFallbackSrc, // Inherit fallback from parent or sequence
-                        null // fallbackExecuted is null initially (false when not executed)
-                    );
-
-                    // Save child job
-                    jobRepository.save(childJob);
-                    logger.info("Created child job: {} for parent: {} with bound value: {}", childJobId, parentJob.jobId(), boundValue);
-
-                    // Create prompts for child job
-                    createChildJobPrompts(childJob, sequenceInfo);
-
-                } catch (Exception e) {
-                    logger.error("Error creating child job {} for parent {}: {}", i, parentJob.jobId(), e.getMessage(), e);
-                }
+                createSingleChildJob(parentJob, element, i, sequenceInfo, parallelData);
             }
 
             logger.info("Successfully created {} child jobs for parent: {}", resultList.size(), parentJob.jobId());
@@ -267,6 +186,141 @@ public class ParallelWorkflowHandler {
 
             jobRepository.savePrompt(prompt);
             logger.info("Created prompt {} for child job: {}", promptId, childJob.jobId());
+        }
+    }
+
+    /**
+     * Result of checking parent job status.
+     */
+    private static class JobStatusCheckResult {
+        private final boolean shouldContinue;
+        private final Job updatedJob;
+
+        JobStatusCheckResult(boolean shouldContinue, Job updatedJob) {
+            this.shouldContinue = shouldContinue;
+            this.updatedJob = updatedJob;
+        }
+
+        boolean shouldContinue() {
+            return shouldContinue;
+        }
+
+        Job getUpdatedJob() {
+            return updatedJob;
+        }
+    }
+
+    /**
+     * Checks and updates the parent job status.
+     *
+     * @param job the parent job
+     * @return result indicating whether to continue and the updated job
+     */
+    private JobStatusCheckResult checkParentJobStatus(Job job) {
+        try {
+            AgentState currentStatus = cliAgent.getAgentStatus(job.cursorAgentId());
+            logger.info("Parent parallel job {} status polled: {} -> updating database", job.jobId(), currentStatus);
+            cliAgent.updateJobStatusInDatabase(job, currentStatus);
+
+            // Refresh job from database to get the updated status
+            Job updatedJob = jobRepository.findById(job.jobId()).orElse(job);
+
+            // Step 3: If successful, extract and process results
+            if (currentStatus.isSuccessful()) {
+                logger.info("Parent job {} completed successfully, proceeding to result extraction", updatedJob.jobId());
+                return new JobStatusCheckResult(true, updatedJob);
+            } else if (currentStatus.isActive()) {
+                logger.info("Parent parallel job {} is still active, will check again on next polling cycle", updatedJob.jobId());
+                return new JobStatusCheckResult(false, updatedJob); // Defer extraction until completion
+            } else if (currentStatus.isTerminal()) {
+                logger.error("Parent job {} reached terminal state: {}", updatedJob.jobId(), currentStatus);
+                return new JobStatusCheckResult(false, updatedJob);
+            }
+            return new JobStatusCheckResult(false, updatedJob);
+        } catch (Exception statusError) {
+            logger.error("Error getting agent status for parent job {}: {}", job.jobId(), statusError.getMessage());
+            updateJobStatusToError(job, "Error updating job status to FAILED");
+            return new JobStatusCheckResult(false, job);
+        }
+    }
+
+    /**
+     * Updates job status to ERROR, handling any exceptions.
+     *
+     * @param job the job to update
+     * @param errorMessage the error message to log
+     */
+    private void updateJobStatusToError(Job job, String errorMessage) {
+        try {
+            cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                logger.error(errorMessage);
+            }
+        } catch (Exception updateError) {
+            logger.error("Error updating job status to FAILED: {}", updateError.getMessage());
+        }
+    }
+
+    /**
+     * Creates a single child job for an element in the result list.
+     *
+     * @param parentJob the parent job
+     * @param element the element to create a child job for
+     * @param index the index of the element
+     * @param sequenceInfo the sequence info
+     * @param parallelData the parallel workflow data
+     */
+    private void createSingleChildJob(Job parentJob, Object element, int index, SequenceInfo sequenceInfo, ParallelWorkflowData parallelData) {
+        try {
+            // Generate new job ID
+            String childJobId = UUID.randomUUID().toString();
+            LocalDateTime now = LocalDateTime.now();
+
+            // Store the bound value in the job's result field so it can be used during prompt processing
+            String boundValue = String.valueOf(element);
+
+            // Use parent workflow path - no need to create physical child workflow files
+            // Child jobs will be identified by parentJobId and will extract sequence info from parent workflow
+            String childWorkflowPath = parentJob.path();
+
+            // Inherit timeout and fallback from parent parallel workflow
+            Long childTimeoutMillis = sequenceInfo.getTimeoutMillis();
+            if (childTimeoutMillis == null) {
+                childTimeoutMillis = parallelData.getTimeoutMillis();
+            }
+            String childFallbackSrc = sequenceInfo.getFallbackSrc();
+            if (childFallbackSrc == null) {
+                childFallbackSrc = parallelData.getFallbackSrc();
+            }
+
+            // Create child job with parent reference and bound value
+            Job childJob = new Job(
+                childJobId,
+                childWorkflowPath, // Reuse parent workflow path
+                null, // cursorAgentId starts as null
+                sequenceInfo.getModel() != null ? sequenceInfo.getModel() : parentJob.model(),
+                sequenceInfo.getRepository() != null ? sequenceInfo.getRepository() : parentJob.repository(),
+                AgentState.CREATING(),
+                now,
+                now,
+                parentJob.jobId(), // Set parent job ID
+                boundValue, // Store the bound value from parent result
+                info.jab.churrera.workflow.WorkflowType.SEQUENCE, // Child jobs are always SEQUENCE type
+                childTimeoutMillis, // Inherit timeout from parent or sequence
+                null, // workflowStartTime is null initially, set when launched if timeout is set
+                childFallbackSrc, // Inherit fallback from parent or sequence
+                null // fallbackExecuted is null initially (false when not executed)
+            );
+
+            // Save child job
+            jobRepository.save(childJob);
+            logger.info("Created child job: {} for parent: {} with bound value: {}", childJobId, parentJob.jobId(), boundValue);
+
+            // Create prompts for child job
+            createChildJobPrompts(childJob, sequenceInfo);
+
+        } catch (Exception e) {
+            logger.error("Error creating child job {} for parent {}: {}", index, parentJob.jobId(), e.getMessage(), e);
         }
     }
 }

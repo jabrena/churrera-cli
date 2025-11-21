@@ -8,8 +8,6 @@ import info.jab.cursor.generated.client.ApiException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 /**
@@ -18,8 +16,6 @@ import java.util.Objects;
  * and provides a clean interface for retrieving API information, models, and repositories.
  */
 public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoints {
-
-    private static final Logger logger = LoggerFactory.getLogger(CursorAgentGeneralEndpointsImpl.class);
 
     private final String apiKey;
     private final DefaultApi defaultApi;

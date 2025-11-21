@@ -9,8 +9,6 @@ import info.jab.cursor.generated.client.ApiException;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the CursorAgentInformation interface that provides agent information operations.
@@ -18,8 +16,6 @@ import org.slf4j.LoggerFactory;
  * and provides a clean interface for retrieving agent data.
  */
 public class CursorAgentInformationImpl implements CursorAgentInformation {
-
-    private static final Logger logger = LoggerFactory.getLogger(CursorAgentInformationImpl.class);
 
     private final String apiKey;
     private final DefaultApi defaultApi;

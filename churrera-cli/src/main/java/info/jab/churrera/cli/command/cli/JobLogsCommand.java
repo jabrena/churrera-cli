@@ -77,22 +77,7 @@ public class JobLogsCommand implements Runnable {
                 // If job has cursorAgentId, try to fetch conversation
                 if (job.cursorAgentId() != null) {
                     logger.debug("Fetching conversation for cursorAgentId: {}", job.cursorAgentId());
-                    try {
-                        System.out.println("\n=== Cursor Agent Conversation ===");
-                        var conversation = cliAgent.getConversation(job.cursorAgentId());
-                        if (conversation != null && conversation.messages() != null) {
-                            logger.debug("Retrieved {} conversation messages", conversation.messages().size());
-                            for (ConversationMessage message : conversation.messages()) {
-                                System.out.println("[conversation] " + message.text());
-                            }
-                        } else {
-                            logger.debug("No conversation messages available");
-                            System.out.println("No conversation messages available");
-                        }
-                    } catch (Exception e) {
-                        logger.error("Failed to fetch conversation for cursorAgentId: {}", job.cursorAgentId(), e);
-                        System.out.println("Failed to fetch conversation: " + e.getMessage());
-                    }
+                    fetchAndDisplayConversation(job.cursorAgentId());
                 } else {
                     logger.debug("No cursorAgentId found for job");
                 }
@@ -170,5 +155,29 @@ public class JobLogsCommand implements Runnable {
             System.out.println("  - " + m.jobId());
         }
         System.out.println("Please specify a full UUID or a unique 8-char prefix.");
+    }
+
+    /**
+     * Fetches and displays the conversation for a cursor agent.
+     *
+     * @param cursorAgentId the cursor agent ID
+     */
+    private void fetchAndDisplayConversation(String cursorAgentId) {
+        try {
+            System.out.println("\n=== Cursor Agent Conversation ===");
+            var conversation = cliAgent.getConversation(cursorAgentId);
+            if (conversation != null && conversation.messages() != null) {
+                logger.debug("Retrieved {} conversation messages", conversation.messages().size());
+                for (ConversationMessage message : conversation.messages()) {
+                    System.out.println("[conversation] " + message.text());
+                }
+            } else {
+                logger.debug("No conversation messages available");
+                System.out.println("No conversation messages available");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to fetch conversation for cursorAgentId: {}", cursorAgentId, e);
+            System.out.println("Failed to fetch conversation: " + e.getMessage());
+        }
     }
 }

@@ -93,8 +93,8 @@ public class JobRepository {
         try {
             new Open(DATABASE_NAME).execute(context);
         } catch (BaseXException e) {
-            logger.error("Failed to open database: {}", DATABASE_NAME, e);
-            throw e;
+            logger.error("Failed to open database: {} at path: {}", DATABASE_NAME, databasePath, e);
+            throw new BaseXException("Failed to open database: " + DATABASE_NAME + " at path: " + databasePath, e);
         }
 
         // Verify the database is working
