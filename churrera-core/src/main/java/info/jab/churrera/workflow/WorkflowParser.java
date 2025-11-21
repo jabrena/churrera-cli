@@ -88,19 +88,15 @@ public class WorkflowParser {
             return result;
 
         } catch (ParserConfigurationException e) {
-            logger.error("Error configuring XML parser: {}", e.getMessage(), e);
             throw new WorkflowParseException("Error configuring XML parser: " + e.getMessage(), e);
         } catch (SAXException e) {
-            logger.error("Error parsing XML: {}", e.getMessage(), e);
             throw new WorkflowParseException("Error parsing XML: " + e.getMessage(), e);
         } catch (IOException e) {
-            logger.error("Error reading file: {}", e.getMessage(), e);
             throw new WorkflowParseException("Error reading file: " + e.getMessage(), e);
         } catch (Exception e) {
             if (e instanceof WorkflowParseException) {
                 throw e;
             }
-            logger.error("Error parsing workflow XML: {}", e.getMessage(), e);
             throw new WorkflowParseException("Error parsing workflow XML: " + e.getMessage(), e);
         }
     }

@@ -75,7 +75,6 @@ public class CursorAgentInformationImpl implements CursorAgentInformation {
         try {
             return AgentsList.from(defaultApi.listAgents(limit, cursor, getAuthHeaders()));
         } catch (ApiException e) {
-            logger.error("Failed to get agents: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to get agents: " + e.getMessage(), e);
         }
     }
@@ -98,13 +97,12 @@ public class CursorAgentInformationImpl implements CursorAgentInformation {
             // Get current agent status - single API call
             return AgentResponse.from(defaultApi.getAgent(agentId, getAuthHeaders()));
         } catch (Exception statusException) {
-            logger.error("Failed to get agent status: {}", statusException.getMessage(), statusException);
             // If status parsing fails due to unknown enum value, try to handle gracefully
             if (statusException.getMessage() != null && statusException.getMessage().contains("Unexpected value")) {
                 // For now, re-throw the exception. The calling layer can handle unknown statuses
                 throw new RuntimeException("Agent status contains unknown value: " + statusException.getMessage(), statusException);
             } else {
-                throw new RuntimeException(statusException);
+                throw new RuntimeException("Failed to get agent status for " + agentId + ": " + statusException.getMessage(), statusException);
             }
         }
     }
@@ -125,8 +123,7 @@ public class CursorAgentInformationImpl implements CursorAgentInformation {
         try {
             return ConversationResponse.from(defaultApi.getAgentConversation(agentId, getAuthHeaders()));
         } catch (ApiException e) {
-            logger.error("Failed to get agent conversation: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to get agent conversation: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to get agent conversation for " + agentId + ": " + e.getMessage(), e);
         }
     }
 }

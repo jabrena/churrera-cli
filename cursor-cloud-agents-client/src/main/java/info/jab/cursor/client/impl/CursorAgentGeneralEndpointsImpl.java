@@ -52,7 +52,6 @@ public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoi
         try {
            return ApiKeyInfo.from(defaultApi.getMe(getAuthHeaders()));
         } catch (ApiException e) {
-            logger.error("Failed to get API key info: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to get API key info: " + e.getMessage(), e);
         }
     }
@@ -62,7 +61,6 @@ public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoi
         try {
             return defaultApi.listModels(getAuthHeaders()).getModels();
         } catch (ApiException e) {
-            logger.error("Failed to get models: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to get models: " + e.getMessage(), e);
         }
     }
@@ -80,7 +78,6 @@ public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoi
                 .filter(Objects::nonNull)
                 .toList();
         } catch (ApiException e) {
-            logger.error("Failed to get repositories: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to get repositories: " + e.getMessage(), e);
         }
     }

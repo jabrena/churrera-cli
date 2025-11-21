@@ -130,8 +130,9 @@ public final class ConversationJsonDeserializer {
         logger.error("No <result> tags found in conversation content (length: {} chars)",
             conversationContent.length());
         if (conversationContent.length() > 0) {
-            logger.error("Conversation content preview (first 500 chars): {}",
-                conversationContent.substring(0, Math.min(500, conversationContent.length())));
+            int previewLength = Math.min(500, conversationContent.length());
+            logger.error("Conversation content preview (first {} chars): {}",
+                previewLength, conversationContent.substring(0, previewLength));
         }
         return Optional.empty();
     }

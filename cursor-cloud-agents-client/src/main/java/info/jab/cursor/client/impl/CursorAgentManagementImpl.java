@@ -98,8 +98,7 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
             logger.debug("Successfully launched agent: {}", result.id());
             return result;
         } catch (ApiException e) {
-            logger.error("Failed to launch agent: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to launch agent: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to launch agent with model " + model + " and repository " + repository + ": " + e.getMessage(), e);
         }
     }
 
@@ -161,7 +160,6 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
             logger.debug("Successfully followed up agent: {}", agentId);
             return response;
         } catch (ApiException e) {
-            logger.error("Failed to follow up agent: {}: {}", agentId, e.getMessage(), e);
             throw new RuntimeException("Failed to follow up agent " + agentId + ": " + e.getMessage(), e);
         }
     }
@@ -181,8 +179,7 @@ public class CursorAgentManagementImpl implements CursorAgentManagement {
             logger.debug("Successfully deleted agent: {} with response: {}", agentId, response.id());
             return response;
         } catch (ApiException e) {
-            logger.error("Failed to delete agent {}: {}", agentId, e.getMessage(), e);
-            throw new RuntimeException("Failed to delete agent: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to delete agent " + agentId + ": " + e.getMessage(), e);
         }
     }
 }

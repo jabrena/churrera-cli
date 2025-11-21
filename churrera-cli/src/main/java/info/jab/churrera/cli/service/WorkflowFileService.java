@@ -39,8 +39,7 @@ public class WorkflowFileService {
             logger.info("Workflow parsed successfully: {}", result);
             return result;
         } catch (Exception e) {
-            logger.error("Error parsing workflow file {}: {}", workflowPath, e.getMessage(), e);
-            throw new RuntimeException("Failed to parse workflow: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to parse workflow file " + workflowPath + ": " + e.getMessage(), e);
         }
     }
 

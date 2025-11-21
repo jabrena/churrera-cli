@@ -63,7 +63,6 @@ public class ParallelWorkflowCompletionChecker implements CompletionChecker {
         try {
             allJobs = jobRepository.findAll();
         } catch (BaseXException | QueryException e) {
-            logger.error("Error retrieving all jobs: {}", e.getMessage(), e);
             throw new RuntimeException("Error retrieving all jobs: " + e.getMessage(), e);
         }
         List<Job> childJobs = new ArrayList<>();

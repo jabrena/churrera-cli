@@ -69,25 +69,8 @@ public class JobDisplayService {
             List<String[]> rows = new ArrayList<>();
 
             for (Job j : jobsToDisplay) {
-                try {
-                    String[] row = formatJobRow(j);
-                    rows.add(row);
-                } catch (Exception e) {
-                    logger.error("Error retrieving details for job {}: {}", j.jobId(), e.getMessage());
-                    // Add row with error indication
-                    String parentJobDisplay = j.parentJobId() != null ? shortenId(j.parentJobId()) : "NA";
-                    String typeDisplay = j.type() != null ? j.type().toString() : UNKNOWN_TYPE;
-                    String[] row = {
-                        shortenId(j.jobId()),
-                        parentJobDisplay,
-                        typeDisplay,
-                        ERROR_STATUS,
-                        ERROR_STATUS,
-                        ERROR_STATUS,
-                        ERROR_STATUS
-                    };
-                    rows.add(row);
-                }
+                String[] row = formatJobRowOrError(j);
+                rows.add(row);
             }
 
             // Display table to console
@@ -120,6 +103,29 @@ public class JobDisplayService {
         }
 
         return jobsToDisplay;
+    }
+
+    /**
+     * Formats a job row for table display, or returns an error row if formatting fails.
+     */
+    private String[] formatJobRowOrError(Job job) {
+        try {
+            return formatJobRow(job);
+        } catch (Exception e) {
+            logger.error("Error retrieving details for job {}: {}", job.jobId(), e.getMessage());
+            // Add row with error indication
+            String parentJobDisplay = job.parentJobId() != null ? shortenId(job.parentJobId()) : "NA";
+            String typeDisplay = job.type() != null ? job.type().toString() : UNKNOWN_TYPE;
+            return new String[]{
+                shortenId(job.jobId()),
+                parentJobDisplay,
+                typeDisplay,
+                ERROR_STATUS,
+                ERROR_STATUS,
+                ERROR_STATUS,
+                ERROR_STATUS
+            };
+        }
     }
 
     /**

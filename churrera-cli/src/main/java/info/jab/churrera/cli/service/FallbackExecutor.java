@@ -154,39 +154,7 @@ public class FallbackExecutor {
 
             // Execute fallback for each unfinished child
             for (Job childJob : unfinishedChildren) {
-                try {
-                    // Check if fallback has already been executed for this child
-                    if (childJob.fallbackExecuted() != null && childJob.fallbackExecuted()) {
-                        logger.debug("Fallback already executed for child job {}, skipping.", childJob.jobId());
-                        continue;
-                    }
-
-                    String bindValue = childJob.result();
-
-                    if (childJob.cursorAgentId() != null) {
-                        logger.info("Sending fallback prompt as follow-up to child job {}", childJob.jobId());
-                        String followUpId = cliAgent.followUpForPrompt(childJob.cursorAgentId(), fallbackContent, type, bindValue);
-                        logger.info("Fallback prompt sent as follow-up {} for child job {}", followUpId, childJob.jobId());
-                    } else {
-                        logger.info("Launching child job {} with fallback prompt", childJob.jobId());
-                        String cursorAgentId = cliAgent.launchAgentForJob(childJob, fallbackContent, type, bindValue, true);
-                        cliAgent.updateJobCursorIdInDatabase(childJob, cursorAgentId, AgentState.CREATING());
-
-                        // Set workflowStartTime if timeout is configured
-                        if (childJob.timeoutMillis() != null) {
-                            Job updatedJob = childJob.withWorkflowStartTime(LocalDateTime.now());
-                            jobRepository.save(updatedJob);
-                        }
-                        logger.info("Child job {} launched with fallback prompt, cursorAgentId: {}", childJob.jobId(), cursorAgentId);
-                    }
-
-                    // Mark fallback as executed for this child
-                    Job updatedChildJob = childJob.withFallbackExecuted(true);
-                    jobRepository.save(updatedChildJob);
-                    logger.info("Marked fallback as executed for child job {}", childJob.jobId());
-                } catch (Exception e) {
-                    logger.error("Error executing fallback for child job {}: {}", childJob.jobId(), e.getMessage(), e);
-                }
+                executeFallbackForChild(childJob, fallbackContent, type);
             }
 
             // Mark fallback as executed for parent job
@@ -196,6 +164,45 @@ public class FallbackExecutor {
 
         } catch (Exception e) {
             logger.error("Error executing fallback for parallel children: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Execute fallback for a single child job.
+     */
+    private void executeFallbackForChild(Job childJob, String fallbackContent, String type) {
+        try {
+            // Check if fallback has already been executed for this child
+            if (childJob.fallbackExecuted() != null && childJob.fallbackExecuted()) {
+                logger.debug("Fallback already executed for child job {}, skipping.", childJob.jobId());
+                return;
+            }
+
+            String bindValue = childJob.result();
+
+            if (childJob.cursorAgentId() != null) {
+                logger.info("Sending fallback prompt as follow-up to child job {}", childJob.jobId());
+                String followUpId = cliAgent.followUpForPrompt(childJob.cursorAgentId(), fallbackContent, type, bindValue);
+                logger.info("Fallback prompt sent as follow-up {} for child job {}", followUpId, childJob.jobId());
+            } else {
+                logger.info("Launching child job {} with fallback prompt", childJob.jobId());
+                String cursorAgentId = cliAgent.launchAgentForJob(childJob, fallbackContent, type, bindValue, true);
+                cliAgent.updateJobCursorIdInDatabase(childJob, cursorAgentId, AgentState.CREATING());
+
+                // Set workflowStartTime if timeout is configured
+                if (childJob.timeoutMillis() != null) {
+                    Job updatedJob = childJob.withWorkflowStartTime(LocalDateTime.now());
+                    jobRepository.save(updatedJob);
+                }
+                logger.info("Child job {} launched with fallback prompt, cursorAgentId: {}", childJob.jobId(), cursorAgentId);
+            }
+
+            // Mark fallback as executed for this child
+            Job updatedChildJob = childJob.withFallbackExecuted(true);
+            jobRepository.save(updatedChildJob);
+            logger.info("Marked fallback as executed for child job {}", childJob.jobId());
+        } catch (Exception e) {
+            logger.error("Error executing fallback for child job {}: {}", childJob.jobId(), e.getMessage(), e);
         }
     }
 }

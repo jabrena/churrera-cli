@@ -65,15 +65,7 @@ public class ResultExtractor {
                         deserializedList = resultList.get();
                         logger.info("Successfully deserialized {} elements from conversation", deserializedList.size());
                         // Store as proper JSON array using Jackson ObjectMapper
-                        try {
-                            ObjectMapper mapper = new ObjectMapper();
-                            jsonResult = mapper.writeValueAsString(deserializedList);
-                            logger.info("Successfully serialized result as JSON: {}", jsonResult);
-                        } catch (JsonProcessingException e) {
-                            // Fallback to toString if JSON serialization fails
-                            jsonResult = deserializedList.toString();
-                            logger.error("Failed to serialize result as JSON, using toString: {}", e.getMessage());
-                        }
+                        jsonResult = serializeToJson(deserializedList);
                     } else {
                         logger.error("Failed to deserialize result from conversation for job: {}", job.jobId());
                         logger.error("Full conversation content for failed deserialization (length: {} chars): {}",
@@ -97,6 +89,22 @@ public class ResultExtractor {
         } catch (Exception e) {
             logger.error("Error extracting results for job {}: {}", job.jobId(), e.getMessage(), e);
             return List.of();
+        }
+    }
+
+    /**
+     * Serializes a list to JSON string, falling back to toString if serialization fails.
+     */
+    private String serializeToJson(List<Object> deserializedList) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonResult = mapper.writeValueAsString(deserializedList);
+            logger.info("Successfully serialized result as JSON: {}", jsonResult);
+            return jsonResult;
+        } catch (JsonProcessingException e) {
+            // Fallback to toString if JSON serialization fails
+            logger.error("Failed to serialize result as JSON, using toString: {}", e.getMessage());
+            return deserializedList.toString();
         }
     }
 }

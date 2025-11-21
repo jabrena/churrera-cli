@@ -70,8 +70,7 @@ public class JobPollingService {
                 job = jobRepository.findById(jobId)
                     .orElseThrow(() -> new RuntimeException("Job not found: " + jobId));
             } catch (BaseXException | QueryException e) {
-                logger.error("Error retrieving job {}: {}", jobId, e.getMessage(), e);
-                throw new RuntimeException("Error retrieving job: " + e.getMessage(), e);
+                throw new RuntimeException("Error retrieving job " + jobId + ": " + e.getMessage(), e);
             }
 
             // Check completion based on workflow type
