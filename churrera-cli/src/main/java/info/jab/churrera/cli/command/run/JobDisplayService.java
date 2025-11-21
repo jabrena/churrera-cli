@@ -235,7 +235,7 @@ public class JobDisplayService {
             try {
                 WorkflowType parsedType = WorkflowParser.determineWorkflowType(new File(job.path()));
                 return parsedType != null ? parsedType.toString() : UNKNOWN_TYPE;
-            } catch (Exception e) {
+            } catch (Exception _) {
                 return UNKNOWN_TYPE;
             }
         }

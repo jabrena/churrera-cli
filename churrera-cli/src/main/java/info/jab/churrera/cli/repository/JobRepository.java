@@ -4,7 +4,6 @@ import java.util.List;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.cli.model.JobWithDetails;
-import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.util.JobXmlMapper;
 import info.jab.churrera.cli.util.PromptXmlMapper;
 import org.basex.core.BaseXException;
@@ -26,7 +25,6 @@ import java.time.format.DateTimeFormatter;
 import info.jab.churrera.util.PropertyResolver;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.List;
 
 /**
  * Repository for managing jobs in BaseX XML database.
@@ -45,7 +43,7 @@ public class JobRepository {
     private final Context context;
     private final String databasePath;
 
-    public JobRepository(PropertyResolver propertyResolver) throws IOException, BaseXException {
+    public JobRepository(PropertyResolver propertyResolver) throws IOException {
         this.databasePath = propertyResolver.getProperty(APPLICATION_PROPERTIES, "basex.database.path")
                 .orElse("/tmp/churrera-data");
 
@@ -68,7 +66,7 @@ public class JobRepository {
      * Initialize the repository by creating the database directory and BaseX
      * database.
      */
-    private void initialize() throws IOException, BaseXException {
+    private void initialize() throws IOException {
         // Database directory is already created in constructor
 
         // Create or open the database
@@ -76,7 +74,7 @@ public class JobRepository {
             // First try to open existing database
             new Open(DATABASE_NAME).execute(context);
             logger.info("Opened existing database: {} at {}", DATABASE_NAME, databasePath);
-        } catch (BaseXException e) {
+        } catch (BaseXException _) {
             // Database doesn't exist, create it
             logger.info("Creating new database: {} at {}", DATABASE_NAME, databasePath);
             // Create database with explicit path
@@ -157,7 +155,7 @@ public class JobRepository {
      *
      * @param job the job to save
      */
-    public void save(Job job) throws BaseXException, IOException, QueryException {
+    public void save(Job job) throws IOException, QueryException {
         // Check if job already exists
         Optional<Job> existingJob = findById(job.jobId());
 
@@ -195,7 +193,7 @@ public class JobRepository {
      *
      * @param prompt the prompt to save
      */
-    public void savePrompt(Prompt prompt) throws BaseXException, IOException, QueryException {
+    public void savePrompt(Prompt prompt) throws IOException, QueryException {
         // Check if prompt already exists
         Optional<Prompt> existingPrompt = findPromptById(prompt.promptId());
 

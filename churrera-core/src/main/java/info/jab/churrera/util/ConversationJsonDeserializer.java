@@ -129,7 +129,7 @@ public final class ConversationJsonDeserializer {
 
         logger.error("No <result> tags found in conversation content (length: {} chars)",
             conversationContent.length());
-        if (conversationContent.length() > 0) {
+        if (!conversationContent.isEmpty()) {
             int previewLength = Math.min(500, conversationContent.length());
             String preview = conversationContent.substring(0, previewLength);
             logger.error("Conversation content preview (first {} chars): {}",
@@ -150,7 +150,7 @@ public final class ConversationJsonDeserializer {
         try {
             T result = OBJECT_MAPPER.readValue(jsonContent, targetType);
             return Optional.of(result);
-        } catch (Exception e) {
+        } catch (Exception _) {
             return Optional.empty();
         }
     }

@@ -54,7 +54,7 @@ class XslTransformationTest {
                 .isNotNull()
                 .isNotEmpty();
             assertThat(result.trim())
-                .isNotEmpty();
+                .isNotBlank();
 
             // Verify key sections are present in the output
             assertThat(result)

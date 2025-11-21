@@ -57,7 +57,7 @@ class ExpressionEvaluatorTest {
             String result = ExpressionEvaluator.evaluate("$get()", null);
 
             // Then
-            assertThat(result).isEqualTo("");
+            assertThat(result).isEmpty();
         }
 
         @Test

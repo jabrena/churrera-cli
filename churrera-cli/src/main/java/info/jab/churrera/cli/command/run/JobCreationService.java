@@ -14,7 +14,6 @@ import info.jab.churrera.workflow.WorkflowParseException;
 import info.jab.churrera.workflow.WorkflowParser;
 import info.jab.churrera.workflow.WorkflowType;
 import info.jab.churrera.workflow.WorkflowValidator;
-import org.basex.core.BaseXException;
 import org.basex.query.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

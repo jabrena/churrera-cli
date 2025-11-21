@@ -5,8 +5,6 @@ import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.workflow.WorkflowType;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.workflow.WorkflowParser;
-import info.jab.churrera.cli.model.AgentState;
-import info.jab.churrera.cli.command.cli.TableFormatter;
 import org.basex.core.BaseXException;
 import org.basex.query.QueryException;
 import org.slf4j.Logger;
@@ -14,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -168,7 +165,7 @@ public class JobsCommand implements Runnable {
         try {
             WorkflowType parsedType = WorkflowParser.determineWorkflowType(new File(job.path()));
             return parsedType != null ? parsedType.toString() : UNKNOWN_TYPE;
-        } catch (Exception e) {
+        } catch (Exception _) {
             return UNKNOWN_TYPE;
         }
     }
