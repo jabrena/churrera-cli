@@ -143,58 +143,12 @@ public class CliCommand implements Runnable {
         logger.debug("Executing command: {}", input);
 
         // Handle exact command matches first
-        if (input.equals("jobs")) {
-            new JobsCommand(jobRepository).run();
+        if (handleExactCommands(input)) {
             return;
         }
 
-        if (input.equals("help")) {
-            printHelp();
-            return;
-        }
-
-        if (input.equals("clear")) {
-            clearScreen();
-            return;
-        }
-
-        // Check for jobs new {path} pattern
-        Matcher newMatcher = JOB_NEW_PATTERN.matcher(input);
-        if (newMatcher.matches()) {
-            String jobPath = newMatcher.group(1).trim();
-            new NewJobRunCommand(jobRepository, jobPath, new WorkflowValidator(), new WorkflowParser(), new PmlValidator()).run();
-            return;
-        }
-
-        // Check for jobs delete {uuid} pattern
-        Matcher deleteMatcher = JOB_DELETE_PATTERN.matcher(input);
-        if (deleteMatcher.matches()) {
-            String jobId = deleteMatcher.group(1).trim();
-            new DeleteJobCommand(jobRepository, cliAgent, jobId).run();
-            return;
-        }
-
-        // Check for jobs status {uuid} pattern
-        Matcher statusMatcher = JOB_STATUS_PATTERN.matcher(input);
-        if (statusMatcher.matches()) {
-            String jobId = statusMatcher.group(1).trim();
-            new JobStatusCommand(jobRepository, cliAgent, jobId).run();
-            return;
-        }
-
-        // Check for jobs logs {uuid} pattern
-        Matcher logsMatcher = JOB_LOGS_PATTERN.matcher(input);
-        if (logsMatcher.matches()) {
-            String jobId = logsMatcher.group(1).trim();
-            new JobLogsCommand(jobRepository, cliAgent, jobId).run();
-            return;
-        }
-
-        // Check for jobs pr {uuid} pattern
-        Matcher prMatcher = JOB_PR_PATTERN.matcher(input);
-        if (prMatcher.matches()) {
-            String jobId = prMatcher.group(1).trim();
-            new JobsPrCommand(jobRepository, jobId).run();
+        // Handle pattern-based commands
+        if (handlePatternCommands(input)) {
             return;
         }
 
@@ -202,6 +156,61 @@ public class CliCommand implements Runnable {
         logger.debug("Unknown command received: {}", input);
         System.out.println("Unknown command: " + input);
         System.out.println("Type 'help' for available commands.");
+    }
+
+    private boolean handleExactCommands(String input) throws Exception {
+        if (input.equals("jobs")) {
+            new JobsCommand(jobRepository).run();
+            return true;
+        }
+        if (input.equals("help")) {
+            printHelp();
+            return true;
+        }
+        if (input.equals("clear")) {
+            clearScreen();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean handlePatternCommands(String input) throws Exception {
+        Matcher newMatcher = JOB_NEW_PATTERN.matcher(input);
+        if (newMatcher.matches()) {
+            String jobPath = newMatcher.group(1).trim();
+            new NewJobRunCommand(jobRepository, jobPath, new WorkflowValidator(), new WorkflowParser(), new PmlValidator()).run();
+            return true;
+        }
+
+        Matcher deleteMatcher = JOB_DELETE_PATTERN.matcher(input);
+        if (deleteMatcher.matches()) {
+            String jobId = deleteMatcher.group(1).trim();
+            new DeleteJobCommand(jobRepository, cliAgent, jobId).run();
+            return true;
+        }
+
+        Matcher statusMatcher = JOB_STATUS_PATTERN.matcher(input);
+        if (statusMatcher.matches()) {
+            String jobId = statusMatcher.group(1).trim();
+            new JobStatusCommand(jobRepository, cliAgent, jobId).run();
+            return true;
+        }
+
+        Matcher logsMatcher = JOB_LOGS_PATTERN.matcher(input);
+        if (logsMatcher.matches()) {
+            String jobId = logsMatcher.group(1).trim();
+            new JobLogsCommand(jobRepository, cliAgent, jobId).run();
+            return true;
+        }
+
+        Matcher prMatcher = JOB_PR_PATTERN.matcher(input);
+        if (prMatcher.matches()) {
+            String jobId = prMatcher.group(1).trim();
+            new JobsPrCommand(jobRepository, jobId).run();
+            return true;
+        }
+
+        return false;
     }
 
     private void printHelp() {

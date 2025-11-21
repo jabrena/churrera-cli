@@ -59,130 +59,7 @@ public class JobStatusCommand implements Runnable {
             if (jobDetailsOpt.isEmpty()) {
                 System.out.println("Job not found: " + resolvedJobId);
             } else {
-                JobWithDetails jobDetails = jobDetailsOpt.get();
-                Job job = jobDetails.getJob();
-                List<Prompt> prompts = jobDetails.getPrompts();
-
-                System.out.println("Job Details:");
-                System.out.println("  Job ID: " + job.jobId());
-                System.out.println("  Path: " + job.path());
-                System.out.println("  Cursor Agent ID: "
-                        + (job.cursorAgentId() != null ? job.cursorAgentId() : "Not launched yet"));
-                System.out.println("  Model: " + job.model());
-                System.out.println("  Repository: " + job.repository());
-                System.out.println("  Status: " + job.status());
-                System.out.println("  Created: " + job.createdAt());
-                System.out.println("  Last Update: " + job.lastUpdate());
-
-                // Display workflow type
-                String typeDisplay;
-                if (job.type() != null) {
-                    typeDisplay = job.type().toString();
-                } else {
-                    // Parse workflow file to determine type for legacy jobs
-                    try {
-                        WorkflowType parsedType = WorkflowParser.determineWorkflowType(new File(job.path()));
-                        typeDisplay = parsedType != null ? parsedType.toString() : "Unknown";
-                    } catch (Exception e) {
-                        typeDisplay = "Unknown";
-                    }
-                }
-                System.out.println("  Type: " + typeDisplay);
-
-                // Display parent job ID
-                System.out.println("  Parent Job ID: " + (job.parentJobId() != null ? job.parentJobId() : "None"));
-
-                // Display bindResultType and result for parallel workflows
-                if (job.type() == WorkflowType.PARALLEL || "PARALLEL".equals(typeDisplay)) {
-                    try {
-                        WorkflowParser parser = new WorkflowParser();
-                        WorkflowData workflowData = parser.parse(new File(job.path()));
-                        if (workflowData.isParallelWorkflow()) {
-                            ParallelWorkflowData parallelData = workflowData.getParallelWorkflowData();
-                            if (parallelData.hasBindResultType()) {
-                                System.out.println("  Bind Result Type: " + parallelData.getBindResultType());
-
-                                String resultToDisplay = job.result();
-
-                                // If result is empty but job is finished and has cursorAgentId, extract and
-                                // store result
-                                if ((resultToDisplay == null || resultToDisplay.isEmpty()) &&
-                                        job.status().isSuccessful() &&
-                                        job.cursorAgentId() != null) {
-
-                                    logger.info("Attempting to extract result from conversation for job: {}",
-                                            job.jobId());
-                                    try {
-                                        String conversationContent = cliAgent
-                                                .getConversationContent(job.cursorAgentId());
-                                        String bindResultType = parallelData.getBindResultType();
-
-                                        if (BindResultTypeMapper.isListType(bindResultType)) {
-                                            Class<?> elementType = BindResultTypeMapper
-                                                    .mapToElementType(bindResultType);
-                                            @SuppressWarnings("unchecked")
-                                            Optional<List<Object>> resultList = (Optional<List<Object>>) (Optional<?>) ConversationJsonDeserializer
-                                                    .deserializeList(conversationContent, elementType, bindResultType);
-
-                                            if (resultList.isPresent()) {
-                                                // Store as proper JSON array using Jackson ObjectMapper
-                                                try {
-                                                    ObjectMapper mapper = new ObjectMapper();
-                                                    resultToDisplay = mapper.writeValueAsString(resultList.get());
-                                                    logger.info("Successfully serialized result as JSON: {}",
-                                                            resultToDisplay);
-                                                } catch (JsonProcessingException e) {
-                                                    // Fallback to toString if JSON serialization fails
-                                                    resultToDisplay = resultList.get().toString();
-                                                    logger.warn(
-                                                            "Failed to serialize result as JSON, using toString: {}",
-                                                            e.getMessage());
-                                                }
-                                                // Store the result for future use
-                                                Job updatedJob = job.withResult(resultToDisplay);
-                                                jobRepository.save(updatedJob);
-                                                logger.info("Successfully extracted and stored result for job: {}",
-                                                        job.jobId());
-                                            } else {
-                                                logger.error(
-                                                        "Failed to deserialize result from conversation for job: {}",
-                                                        job.jobId());
-                                            }
-                                        }
-                                    } catch (Exception e) {
-                                        logger.error("Error extracting result from conversation: {}", e.getMessage(),
-                                                e);
-                                    }
-                                }
-
-                                // Display result if available
-                                if (resultToDisplay != null && !resultToDisplay.isEmpty()) {
-                                    System.out.println("  Result: " + resultToDisplay);
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        logger.warn("Could not parse workflow file: {}", e.getMessage());
-                    }
-                }
-
-                System.out.println();
-
-                if (prompts.isEmpty()) {
-                    System.out.println("  No prompts found for this job.");
-                } else {
-                    System.out.println("  Prompts:");
-                    for (int i = 0; i < prompts.size(); i++) {
-                        Prompt prompt = prompts.get(i);
-                        System.out.printf("    %d. Prompt ID: %s%n", i + 1, prompt.promptId());
-                        System.out.printf("       Job ID: %s%n", prompt.jobId());
-                        System.out.printf("       PML File: %s%n", prompt.pmlFile());
-                        System.out.printf("       Status: %s%n", prompt.status());
-                        System.out.printf("       Created: %s%n", prompt.createdAt());
-                        System.out.printf("       Last Update: %s%n", prompt.lastUpdate());
-                        System.out.println();
-                    }
-                }
+                displayJobStatus(jobDetailsOpt.get());
             }
         } catch (BaseXException | QueryException e) {
             logger.error("Error retrieving job status: {}", e.getMessage());
@@ -197,31 +74,192 @@ public class JobStatusCommand implements Runnable {
         }
 
         if (provided != null && provided.length() == JOB_ID_PREFIX_LENGTH) {
-            List<Job> all = jobRepository.findAll();
-            List<Job> matches = new ArrayList<>();
-            for (Job j : all) {
-                if (j.jobId() != null && j.jobId().startsWith(provided)) {
-                    matches.add(j);
-                }
-            }
-
-            if (matches.isEmpty()) {
-                System.out.println("No job found starting with: " + provided);
-                return null;
-            }
-            if (matches.size() > 1) {
-                System.out.println("Ambiguous job prefix '" + provided + "' matches multiple jobs:");
-                for (Job m : matches) {
-                    System.out.println("  - " + m.jobId());
-                }
-                System.out.println("Please specify a full UUID or a unique 8-char prefix.");
-                return null;
-            }
-
-            return matches.get(0).jobId();
+            return resolveByPrefix(provided);
         }
 
         System.out.println("Job not found: " + provided);
         return null;
+    }
+
+    private String resolveByPrefix(String provided) throws BaseXException, QueryException {
+        List<Job> all = jobRepository.findAll();
+        List<Job> matches = new ArrayList<>();
+        for (Job j : all) {
+            if (j.jobId() != null && j.jobId().startsWith(provided)) {
+                matches.add(j);
+            }
+        }
+
+        if (matches.isEmpty()) {
+            System.out.println("No job found starting with: " + provided);
+            return null;
+        }
+        if (matches.size() > 1) {
+            handleAmbiguousPrefix(provided, matches);
+            return null;
+        }
+
+        return matches.get(0).jobId();
+    }
+
+    private void handleAmbiguousPrefix(String provided, List<Job> matches) {
+        System.out.println("Ambiguous job prefix '" + provided + "' matches multiple jobs:");
+        for (Job m : matches) {
+            System.out.println("  - " + m.jobId());
+        }
+        System.out.println("Please specify a full UUID or a unique 8-char prefix.");
+    }
+
+    private void displayJobStatus(JobWithDetails jobDetails) {
+        Job job = jobDetails.getJob();
+        List<Prompt> prompts = jobDetails.getPrompts();
+
+        displayBasicJobInfo(job);
+        displayParallelWorkflowInfo(job);
+        displayPrompts(prompts);
+    }
+
+    private void displayBasicJobInfo(Job job) {
+        System.out.println("Job Details:");
+        System.out.println("  Job ID: " + job.jobId());
+        System.out.println("  Path: " + job.path());
+        System.out.println("  Cursor Agent ID: "
+                + (job.cursorAgentId() != null ? job.cursorAgentId() : "Not launched yet"));
+        System.out.println("  Model: " + job.model());
+        System.out.println("  Repository: " + job.repository());
+        System.out.println("  Status: " + job.status());
+        System.out.println("  Created: " + job.createdAt());
+        System.out.println("  Last Update: " + job.lastUpdate());
+
+        String typeDisplay = determineTypeDisplay(job);
+        System.out.println("  Type: " + typeDisplay);
+        System.out.println("  Parent Job ID: " + (job.parentJobId() != null ? job.parentJobId() : "None"));
+    }
+
+    private String determineTypeDisplay(Job job) {
+        if (job.type() != null) {
+            return job.type().toString();
+        }
+        try {
+            WorkflowType parsedType = WorkflowParser.determineWorkflowType(new File(job.path()));
+            return parsedType != null ? parsedType.toString() : "Unknown";
+        } catch (Exception e) {
+            return "Unknown";
+        }
+    }
+
+    private void displayParallelWorkflowInfo(Job job) {
+        if (job.type() != WorkflowType.PARALLEL) {
+            return;
+        }
+
+        try {
+            WorkflowParser parser = new WorkflowParser();
+            WorkflowData workflowData = parser.parse(new File(job.path()));
+            if (workflowData.isParallelWorkflow()) {
+                ParallelWorkflowData parallelData = workflowData.getParallelWorkflowData();
+                if (parallelData.hasBindResultType()) {
+                    displayBindResultType(parallelData, job);
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("Could not parse workflow file: {}", e.getMessage());
+        }
+    }
+
+    private void displayBindResultType(ParallelWorkflowData parallelData, Job job) {
+        System.out.println("  Bind Result Type: " + parallelData.getBindResultType());
+        String resultToDisplay = extractAndStoreResult(parallelData, job);
+        if (resultToDisplay != null && !resultToDisplay.isEmpty()) {
+            System.out.println("  Result: " + resultToDisplay);
+        }
+    }
+
+    private String extractAndStoreResult(ParallelWorkflowData parallelData, Job job) {
+        String resultToDisplay = job.result();
+        if (shouldExtractResult(resultToDisplay, job)) {
+            resultToDisplay = extractResultFromConversation(parallelData, job);
+        }
+        return resultToDisplay;
+    }
+
+    private boolean shouldExtractResult(String resultToDisplay, Job job) {
+        return (resultToDisplay == null || resultToDisplay.isEmpty())
+                && job.status().isSuccessful()
+                && job.cursorAgentId() != null;
+    }
+
+    private String extractResultFromConversation(ParallelWorkflowData parallelData, Job job) {
+        logger.info("Attempting to extract result from conversation for job: {}", job.jobId());
+        try {
+            String conversationContent = cliAgent.getConversationContent(job.cursorAgentId());
+            String bindResultType = parallelData.getBindResultType();
+
+            if (BindResultTypeMapper.isListType(bindResultType)) {
+                return extractListResult(conversationContent, bindResultType, job);
+            }
+        } catch (Exception e) {
+            logger.error("Error extracting result from conversation: {}", e.getMessage(), e);
+        }
+        return job.result();
+    }
+
+    private String extractListResult(String conversationContent, String bindResultType, Job job) {
+        Class<?> elementType = BindResultTypeMapper.mapToElementType(bindResultType);
+        @SuppressWarnings("unchecked")
+        Optional<List<Object>> resultList = (Optional<List<Object>>) (Optional<?>) ConversationJsonDeserializer
+                .deserializeList(conversationContent, elementType, bindResultType);
+
+        if (resultList.isPresent()) {
+            String resultToDisplay = serializeResult(resultList.get());
+            storeResult(job, resultToDisplay);
+            return resultToDisplay;
+        } else {
+            logger.error("Failed to deserialize result from conversation for job: {}", job.jobId());
+        }
+        return job.result();
+    }
+
+    private String serializeResult(List<Object> resultList) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String result = mapper.writeValueAsString(resultList);
+            logger.info("Successfully serialized result as JSON: {}", result);
+            return result;
+        } catch (JsonProcessingException e) {
+            logger.warn("Failed to serialize result as JSON, using toString: {}", e.getMessage());
+            return resultList.toString();
+        }
+    }
+
+    private void storeResult(Job job, String resultToDisplay) {
+        try {
+            Job updatedJob = job.withResult(resultToDisplay);
+            jobRepository.save(updatedJob);
+            logger.info("Successfully extracted and stored result for job: {}", job.jobId());
+        } catch (BaseXException | QueryException e) {
+            logger.error("Error storing result for job {}: {}", job.jobId(), e.getMessage(), e);
+        } catch (IOException e) {
+            logger.error("Error storing result for job {}: {}", job.jobId(), e.getMessage(), e);
+        }
+    }
+
+    private void displayPrompts(List<Prompt> prompts) {
+        System.out.println();
+        if (prompts.isEmpty()) {
+            System.out.println("  No prompts found for this job.");
+        } else {
+            System.out.println("  Prompts:");
+            for (int i = 0; i < prompts.size(); i++) {
+                Prompt prompt = prompts.get(i);
+                System.out.printf("    %d. Prompt ID: %s%n", i + 1, prompt.promptId());
+                System.out.printf("       Job ID: %s%n", prompt.jobId());
+                System.out.printf("       PML File: %s%n", prompt.pmlFile());
+                System.out.printf("       Status: %s%n", prompt.status());
+                System.out.printf("       Created: %s%n", prompt.createdAt());
+                System.out.printf("       Last Update: %s%n", prompt.lastUpdate());
+                System.out.println();
+            }
+        }
     }
 }

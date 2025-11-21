@@ -20,6 +20,7 @@ import java.util.List;
 public class PmlValidator {
 
     private static final String SCHEMA_URL_PROPERTY = "pml.schema.url";
+    private static final String AT_LINE_SUFFIX = " at line ";
     private final PropertyResolver propertyResolver;
 
     public PmlValidator() {
@@ -183,17 +184,17 @@ public class PmlValidator {
 
         @Override
         public void warning(org.xml.sax.SAXParseException exception) {
-            errors.add("Warning: " + exception.getMessage() + " at line " + exception.getLineNumber());
+            errors.add("Warning: " + exception.getMessage() + AT_LINE_SUFFIX + exception.getLineNumber());
         }
 
         @Override
         public void error(org.xml.sax.SAXParseException exception) {
-            errors.add("Error: " + exception.getMessage() + " at line " + exception.getLineNumber());
+            errors.add("Error: " + exception.getMessage() + AT_LINE_SUFFIX + exception.getLineNumber());
         }
 
         @Override
         public void fatalError(org.xml.sax.SAXParseException exception) {
-            errors.add("Fatal Error: " + exception.getMessage() + " at line " + exception.getLineNumber());
+            errors.add("Fatal Error: " + exception.getMessage() + AT_LINE_SUFFIX + exception.getLineNumber());
         }
 
         public boolean hasErrors() {

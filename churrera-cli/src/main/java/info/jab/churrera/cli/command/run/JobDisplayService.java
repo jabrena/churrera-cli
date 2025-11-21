@@ -28,6 +28,9 @@ public class JobDisplayService {
     private static final int JOB_ID_PREFIX_LENGTH = 8;
     private static final int SECONDS_PER_MINUTE = 60;
     private static final int SECONDS_PER_HOUR = 3600;
+    private static final String UNKNOWN_TYPE = "Unknown";
+    private static final String ERROR_STATUS = "ERROR";
+    private static final String STARTED_PREFIX = "Started ";
 
     private final JobRepository jobRepository;
     private final Clock clock;
@@ -73,15 +76,15 @@ public class JobDisplayService {
                     logger.error("Error retrieving details for job {}: {}", j.jobId(), e.getMessage());
                     // Add row with error indication
                     String parentJobDisplay = j.parentJobId() != null ? shortenId(j.parentJobId()) : "NA";
-                    String typeDisplay = j.type() != null ? j.type().toString() : "Unknown";
+                    String typeDisplay = j.type() != null ? j.type().toString() : UNKNOWN_TYPE;
                     String[] row = {
                         shortenId(j.jobId()),
                         parentJobDisplay,
                         typeDisplay,
-                        "ERROR",
-                        "ERROR",
-                        "ERROR",
-                        "ERROR"
+                        ERROR_STATUS,
+                        ERROR_STATUS,
+                        ERROR_STATUS,
+                        ERROR_STATUS
                     };
                     rows.add(row);
                 }
@@ -204,13 +207,13 @@ public class JobDisplayService {
             long secondsElapsed = duration.getSeconds();
 
             if (secondsElapsed < SECONDS_PER_MINUTE) {
-                return "Started " + secondsElapsed + "s ago";
+                return STARTED_PREFIX + secondsElapsed + "s ago";
             } else if (secondsElapsed < SECONDS_PER_HOUR) {
                 long minutes = secondsElapsed / SECONDS_PER_MINUTE;
-                return "Started " + minutes + (minutes == 1 ? " min ago" : " mins ago");
+                return STARTED_PREFIX + minutes + (minutes == 1 ? " min ago" : " mins ago");
             } else {
                 long hours = secondsElapsed / SECONDS_PER_HOUR;
-                return "Started " + hours + (hours == 1 ? " hour ago" : " hours ago");
+                return STARTED_PREFIX + hours + (hours == 1 ? " hour ago" : " hours ago");
             }
         }
     }
@@ -225,9 +228,9 @@ public class JobDisplayService {
             // Parse workflow file to determine type for legacy jobs
             try {
                 WorkflowType parsedType = WorkflowParser.determineWorkflowType(new File(job.path()));
-                return parsedType != null ? parsedType.toString() : "Unknown";
+                return parsedType != null ? parsedType.toString() : UNKNOWN_TYPE;
             } catch (Exception e) {
-                return "Unknown";
+                return UNKNOWN_TYPE;
             }
         }
     }

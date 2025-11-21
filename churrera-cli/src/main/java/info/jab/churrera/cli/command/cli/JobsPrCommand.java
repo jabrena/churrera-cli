@@ -95,33 +95,41 @@ public class JobsPrCommand implements Runnable {
 
         // If 8-char prefix, try to resolve by startsWith
         if (provided != null && provided.length() == JOB_ID_PREFIX_LENGTH) {
-            var all = jobRepository.findAll();
-            var matches = new ArrayList<Job>();
-            for (Job j : all) {
-                if (j.jobId() != null && j.jobId().startsWith(provided)) {
-                    matches.add(j);
-                }
-            }
-
-            if (matches.isEmpty()) {
-                System.out.println("No job found starting with: " + provided);
-                return null;
-            }
-            if (matches.size() > 1) {
-                System.out.println("Ambiguous job prefix '" + provided + "' matches multiple jobs:");
-                for (Job m : matches) {
-                    System.out.println("  - " + m.jobId());
-                }
-                System.out.println("Please specify a full UUID or a unique 8-char prefix.");
-                return null;
-            }
-
-            return matches.get(0).jobId();
+            return resolveByPrefix(provided);
         }
 
         // Not exact, not 8-char prefix
         System.out.println("Job not found: " + provided);
         return null;
+    }
+
+    private String resolveByPrefix(String provided) throws BaseXException, QueryException {
+        var all = jobRepository.findAll();
+        var matches = new ArrayList<Job>();
+        for (Job j : all) {
+            if (j.jobId() != null && j.jobId().startsWith(provided)) {
+                matches.add(j);
+            }
+        }
+
+        if (matches.isEmpty()) {
+            System.out.println("No job found starting with: " + provided);
+            return null;
+        }
+        if (matches.size() > 1) {
+            handleAmbiguousPrefix(provided, matches);
+            return null;
+        }
+
+        return matches.get(0).jobId();
+    }
+
+    private void handleAmbiguousPrefix(String provided, List<Job> matches) {
+        System.out.println("Ambiguous job prefix '" + provided + "' matches multiple jobs:");
+        for (Job m : matches) {
+            System.out.println("  - " + m.jobId());
+        }
+        System.out.println("Please specify a full UUID or a unique 8-char prefix.");
     }
 
     /**

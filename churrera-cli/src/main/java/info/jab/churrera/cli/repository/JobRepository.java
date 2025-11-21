@@ -37,6 +37,8 @@ public class JobRepository {
 
     private static final String DATABASE_NAME = "churrera-jobs";
     private static final String APPLICATION_PROPERTIES = "application.properties";
+    private static final String JOBS_XML = "jobs.xml";
+    private static final String PROMPTS_XML = "prompts.xml";
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
@@ -82,8 +84,8 @@ public class JobRepository {
             // Create initial XML structures
             String initialJobsXml = "<jobs></jobs>";
             String initialPromptsXml = "<prompts></prompts>";
-            new Add("jobs.xml", initialJobsXml).execute(context);
-            new Add("prompts.xml", initialPromptsXml).execute(context);
+            new Add(JOBS_XML, initialJobsXml).execute(context);
+            new Add(PROMPTS_XML, initialPromptsXml).execute(context);
             logger.info("Created initial XML structures");
         }
 
@@ -104,8 +106,8 @@ public class JobRepository {
             if (result.trim().isEmpty()) {
                 String initialJobsXml = "<jobs></jobs>";
                 String initialPromptsXml = "<prompts></prompts>";
-                new Add("jobs.xml", initialJobsXml).execute(context);
-                new Add("prompts.xml", initialPromptsXml).execute(context);
+                new Add(JOBS_XML, initialJobsXml).execute(context);
+                new Add(PROMPTS_XML, initialPromptsXml).execute(context);
             }
         } catch (BaseXException e) {
             logger.warn("Database test failed", e);
@@ -120,7 +122,7 @@ public class JobRepository {
     public List<Job> findAll() throws BaseXException, QueryException {
         try {
             // Use BaseX Get command to retrieve the document content
-            String xmlContent = new Get("jobs.xml").execute(context);
+            String xmlContent = new Get(JOBS_XML).execute(context);
             // Parse the XML content
             return JobXmlMapper.fromDocument(xmlContent, DATE_TIME_FORMATTER);
         } catch (Exception e) {
@@ -138,7 +140,7 @@ public class JobRepository {
     public Optional<Job> findById(String jobId) throws BaseXException, QueryException {
         try {
             // Use BaseX Get command to retrieve the document content
-            String xmlContent = new Get("jobs.xml").execute(context);
+            String xmlContent = new Get(JOBS_XML).execute(context);
 
             // Parse the XML content and find the specific job
             return JobXmlMapper.fromDocument(xmlContent, DATE_TIME_FORMATTER).stream()
@@ -163,7 +165,7 @@ public class JobRepository {
         if (existingJob.isPresent()) {
             // Update existing job
             logger.debug("Updating existing job: {}", job.jobId());
-            String updateQuery = "replace node doc('" + DATABASE_NAME + "/jobs.xml')/jobs/job[jobId='" + job.jobId()
+            String updateQuery = "replace node doc('" + DATABASE_NAME + "/" + JOBS_XML + "')/jobs/job[jobId='" + job.jobId()
                     + "'] " +
                     "with " + JobXmlMapper.toXml(job, DATE_TIME_FORMATTER);
             new XQuery(updateQuery).execute(context);
@@ -171,7 +173,7 @@ public class JobRepository {
         } else {
             // Add new job
             logger.debug("Adding new job: {}", job.jobId());
-            String insertQuery = "insert node " + JobXmlMapper.toXml(job, DATE_TIME_FORMATTER) + " into doc('" + DATABASE_NAME + "/jobs.xml')/jobs";
+            String insertQuery = "insert node " + JobXmlMapper.toXml(job, DATE_TIME_FORMATTER) + " into doc('" + DATABASE_NAME + "/" + JOBS_XML + "')/jobs";
             new XQuery(insertQuery).execute(context);
             logger.info("Saved new job: {}", job.jobId());
         }
@@ -184,7 +186,7 @@ public class JobRepository {
      */
     public void deleteById(String jobId) throws BaseXException, QueryException {
         logger.debug("Deleting job: {}", jobId);
-        String deleteQuery = "delete node doc('" + DATABASE_NAME + "/jobs.xml')/jobs/job[jobId='" + jobId + "']";
+        String deleteQuery = "delete node doc('" + DATABASE_NAME + "/" + JOBS_XML + "')/jobs/job[jobId='" + jobId + "']";
         new XQuery(deleteQuery).execute(context);
         logger.info("Deleted job: {}", jobId);
     }
@@ -201,7 +203,7 @@ public class JobRepository {
         if (existingPrompt.isPresent()) {
             // Update existing prompt
             logger.debug("Updating existing prompt: {}", prompt.promptId());
-            String updateQuery = "replace node doc('" + DATABASE_NAME + "/prompts.xml')/prompts/prompt[promptId='"
+            String updateQuery = "replace node doc('" + DATABASE_NAME + "/" + PROMPTS_XML + "')/prompts/prompt[promptId='"
                     + prompt.promptId() + "'] " +
                     "with " + PromptXmlMapper.toXml(prompt, DATE_TIME_FORMATTER);
             new XQuery(updateQuery).execute(context);
@@ -210,7 +212,7 @@ public class JobRepository {
             // Add new prompt
             logger.debug("Adding new prompt: {}", prompt.promptId());
             String insertQuery = "insert node " + PromptXmlMapper.toXml(prompt, DATE_TIME_FORMATTER) + " into doc('" + DATABASE_NAME
-                    + "/prompts.xml')/prompts";
+                    + "/" + PROMPTS_XML + "')/prompts";
             new XQuery(insertQuery).execute(context);
             logger.info("Saved new prompt: {}", prompt.promptId());
         }
@@ -224,7 +226,7 @@ public class JobRepository {
      */
     public Optional<Prompt> findPromptById(String promptId) throws BaseXException, QueryException {
         try {
-            String xmlContent = new Get("prompts.xml").execute(context);
+            String xmlContent = new Get(PROMPTS_XML).execute(context);
 
             // Parse the XML content and find the specific prompt
             return PromptXmlMapper.fromDocument(xmlContent, DATE_TIME_FORMATTER).stream()
@@ -245,7 +247,7 @@ public class JobRepository {
      */
     public List<Prompt> findPromptsByJobId(String jobId) throws BaseXException, QueryException {
         try {
-            String xmlContent = new Get("prompts.xml").execute(context);
+            String xmlContent = new Get(PROMPTS_XML).execute(context);
             List<Prompt> allPrompts = PromptXmlMapper.fromDocument(xmlContent, DATE_TIME_FORMATTER);
             List<Prompt> jobPrompts = new ArrayList<>();
 
@@ -287,7 +289,7 @@ public class JobRepository {
      */
     public List<Job> findUnfinishedJobs() throws BaseXException, QueryException {
         try {
-            String xmlContent = new Get("jobs.xml").execute(context);
+            String xmlContent = new Get(JOBS_XML).execute(context);
             List<Job> allJobs = JobXmlMapper.fromDocument(xmlContent, DATE_TIME_FORMATTER);
             List<Job> unfinishedJobs = new ArrayList<>();
 
@@ -312,13 +314,13 @@ public class JobRepository {
      */
     public void deletePromptsByJobId(String jobId) throws BaseXException, QueryException {
         try {
-            String xmlContent = new Get("prompts.xml").execute(context);
+            String xmlContent = new Get(PROMPTS_XML).execute(context);
             List<Prompt> allPrompts = PromptXmlMapper.fromDocument(xmlContent, DATE_TIME_FORMATTER);
 
             for (Prompt prompt : allPrompts) {
                 if (prompt.jobId().equals(jobId)) {
                     String deleteQuery = "delete node doc('" + DATABASE_NAME
-                            + "/prompts.xml')/prompts/prompt[promptId='" + prompt.promptId() + "']";
+                            + "/" + PROMPTS_XML + "')/prompts/prompt[promptId='" + prompt.promptId() + "']";
                     new XQuery(deleteQuery).execute(context);
                 }
             }
@@ -336,7 +338,7 @@ public class JobRepository {
      */
     public List<Job> findJobsByParentId(String parentJobId) throws BaseXException, QueryException {
         try {
-            String xmlContent = new Get("jobs.xml").execute(context);
+            String xmlContent = new Get(JOBS_XML).execute(context);
             List<Job> allJobs = JobXmlMapper.fromDocument(xmlContent, DATE_TIME_FORMATTER);
             List<Job> childJobs = new ArrayList<>();
 

@@ -22,6 +22,9 @@ import java.util.List;
 public class WorkflowParser {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkflowParser.class);
+    private static final String TIMEOUT_ATTR = "timeout";
+    private static final String FALLBACK_SRC_ATTR = "fallback-src";
+    private static final String SEQUENCE_TAG = "sequence";
 
     /**
      * Parses a workflow XML file and extracts the sequence or parallel elements.
@@ -71,7 +74,7 @@ public class WorkflowParser {
             }
 
             // Check for v2 schema (sequence element)
-            NodeList sequenceList = root.getElementsByTagName("sequence");
+            NodeList sequenceList = root.getElementsByTagName(SEQUENCE_TAG);
             logger.info("Found {} sequence elements", sequenceList.getLength());
 
             if (sequenceList.getLength() == 0) {
@@ -144,8 +147,8 @@ public class WorkflowParser {
         String repository = sequence.getAttribute("repository");
 
         // Extract timeout and fallback-src attributes (optional)
-        String timeoutStr = sequence.getAttribute("timeout");
-        String fallbackSrc = sequence.getAttribute("fallback-src");
+        String timeoutStr = sequence.getAttribute(TIMEOUT_ATTR);
+        String fallbackSrc = sequence.getAttribute(FALLBACK_SRC_ATTR);
 
         Long timeoutMillis = null;
         if (timeoutStr != null && !timeoutStr.trim().isEmpty()) {
@@ -200,8 +203,8 @@ public class WorkflowParser {
         String bindResultType = parallelElement.getAttribute("bindResultType");
 
         // Extract timeout and fallback-src attributes (optional)
-        String timeoutStr = parallelElement.getAttribute("timeout");
-        String fallbackSrc = parallelElement.getAttribute("fallback-src");
+        String timeoutStr = parallelElement.getAttribute(TIMEOUT_ATTR);
+        String fallbackSrc = parallelElement.getAttribute(FALLBACK_SRC_ATTR);
 
         Long timeoutMillis = null;
         if (timeoutStr != null && !timeoutStr.trim().isEmpty()) {
@@ -221,7 +224,7 @@ public class WorkflowParser {
         PromptInfo parallelPrompt = new PromptInfo(srcFile, type, null);
 
         // Parse nested sequence elements
-        NodeList sequenceList = parallelElement.getElementsByTagName("sequence");
+        NodeList sequenceList = parallelElement.getElementsByTagName(SEQUENCE_TAG);
         if (sequenceList.getLength() == 0) {
             throw new WorkflowParseException("Parallel element must contain at least one sequence element");
         }
@@ -252,8 +255,8 @@ public class WorkflowParser {
         String repository = sequenceElement.getAttribute("repository");
 
         // Extract timeout and fallback-src attributes (optional)
-        String timeoutStr = sequenceElement.getAttribute("timeout");
-        String fallbackSrc = sequenceElement.getAttribute("fallback-src");
+        String timeoutStr = sequenceElement.getAttribute(TIMEOUT_ATTR);
+        String fallbackSrc = sequenceElement.getAttribute(FALLBACK_SRC_ATTR);
 
         Long timeoutMillis = null;
         if (timeoutStr != null && !timeoutStr.trim().isEmpty()) {
@@ -326,7 +329,7 @@ public class WorkflowParser {
             }
 
             // Check for sequence workflow
-            NodeList sequenceList = root.getElementsByTagName("sequence");
+            NodeList sequenceList = root.getElementsByTagName(SEQUENCE_TAG);
             if (sequenceList.getLength() > 0) {
                 return WorkflowType.SEQUENCE;
             }

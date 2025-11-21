@@ -86,63 +86,14 @@ public final class JobXmlMapper {
         LocalDateTime lastUpdate = LocalDateTime.parse(XmlUtils.extractXmlValue(xml, "lastUpdate"), formatter);
 
         // Parse new fields with null handling
-        String parentJobId = XmlUtils.extractXmlValueOptional(xml, "parentJobId");
-        if ("null".equals(parentJobId)) {
-            parentJobId = null;
-        }
-        String result = XmlUtils.extractXmlValueOptional(xml, "result");
-        if ("null".equals(result)) {
-            result = null;
-        }
-        String typeStr = XmlUtils.extractXmlValueOptional(xml, "type");
-        WorkflowType type = null;
-        if (typeStr != null && !"null".equals(typeStr)) {
-            try {
-                type = WorkflowType.valueOf(typeStr);
-            } catch (IllegalArgumentException e) {
-                // If type cannot be parsed, leave it as null (for legacy jobs)
-                logger.warn("Invalid workflow type '{}' for job {}, defaulting to null", typeStr, jobId);
-            }
-        }
-
-        // Parse AgentState from string
+        String parentJobId = parseNullableString(xml, "parentJobId");
+        String result = parseNullableString(xml, "result");
+        WorkflowType type = parseWorkflowType(xml, jobId);
         AgentState status = AgentState.of(statusStr);
-
-        // Parse new timeout and fallback fields (nullable)
-        String timeoutMillisStr = XmlUtils.extractXmlValueOptional(xml, "timeoutMillis");
-        Long timeoutMillis = null;
-        if (timeoutMillisStr != null && !"null".equals(timeoutMillisStr)) {
-            try {
-                timeoutMillis = Long.parseLong(timeoutMillisStr);
-            } catch (NumberFormatException e) {
-                logger.warn("Invalid timeoutMillis '{}' for job {}, defaulting to null", timeoutMillisStr, jobId);
-            }
-        }
-
-        String workflowStartTimeStr = XmlUtils.extractXmlValueOptional(xml, "workflowStartTime");
-        LocalDateTime workflowStartTime = null;
-        if (workflowStartTimeStr != null && !"null".equals(workflowStartTimeStr)) {
-            try {
-                workflowStartTime = LocalDateTime.parse(workflowStartTimeStr, formatter);
-            } catch (Exception e) {
-                logger.warn("Invalid workflowStartTime '{}' for job {}, defaulting to null", workflowStartTimeStr, jobId);
-            }
-        }
-
-        String fallbackSrc = XmlUtils.extractXmlValueOptional(xml, "fallbackSrc");
-        if (fallbackSrc != null && "null".equals(fallbackSrc)) {
-            fallbackSrc = null;
-        }
-
-        String fallbackExecutedStr = XmlUtils.extractXmlValueOptional(xml, "fallbackExecuted");
-        Boolean fallbackExecuted = null;
-        if (fallbackExecutedStr != null && !"null".equals(fallbackExecutedStr)) {
-            try {
-                fallbackExecuted = Boolean.parseBoolean(fallbackExecutedStr);
-            } catch (Exception e) {
-                logger.warn("Invalid fallbackExecuted '{}' for job {}, defaulting to null", fallbackExecutedStr, jobId);
-            }
-        }
+        Long timeoutMillis = parseTimeoutMillis(xml, jobId);
+        LocalDateTime workflowStartTime = parseWorkflowStartTime(xml, formatter, jobId);
+        String fallbackSrc = parseNullableString(xml, "fallbackSrc");
+        Boolean fallbackExecuted = parseFallbackExecuted(xml, jobId);
 
         return new Job(jobId, path, cursorAgentId, model, repository, status, createdAt, lastUpdate, parentJobId,
                 result, type, timeoutMillis, workflowStartTime, fallbackSrc, fallbackExecuted);
@@ -188,6 +139,63 @@ public final class JobXmlMapper {
         }
 
         return jobs;
+    }
+
+    private static String parseNullableString(String xml, String tagName) {
+        String value = XmlUtils.extractXmlValueOptional(xml, tagName);
+        return "null".equals(value) ? null : value;
+    }
+
+    private static WorkflowType parseWorkflowType(String xml, String jobId) {
+        String typeStr = XmlUtils.extractXmlValueOptional(xml, "type");
+        if (typeStr == null || "null".equals(typeStr)) {
+            return null;
+        }
+        try {
+            return WorkflowType.valueOf(typeStr);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Invalid workflow type '{}' for job {}, defaulting to null", typeStr, jobId);
+            return null;
+        }
+    }
+
+    private static Long parseTimeoutMillis(String xml, String jobId) {
+        String timeoutMillisStr = XmlUtils.extractXmlValueOptional(xml, "timeoutMillis");
+        if (timeoutMillisStr == null || "null".equals(timeoutMillisStr)) {
+            return null;
+        }
+        try {
+            return Long.parseLong(timeoutMillisStr);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid timeoutMillis '{}' for job {}, defaulting to null", timeoutMillisStr, jobId);
+            return null;
+        }
+    }
+
+    private static LocalDateTime parseWorkflowStartTime(String xml, DateTimeFormatter formatter, String jobId) {
+        String workflowStartTimeStr = XmlUtils.extractXmlValueOptional(xml, "workflowStartTime");
+        if (workflowStartTimeStr == null || "null".equals(workflowStartTimeStr)) {
+            return null;
+        }
+        try {
+            return LocalDateTime.parse(workflowStartTimeStr, formatter);
+        } catch (Exception e) {
+            logger.warn("Invalid workflowStartTime '{}' for job {}, defaulting to null", workflowStartTimeStr, jobId);
+            return null;
+        }
+    }
+
+    private static Boolean parseFallbackExecuted(String xml, String jobId) {
+        String fallbackExecutedStr = XmlUtils.extractXmlValueOptional(xml, "fallbackExecuted");
+        if (fallbackExecutedStr == null || "null".equals(fallbackExecutedStr)) {
+            return null;
+        }
+        try {
+            return Boolean.parseBoolean(fallbackExecutedStr);
+        } catch (Exception e) {
+            logger.warn("Invalid fallbackExecuted '{}' for job {}, defaulting to null", fallbackExecutedStr, jobId);
+            return null;
+        }
     }
 }
 
