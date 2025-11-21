@@ -15,7 +15,7 @@
                 jbang --version
 
                 jbang trust add https://github.com/jabrena/
-                jbang sonar-search.0.1.0-SNAPSHOT@jabrena --version
+                jbang sonar-search.0.2.0-SNAPSHOT@jabrena --version
                 ```
             </step-content>
             <step-constraints>
@@ -31,7 +31,7 @@
 
     <safeguards>
         <safeguards-list>
-            <safeguards-item>verify that the sonar-search is successful executing `jbang sonar-search.0.1.0-SNAPSHOT@jabrena --version`</safeguards-item>
+            <safeguards-item>verify that the sonar-search is successful executing `jbang sonar-search.0.2.0-SNAPSHOT@jabrena --version`</safeguards-item>
         </safeguards-list>
     </safeguards>
 
