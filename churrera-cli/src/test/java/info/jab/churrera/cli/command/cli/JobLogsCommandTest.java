@@ -147,9 +147,11 @@ class JobLogsCommandTest {
         when(jobRepository.findJobWithDetails(jobId))
             .thenReturn(Optional.of(new JobWithDetails(testJob, testPrompts)));
         when(cliAgent.getConversation("cursor-agent-123"))
-            .thenThrow(new IllegalArgumentException("API key not found. Please provide it via:\n" +
-                "  1. .env file: CURSOR_API_KEY=YOUR_API_KEY\n" +
-                "  2. Environment variable: export CURSOR_API_KEY=YOUR_API_KEY"));
+            .thenThrow(new IllegalArgumentException("""
+                API key not found. Please provide it via:
+                  1. .env file: CURSOR_API_KEY=YOUR_API_KEY
+                  2. Environment variable: export CURSOR_API_KEY=YOUR_API_KEY
+                """));
 
         // When
         jobLogsCommand.run();

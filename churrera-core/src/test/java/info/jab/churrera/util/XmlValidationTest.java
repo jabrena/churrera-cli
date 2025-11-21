@@ -72,11 +72,13 @@ class XmlValidationTest {
         @DisplayName("Should throw exception for malformed XML")
         void shouldThrowExceptionForMalformedXml() {
             // Given
-            String malformedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                    "<prompt>\n" +
-                    "    <role>Test role</role>\n" +
-                    "    <!-- Missing closing tag -->\n" +
-                    "    <goal>Test goal\n";
+            String malformedXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <prompt>
+                    <role>Test role</role>
+                    <!-- Missing closing tag -->
+                    <goal>Test goal
+                """;
 
             // When & Then
             assertThatThrownBy(() -> parseXml(malformedXml))
@@ -115,11 +117,13 @@ class XmlValidationTest {
         @DisplayName("Should detect invalid XML structure against schema")
         void shouldDetectInvalidXmlStructureAgainstSchema() {
             // Given
-            String invalidXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                    "<prompt xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                    "        xsi:noNamespaceSchemaLocation=\"https://jabrena.github.io/pml/schemas/0.2.0/pml.xsd\">\n" +
-                    "    <invalid-element>This should not be here</invalid-element>\n" +
-                    "</prompt>";
+            String invalidXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <prompt xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:noNamespaceSchemaLocation="https://jabrena.github.io/pml/schemas/0.2.0/pml.xsd">
+                    <invalid-element>This should not be here</invalid-element>
+                </prompt>
+                """;
             String schemaUrl = "https://jabrena.github.io/pml/schemas/0.1.0/pml.xsd";
 
             // When & Then

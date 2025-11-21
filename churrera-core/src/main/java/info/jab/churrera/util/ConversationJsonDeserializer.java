@@ -237,7 +237,7 @@ public final class ConversationJsonDeserializer {
             // First, try to find array with the preferred key if specified
             if (preferredKey != null && objectNode.has(preferredKey)) {
                 JsonNode keyNode = objectNode.get(preferredKey);
-                if (keyNode.isArray()) {
+                if (keyNode != null && keyNode.isArray()) {
                     arrayNode = keyNode;
                     logger.info("Found array with preferred key '{}' containing {} elements", preferredKey, arrayNode.size());
                 }

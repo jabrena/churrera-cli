@@ -71,10 +71,14 @@ public class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoi
     public List<String> getRepositories() {
         try {
             var response = defaultApi.listRepositories(getAuthHeaders());
-            if (response == null || response.getRepositories() == null) {
+            if (response == null) {
                 return List.of();
             }
-            return response.getRepositories().stream()
+            var repositories = response.getRepositories();
+            if (repositories == null) {
+                return List.of();
+            }
+            return repositories.stream()
                 .map(repo -> repo.getRepository() != null ? repo.getRepository().toString() : null)
                 .filter(Objects::nonNull)
                 .toList();

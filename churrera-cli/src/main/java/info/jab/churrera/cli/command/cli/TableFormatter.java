@@ -124,7 +124,9 @@ public final class TableFormatter {
         for (int i = 0; i < columnWidths.length; i++) {
             String cell = i < row.length && row[i] != null ? row[i] : "";
             String truncated = truncateText(cell, columnWidths[i]);
-            result.append(" ").append(String.format("%-" + columnWidths[i] + "s", truncated)).append(" |");
+            StringBuilder padded = new StringBuilder(truncated);
+            padded.append(" ".repeat(Math.max(0, columnWidths[i] - truncated.length())));
+            result.append(" ").append(padded).append(" |");
         }
 
         return result.toString();

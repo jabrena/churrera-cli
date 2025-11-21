@@ -213,11 +213,13 @@ class XslTransformationTest {
         @DisplayName("Should handle malformed XML gracefully")
         void shouldHandleMalformedXmlGracefully() {
             // Given
-            String malformedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                    "<prompt>\n" +
-                    "    <role>Test role</role>\n" +
-                    "    <!-- Missing closing tag -->\n" +
-                    "    <goal>Test goal\n";
+            String malformedXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <prompt>
+                    <role>Test role</role>
+                    <!-- Missing closing tag -->
+                    <goal>Test goal
+                """;
             String xsltContent = resolver.retrieve("pml/pml-to-md.xsl");
 
             // When & Then
@@ -230,11 +232,13 @@ class XslTransformationTest {
         void shouldHandleMalformedXslGracefully() {
             // Given
             String pmlContent = resolver.retrieve("examples/hello-world/prompt1.xml");
-            String malformedXsl = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                    "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n" +
-                    "    <!-- Missing closing tag -->\n" +
-                    "    <xsl:template match=\"/prompt\">\n" +
-                    "        <xsl:value-of select=\"role\"/>\n";
+            String malformedXsl = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                    <!-- Missing closing tag -->
+                    <xsl:template match="/prompt">
+                        <xsl:value-of select="role"/>
+                """;
 
             // When & Then
             assertThatThrownBy(() -> performTransformation(pmlContent, malformedXsl))

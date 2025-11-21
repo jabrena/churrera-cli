@@ -99,11 +99,12 @@ class ConversationJsonDeserializerTest {
     @DisplayName("Should deserialize list from API-like conversation format")
     void shouldDeserializeListWithAPILikeConversationFormat() {
         // Given
-        String conversationContent =
-            "Let me help you with that task.\n" +
-            "I'll process the data now.\n" +
-            "<result>{\"numbers\": [10, 20, 30, 40]}</result>\n" +
-            "The task is complete.\n";
+        String conversationContent = """
+            Let me help you with that task.
+            I'll process the data now.
+            <result>{"numbers": [10, 20, 30, 40]}</result>
+            The task is complete.
+            """;
 
         // When
         Optional<List<Integer>> result = ConversationJsonDeserializer.deserializeList(conversationContent, Integer.class);
@@ -161,10 +162,11 @@ class ConversationJsonDeserializerTest {
     @DisplayName("Should use the last result tag when multiple result tags exist")
     void shouldUseLastResultTagWhenMultipleResultTagsExist() {
         // Given
-        String conversationContent =
-            "<result>[1, 2]</result>\n" +
-            "Some text\n" +
-            "<result>[3, 4, 5]</result>";
+        String conversationContent = """
+            <result>[1, 2]</result>
+            Some text
+            <result>[3, 4, 5]</result>
+            """;
 
         // When
         Optional<List<Integer>> result = ConversationJsonDeserializer.deserializeList(conversationContent, Integer.class);
@@ -253,11 +255,12 @@ class ConversationJsonDeserializerTest {
     @DisplayName("Should deserialize last result with specific key when multiple result tags exist")
     void shouldDeserializeLastResultWithSpecificKeyWhenMultipleResultTagsExist() {
         // Given
-        String conversationContent =
-            "Here's the format:\n" +
-            "<result>RESULT</result>\n" +
-            "Now processing...\n" +
-            "<result>{\"List_Integer\": [1, 2, 3, 4]}</result>";
+        String conversationContent = """
+            Here's the format:
+            <result>RESULT</result>
+            Now processing...
+            <result>{"List_Integer": [1, 2, 3, 4]}</result>
+            """;
 
         // When
         Optional<List<Integer>> result = ConversationJsonDeserializer.deserializeList(
@@ -277,17 +280,25 @@ class ConversationJsonDeserializerTest {
     @DisplayName("Should deserialize list from real scenario in logs")
     void shouldDeserializeListWithRealScenarioFromLogs() {
         // Given
-        String conversationContent =
-            "## Role\n\n" +
-            "You are a Senior software engineer\n\n" +
-            "## Output Format\n\n" +
-            "- Replace in the following xml fragment the RESULT with the actual List:\n" +
-            "<result>RESULT</result>\n" +
-            "- Only return the JSON format\n\n" +
-            "I'll help you scrape the homework numbers. Let me start:\n\n" +
-            "Now let me access the course page:\n\n" +
-            "Perfect! I can see the homework assignments. Let me extract the first 4:\n\n" +
-            "<result>{\"List_Integer\":[1,2,3,4]}</result>\n";
+        String conversationContent = """
+            ## Role
+
+            You are a Senior software engineer
+
+            ## Output Format
+
+            - Replace in the following xml fragment the RESULT with the actual List:
+            <result>RESULT</result>
+            - Only return the JSON format
+
+            I'll help you scrape the homework numbers. Let me start:
+
+            Now let me access the course page:
+
+            Perfect! I can see the homework assignments. Let me extract the first 4:
+
+            <result>{"List_Integer":[1,2,3,4]}</result>
+            """;
 
         // When
         Optional<List<Integer>> result = ConversationJsonDeserializer.deserializeList(
