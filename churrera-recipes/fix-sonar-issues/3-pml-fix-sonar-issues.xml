@@ -86,6 +86,7 @@
                     <step-constraint>Not any issue which is has the rule: java:S3776 (Cognitive Complexity of methods should not be too high)</step-constraint>
                     <step-constraint>Not any issue which is has the rule: java:S106 (Replace this use of System.out by a logger)</step-constraint>
                     <step-constraint>Not any issue which is has the rule: java:S112 (Replace generic exceptions with specific library exceptions or a custom exception.)</step-constraint>
+                    <step-constraint>Not any issue which is has the rule: java:S107 (Methods should not have too many parameters)</step-constraint>
                 </step-constraint-list>
             </step-constraints>
         </step>
@@ -105,6 +106,15 @@
     <safeguards>
         <safeguards-list>
             <safeguards-item>verify the changes only with `./mvnw clean test verify site -Pjacoco`</safeguards-item>
+            <safeguards-item>verify the changes exectuting the command:
+                <![CDATA[
+                ```bash
+                java -jar churrera-cli/target/churrera-cli-0.2.0-SNAPSHOT.jar run \
+                --workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml \
+                --delete-on-success-completion --polling-interval 10
+                ```
+                ]]>
+            </safeguards-item>
         </safeguards-list>
     </safeguards>
 
@@ -112,6 +122,7 @@
         <acceptance-criteria-list>
             <acceptance-criteria-item>The Sonar issues are fixed</acceptance-criteria-item>
             <acceptance-criteria-item>The project is verified successfully with `./mvnw clean test verify site -Pjacoco`</acceptance-criteria-item>
+            <acceptance-criteria-item>The project is verified successfully if the executing the jar, the workflow is executed successfully.</acceptance-criteria-item>
             <acceptance-criteria-item>The changes are committed and pushed to the branch to create the PR</acceptance-criteria-item>
         </acceptance-criteria-list>
     </acceptance-criteria>
