@@ -153,7 +153,7 @@ public final class JobXmlMapper {
         }
         try {
             return WorkflowType.valueOf(typeStr);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException _) {
             logger.warn("Invalid workflow type '{}' for job {}, defaulting to null", typeStr, jobId);
             return null;
         }
@@ -166,7 +166,7 @@ public final class JobXmlMapper {
         }
         try {
             return Long.parseLong(timeoutMillisStr);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             logger.warn("Invalid timeoutMillis '{}' for job {}, defaulting to null", timeoutMillisStr, jobId);
             return null;
         }
@@ -179,7 +179,7 @@ public final class JobXmlMapper {
         }
         try {
             return LocalDateTime.parse(workflowStartTimeStr, formatter);
-        } catch (Exception e) {
+        } catch (Exception _) {
             logger.warn("Invalid workflowStartTime '{}' for job {}, defaulting to null", workflowStartTimeStr, jobId);
             return null;
         }
@@ -192,7 +192,7 @@ public final class JobXmlMapper {
         }
         try {
             return Boolean.parseBoolean(fallbackExecutedStr);
-        } catch (Exception e) {
+        } catch (Exception _) {
             logger.warn("Invalid fallbackExecuted '{}' for job {}, defaulting to false", fallbackExecutedStr, jobId);
             return Boolean.FALSE;
         }

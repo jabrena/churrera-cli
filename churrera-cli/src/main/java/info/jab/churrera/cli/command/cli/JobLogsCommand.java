@@ -15,9 +15,6 @@ import picocli.CommandLine;
 import java.util.List;
 import java.util.Optional;
 
-import info.jab.churrera.util.PropertyResolver;
-import info.jab.churrera.util.PmlConverter;
-
 /**
  * Command to show logs for a specific job by its UUID.
  */

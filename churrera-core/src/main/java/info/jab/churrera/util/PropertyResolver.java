@@ -36,7 +36,7 @@ public class PropertyResolver {
             }
 
             return Optional.of(value);
-        } catch (IOException e) {
+        } catch (IOException _) {
             return Optional.empty();
         }
     }

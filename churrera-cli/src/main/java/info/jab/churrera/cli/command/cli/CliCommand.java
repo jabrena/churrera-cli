@@ -158,7 +158,7 @@ public class CliCommand implements Runnable {
         System.out.println("Type 'help' for available commands.");
     }
 
-    private boolean handleExactCommands(String input) throws Exception {
+    private boolean handleExactCommands(String input) {
         if (input.equals("jobs")) {
             new JobsCommand(jobRepository).run();
             return true;
@@ -174,7 +174,7 @@ public class CliCommand implements Runnable {
         return false;
     }
 
-    private boolean handlePatternCommands(String input) throws Exception {
+    private boolean handlePatternCommands(String input) {
         Matcher newMatcher = JOB_NEW_PATTERN.matcher(input);
         if (newMatcher.matches()) {
             String jobPath = newMatcher.group(1).trim();
@@ -243,7 +243,7 @@ public class CliCommand implements Runnable {
             // Clear screen for Unix/Linux/macOS
             System.out.print("\033[H\033[2J");
             System.out.flush();
-        } catch (Exception e) {
+        } catch (Exception _) {
             // Fallback: print newlines to clear most of the screen
             for (int i = 0; i < CLEAR_SCREEN_FALLBACK_LINES; i++) {
                 System.out.println();

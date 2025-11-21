@@ -59,7 +59,7 @@ public class ChurreraCLI implements Runnable {
     /**
      * Default constructor that initializes all dependencies.
      */
-    public ChurreraCLI() throws IOException, BaseXException {
+    public ChurreraCLI() throws IOException {
         // Validate API key at startup
         this.apiKeyResolver = new CursorApiKeyResolver();
         this.apiKey = apiKeyResolver.resolveApiKey();

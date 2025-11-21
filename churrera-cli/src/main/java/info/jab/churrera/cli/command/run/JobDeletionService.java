@@ -1,6 +1,5 @@
 package info.jab.churrera.cli.command.run;
 
-import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.service.CLIAgent;

@@ -29,7 +29,7 @@ class CursorApiKeyResolverTest {
     Path tempDir;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         // Save original environment variable
         originalApiKey = System.getenv(CursorApiKeyResolver.CURSOR_API_KEY);
 
@@ -41,7 +41,7 @@ class CursorApiKeyResolverTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         // Restore original environment variable
         if (originalApiKey != null) {
             setEnvironmentVariable(originalApiKey);

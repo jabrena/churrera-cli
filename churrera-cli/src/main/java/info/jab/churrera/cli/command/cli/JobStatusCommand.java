@@ -11,7 +11,6 @@ import info.jab.churrera.workflow.WorkflowParser;
 import info.jab.churrera.workflow.WorkflowData;
 import info.jab.churrera.workflow.ParallelWorkflowData;
 import info.jab.churrera.util.ConversationJsonDeserializer;
-import info.jab.churrera.cli.model.AgentState;
 import org.basex.core.BaseXException;
 import org.basex.query.QueryException;
 import org.slf4j.Logger;
@@ -143,7 +142,7 @@ public class JobStatusCommand implements Runnable {
         try {
             WorkflowType parsedType = WorkflowParser.determineWorkflowType(new File(job.path()));
             return parsedType != null ? parsedType.toString() : "Unknown";
-        } catch (Exception e) {
+        } catch (Exception _) {
             return "Unknown";
         }
     }
@@ -237,9 +236,7 @@ public class JobStatusCommand implements Runnable {
             Job updatedJob = job.withResult(resultToDisplay);
             jobRepository.save(updatedJob);
             logger.info("Successfully extracted and stored result for job: {}", job.jobId());
-        } catch (BaseXException | QueryException e) {
-            logger.error("Error storing result for job {}: {}", job.jobId(), e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (QueryException | IOException e) {
             logger.error("Error storing result for job {}: {}", job.jobId(), e.getMessage(), e);
         }
     }
