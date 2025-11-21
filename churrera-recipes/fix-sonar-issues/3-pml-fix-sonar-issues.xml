@@ -79,6 +79,11 @@
                 Once the changes are verified,
                 commit the changes and push the changes to the branch to create the PR.
             </step-content>
+            <step-constraints>
+                <step-constraint-list>
+                    <step-constraint>Not any issue which is has the rule: java:S3776 (Cognitive Complexity of methods should not be too high)</step-constraint>
+                </step-constraint-list>
+            </step-constraints>
         </step>
     </steps>
 
@@ -92,6 +97,12 @@
             </output-format-item>
         </output-format-list>
     </output-format>
+
+    <safeguards>
+        <safeguards-list>
+            <safeguards-item>verify the changes only with `./mvnw clean test verify site -Pjacoco`</safeguards-item>
+        </safeguards-list>
+    </safeguards>
 
     <acceptance-criteria>
         <acceptance-criteria-list>
