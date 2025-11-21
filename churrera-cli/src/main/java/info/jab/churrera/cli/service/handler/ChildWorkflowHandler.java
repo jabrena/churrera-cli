@@ -147,33 +147,47 @@ public class ChildWorkflowHandler {
                 // Always check agent status to ensure database is synchronized with actual agent state
                 // This is critical for child jobs in parallel workflows where agents may finish
                 // but database status hasn't been updated yet
-                try {
-                    AgentState currentStatus = cliAgent.getAgentStatus(job.cursorAgentId());
-                    logger.info("Child job {} status polled: {} -> updating database (current DB status: {})",
-                        job.jobId(), currentStatus, job.status());
-                    cliAgent.updateJobStatusInDatabase(job, currentStatus);
-
-                    // Refresh job from database to get the updated status
-                    job = jobRepository.findById(job.jobId()).orElse(job);
-
-                    if (currentStatus.isActive()) {
-                        logger.info("Child job {} is still active, will check again on next polling cycle", job.jobId());
-                    } else if (currentStatus.isSuccessful()) {
-                        logger.info("Child job {} completed successfully, processing remaining prompts", job.jobId());
-                        promptProcessor.processRemainingPrompts(job, prompts, childWorkflowData);
-                    } else if (currentStatus.isTerminal()) {
-                        logger.info("Child job {} reached terminal state: {}", job.jobId(), currentStatus);
-                    }
-                } catch (Exception statusError) {
-                    logger.error("Error processing child job {}: {}", job.jobId(), statusError.getMessage());
-                    cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
-                }
+                job = checkAndUpdateChildJobStatus(job, prompts, childWorkflowData);
             } else if (justLaunched) {
                 logger.info("Child job {} just launched, will check status on next polling cycle", job.jobId());
             }
 
         } catch (Exception e) {
             logger.error("Error processing child job workflow {}: {}", job.jobId(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Checks and updates the status of a child job, ensuring database synchronization.
+     *
+     * @param job the child job to check
+     * @param prompts the list of prompts
+     * @param childWorkflowData the child workflow data
+     * @return the updated job
+     */
+    private Job checkAndUpdateChildJobStatus(Job job, List<Prompt> prompts, WorkflowData childWorkflowData) {
+        try {
+            AgentState currentStatus = cliAgent.getAgentStatus(job.cursorAgentId());
+            logger.info("Child job {} status polled: {} -> updating database (current DB status: {})",
+                job.jobId(), currentStatus, job.status());
+            cliAgent.updateJobStatusInDatabase(job, currentStatus);
+
+            // Refresh job from database to get the updated status
+            Job updatedJob = jobRepository.findById(job.jobId()).orElse(job);
+
+            if (currentStatus.isActive()) {
+                logger.info("Child job {} is still active, will check again on next polling cycle", updatedJob.jobId());
+            } else if (currentStatus.isSuccessful()) {
+                logger.info("Child job {} completed successfully, processing remaining prompts", updatedJob.jobId());
+                promptProcessor.processRemainingPrompts(updatedJob, prompts, childWorkflowData);
+            } else if (currentStatus.isTerminal()) {
+                logger.info("Child job {} reached terminal state: {}", updatedJob.jobId(), currentStatus);
+            }
+            return updatedJob;
+        } catch (Exception statusError) {
+            logger.error("Error processing child job {}: {}", job.jobId(), statusError.getMessage());
+            cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
+            return job;
         }
     }
 }

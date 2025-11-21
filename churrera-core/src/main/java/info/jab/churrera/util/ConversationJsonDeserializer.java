@@ -131,8 +131,9 @@ public final class ConversationJsonDeserializer {
             conversationContent.length());
         if (conversationContent.length() > 0) {
             int previewLength = Math.min(500, conversationContent.length());
+            String preview = conversationContent.substring(0, previewLength);
             logger.error("Conversation content preview (first {} chars): {}",
-                previewLength, conversationContent.substring(0, previewLength));
+                previewLength, preview);
         }
         return Optional.empty();
     }

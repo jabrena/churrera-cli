@@ -37,27 +37,33 @@ public class CursorApiKeyResolver {
      */
     private Optional<String> resolveFromEnvFile() {
         try {
-
-            try {
-                Dotenv dotenv = Dotenv.configure()
-                    .directory(".")
-                    .ignoreIfMalformed()
-                    .ignoreIfMissing()
-                    .load();
-
-                String envApiKey = dotenv.get(CURSOR_API_KEY);
-                if (envApiKey != null && !envApiKey.trim().isEmpty()) {
-                    return Optional.of(envApiKey.trim());
-                }
-            } catch (Exception e) {
-                System.out.println("⚠️  Error loading .env : " + e.getMessage());
-                // Continue to next path
-                return Optional.empty();
-            }
-
-            return Optional.empty();
+            return loadDotenvAndGetApiKey();
         } catch (Exception e) {
             System.err.println("⚠️  Could not read .env file: " + e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Loads the .env file and extracts the API key.
+     * Returns Optional.empty() if not found or if there's an error.
+     */
+    private Optional<String> loadDotenvAndGetApiKey() {
+        try {
+            Dotenv dotenv = Dotenv.configure()
+                .directory(".")
+                .ignoreIfMalformed()
+                .ignoreIfMissing()
+                .load();
+
+            String envApiKey = dotenv.get(CURSOR_API_KEY);
+            if (envApiKey != null && !envApiKey.trim().isEmpty()) {
+                return Optional.of(envApiKey.trim());
+            }
+            return Optional.empty();
+        } catch (Exception e) {
+            System.out.println("⚠️  Error loading .env : " + e.getMessage());
+            // Continue to next path
             return Optional.empty();
         }
     }

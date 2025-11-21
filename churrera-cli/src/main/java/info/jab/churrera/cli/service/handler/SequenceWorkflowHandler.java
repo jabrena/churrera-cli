@@ -94,38 +94,49 @@ public class SequenceWorkflowHandler {
             // Check current status and continue processing if needed
             // Don't monitor immediately after launching to allow parallel job processing
             if (job.cursorAgentId() != null && !justLaunched) {
-                try {
-                    logger.info("Getting agent status for job: {}", job.jobId());
-                    AgentState currentStatus = cliAgent.getAgentStatus(job.cursorAgentId());
-
-                    // Update job status in database
-                    logger.info("Job {} status polled: {} -> updating database", job.jobId(), currentStatus);
-                    cliAgent.updateJobStatusInDatabase(job, currentStatus);
-
-                    logger.info("Job {} status updated to: {}", job.jobId(), currentStatus);
-
-                    // Don't block on monitoring - just check status and process if completed
-                    // This allows multiple jobs to be processed in parallel
-                    if (currentStatus.isActive()) {
-                        logger.info("Job {} is still active, will check again on next polling cycle", job.jobId());
-                    } else if (currentStatus.isSuccessful()) {
-                        // Agent completed successfully, process remaining prompts
-                        logger.info("Job {} completed successfully, processing remaining prompts", job.jobId());
-                        promptProcessor.processRemainingPrompts(job, prompts, workflowData);
-                    } else if (currentStatus.isTerminal()) {
-                        logger.info("Job {} reached terminal state: {}", job.jobId(), currentStatus);
-                    }
-                } catch (Exception statusError) {
-                    logger.error("Error getting agent status for job {}: {}", job.jobId(), statusError.getMessage());
-                    // Mark job as failed if we can't get status
-                    cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
-                }
+                checkAndUpdateJobStatus(job, prompts, workflowData);
             } else if (justLaunched) {
                 logger.info("Job {} just launched, will check status on next polling cycle", job.jobId());
             }
 
         } catch (Exception e) {
             logger.error("Error processing job workflow {}: {}", job.jobId(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Checks and updates the job status, processing remaining prompts if successful.
+     *
+     * @param job the job to check
+     * @param prompts the list of prompts
+     * @param workflowData the workflow data
+     */
+    private void checkAndUpdateJobStatus(Job job, List<Prompt> prompts, WorkflowData workflowData) {
+        try {
+            logger.info("Getting agent status for job: {}", job.jobId());
+            AgentState currentStatus = cliAgent.getAgentStatus(job.cursorAgentId());
+
+            // Update job status in database
+            logger.info("Job {} status polled: {} -> updating database", job.jobId(), currentStatus);
+            cliAgent.updateJobStatusInDatabase(job, currentStatus);
+
+            logger.info("Job {} status updated to: {}", job.jobId(), currentStatus);
+
+            // Don't block on monitoring - just check status and process if completed
+            // This allows multiple jobs to be processed in parallel
+            if (currentStatus.isActive()) {
+                logger.info("Job {} is still active, will check again on next polling cycle", job.jobId());
+            } else if (currentStatus.isSuccessful()) {
+                // Agent completed successfully, process remaining prompts
+                logger.info("Job {} completed successfully, processing remaining prompts", job.jobId());
+                promptProcessor.processRemainingPrompts(job, prompts, workflowData);
+            } else if (currentStatus.isTerminal()) {
+                logger.info("Job {} reached terminal state: {}", job.jobId(), currentStatus);
+            }
+        } catch (Exception statusError) {
+            logger.error("Error getting agent status for job {}: {}", job.jobId(), statusError.getMessage());
+            // Mark job as failed if we can't get status
+            cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
         }
     }
 }

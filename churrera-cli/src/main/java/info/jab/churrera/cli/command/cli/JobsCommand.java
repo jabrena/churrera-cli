@@ -66,14 +66,7 @@ public class JobsCommand implements Runnable {
                 List<String[]> rows = new ArrayList<>();
 
                 for (Job job : jobs) {
-                    try {
-                        String[] row = formatJobRow(job);
-                        rows.add(row);
-                    } catch (Exception e) {
-                        logger.error("Error retrieving details for job {}: {}", job.jobId(), e.getMessage());
-                        String[] errorRow = createErrorRow(job);
-                        rows.add(errorRow);
-                    }
+                    addJobRow(job, rows);
                 }
 
                 // Display table to console and log to file
@@ -197,5 +190,22 @@ public class JobsCommand implements Runnable {
             ERROR_STATUS,
             ERROR_STATUS
         };
+    }
+
+    /**
+     * Adds a job row to the rows list, handling any exceptions.
+     *
+     * @param job the job to add
+     * @param rows the list of rows to add to
+     */
+    private void addJobRow(Job job, List<String[]> rows) {
+        try {
+            String[] row = formatJobRow(job);
+            rows.add(row);
+        } catch (Exception e) {
+            logger.error("Error retrieving details for job {}: {}", job.jobId(), e.getMessage());
+            String[] errorRow = createErrorRow(job);
+            rows.add(errorRow);
+        }
     }
 }
