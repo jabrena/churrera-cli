@@ -26,9 +26,6 @@ public final class BindResultTypeMapper {
 
         return switch (bindResultType) {
             case "List_Integer" -> Integer.class;
-            // Future types can be added here:
-            // case "List_String" -> String.class;
-            // case "List_Long" -> Long.class;
             default -> throw new UnsupportedOperationException(
                 "Unsupported bindResultType: " + bindResultType + ". " +
                 "Currently supported types: List_Integer"

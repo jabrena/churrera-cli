@@ -55,7 +55,8 @@ class ResultExtractorTest {
         List<Object> result = resultExtractor.extractResults(testJob, testParallelData);
 
         // Then
-        assertNull(result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
         verify(cliAgent).getConversationContent("agent-id");
         verifyNoInteractions(jobRepository);
     }
@@ -71,7 +72,8 @@ class ResultExtractorTest {
         List<Object> result = resultExtractor.extractResults(testJob, testParallelData);
 
         // Then
-        assertNull(result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -105,7 +107,8 @@ class ResultExtractorTest {
         List<Object> result = resultExtractor.extractResults(testJob, testParallelData);
 
         // Then
-        assertNull(result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
         verify(cliAgent).getConversationContent("agent-id");
     }
 
@@ -119,7 +122,8 @@ class ResultExtractorTest {
         List<Object> result = resultExtractor.extractResults(testJob, testParallelData);
 
         // Then
-        assertNull(result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 }
 

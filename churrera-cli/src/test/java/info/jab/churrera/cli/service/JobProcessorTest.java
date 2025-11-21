@@ -54,9 +54,7 @@ class JobProcessorTest {
 
     @BeforeEach
     void setUp() {
-        // Use minimal polling interval (0 seconds) for faster test execution
-        // The processor will still work but with minimal delay between iterations
-        jobProcessor = new JobProcessor(jobRepository, cliAgent, workflowParser, 0);
+        jobProcessor = new JobProcessor(jobRepository, cliAgent, workflowParser);
 
         testJob = new Job("test-job-id",
             "/test/path/workflow.xml",

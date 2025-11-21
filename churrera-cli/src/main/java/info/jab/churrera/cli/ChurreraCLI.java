@@ -87,11 +87,7 @@ public class ChurreraCLI implements Runnable {
         // Create WorkflowParser
         this.workflowParser = new WorkflowParser();
 
-        // Read polling interval from properties
-        int pollingIntervalSeconds = propertyResolver.getProperty("application.properties", "cli.polling.interval.seconds")
-                .map(Integer::parseInt)
-                .orElseThrow(() -> new RuntimeException("Required property 'cli.polling.interval.seconds' not found in application.properties"));
-        this.jobProcessor = new JobProcessor(jobRepository, cliAgent, workflowParser, pollingIntervalSeconds);
+        this.jobProcessor = new JobProcessor(jobRepository, cliAgent, workflowParser);
 
         // Create validators
         this.workflowValidator = new WorkflowValidator();
@@ -186,10 +182,8 @@ public class ChurreraCLI implements Runnable {
                     }
                 }
                 // Cleanup for RunCommand
-                if (runCommand != null) {
-                    if (runCommand.getJobRepository() != null) {
-                        runCommand.getJobRepository().close();
-                    }
+                if (runCommand != null && runCommand.getJobRepository() != null) {
+                    runCommand.getJobRepository().close();
                 }
             }));
 

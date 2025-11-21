@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("XmlUtils Tests")
 class XmlUtilsTest {
 
-    private static Stream<Arguments> escapeSamples() {
+    static Stream<Arguments> escapeSamples() {
         return Stream.of(
                 Arguments.of("plain text", "plain text"),
                 Arguments.of("<tag>", "&lt;tag&gt;"),
@@ -27,7 +27,7 @@ class XmlUtilsTest {
         );
     }
 
-    private static Stream<Arguments> unescapeSamples() {
+    static Stream<Arguments> unescapeSamples() {
         return Stream.of(
                 Arguments.of("plain text", "plain text"),
                 Arguments.of("&lt;tag&gt;", "<tag>"),
@@ -36,7 +36,7 @@ class XmlUtilsTest {
         );
     }
 
-    private static Stream<Arguments> roundTripSamples() {
+    static Stream<Arguments> roundTripSamples() {
         return Stream.of(
                 Arguments.of("Hello World"),
                 Arguments.of("<script>alert('xss')</script>"),

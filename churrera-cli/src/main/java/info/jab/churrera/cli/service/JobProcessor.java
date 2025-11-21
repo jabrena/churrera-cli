@@ -31,7 +31,7 @@ public class JobProcessor {
     private final ChildWorkflowHandler childWorkflowHandler;
 
     // Public constructor for dependency injection
-    public JobProcessor(JobRepository jobRepository, CLIAgent cliAgent, WorkflowParser workflowParser, int pollingIntervalSeconds) {
+    public JobProcessor(JobRepository jobRepository, CLIAgent cliAgent, WorkflowParser workflowParser) {
         this.jobRepository = jobRepository;
 
         // Initialize services

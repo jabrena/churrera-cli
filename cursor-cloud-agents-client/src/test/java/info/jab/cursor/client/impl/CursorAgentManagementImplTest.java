@@ -100,10 +100,10 @@ class CursorAgentManagementImplTest {
         @DisplayName("Should throw IllegalArgumentException when pr is null")
         void should_throwIllegalArgumentException_when_prIsNull() {
             // Given
-            CursorAgentManagementImpl impl = new CursorAgentManagementImpl(TEST_API_KEY, defaultApi);
+            CursorAgentManagementImpl managementImpl = new CursorAgentManagementImpl(TEST_API_KEY, defaultApi);
 
             // When & Then
-            assertThatThrownBy(() -> impl.launch("prompt", "model", "repo", null))
+            assertThatThrownBy(() -> managementImpl.launch("prompt", "model", "repo", null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("PR cannot be null");
         }

@@ -654,11 +654,11 @@ class JobRepositoryTest {
     void shouldHandleRepositoryWithDefaultDatabasePath(@TempDir Path testTempDir) throws IOException, BaseXException, QueryException {
         // Given - Create repository with PropertyResolver that returns empty Optional (default path behavior)
         // Use a temp directory to avoid conflicts and database lock issues
-        PropertyResolver propertyResolver = mock(PropertyResolver.class);
-        when(propertyResolver.getProperty(eq("application.properties"), eq("basex.database.path")))
+        PropertyResolver testPropertyResolver = mock(PropertyResolver.class);
+        when(testPropertyResolver.getProperty(eq("application.properties"), eq("basex.database.path")))
                 .thenReturn(Optional.of(testTempDir.toString()));
 
-        JobRepository defaultRepo = new JobRepository(propertyResolver);
+        JobRepository defaultRepo = new JobRepository(testPropertyResolver);
 
         // When
         LocalDateTime now = LocalDateTime.now();

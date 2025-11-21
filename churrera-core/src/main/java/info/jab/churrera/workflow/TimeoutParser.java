@@ -6,6 +6,10 @@ package info.jab.churrera.workflow;
  */
 public class TimeoutParser {
 
+    private TimeoutParser() {
+        // Utility class - prevent instantiation
+    }
+
     /**
      * Parses a timeout string to milliseconds.
      * Format: number + unit where unit is 'm' (minutes) or 'h' (hours).

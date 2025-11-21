@@ -91,12 +91,12 @@ public class ResultExtractor {
             } else {
                 logger.error("No result to store for parent job: {}", job.jobId());
                 // If deserialization failed after a successful agent run, mark job as FAILED
-                return null;
+                return List.of();
             }
 
         } catch (Exception e) {
             logger.error("Error extracting results for job {}: {}", job.jobId(), e.getMessage(), e);
-            return null;
+            return List.of();
         }
     }
 }

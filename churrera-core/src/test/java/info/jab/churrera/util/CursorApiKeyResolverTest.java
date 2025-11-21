@@ -437,11 +437,4 @@ class CursorApiKeyResolverTest {
         System.clearProperty(CursorApiKeyResolver.CURSOR_API_KEY);
     }
 
-    private File createEnvFile(String content) throws IOException {
-        File envFile = tempDir.resolve(".env").toFile();
-        try (FileWriter writer = new FileWriter(envFile)) {
-            writer.write(content);
-        }
-        return envFile;
-    }
 }
