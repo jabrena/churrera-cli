@@ -188,13 +188,13 @@ public final class JobXmlMapper {
     private static Boolean parseFallbackExecuted(String xml, String jobId) {
         String fallbackExecutedStr = XmlUtils.extractXmlValueOptional(xml, "fallbackExecuted");
         if (fallbackExecutedStr == null || "null".equals(fallbackExecutedStr)) {
-            return null;
+            return Boolean.FALSE;
         }
         try {
             return Boolean.parseBoolean(fallbackExecutedStr);
         } catch (Exception e) {
-            logger.warn("Invalid fallbackExecuted '{}' for job {}, defaulting to null", fallbackExecutedStr, jobId);
-            return null;
+            logger.warn("Invalid fallbackExecuted '{}' for job {}, defaulting to false", fallbackExecutedStr, jobId);
+            return Boolean.FALSE;
         }
     }
 }

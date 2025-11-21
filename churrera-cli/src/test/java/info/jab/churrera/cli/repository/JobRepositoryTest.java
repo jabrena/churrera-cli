@@ -76,7 +76,9 @@ class JobRepositoryTest {
 
         // Then
         assertThat(found).isPresent();
-        assertThat(found.get()).isEqualTo(job);
+        // After XML round-trip, null fallbackExecuted becomes false
+        Job expectedJob = new Job("test-job-1", "/path/to/job", null, "default-model", "default-repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, false);
+        assertThat(found.get()).isEqualTo(expectedJob);
     }
 
     @Test
@@ -103,7 +105,10 @@ class JobRepositoryTest {
 
         // Then
         assertThat(allJobs).hasSize(2);
-        assertThat(allJobs).containsExactlyInAnyOrder(job1, job2);
+        // After XML round-trip, null fallbackExecuted becomes false
+        Job expectedJob1 = new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.CREATING(), now, now, null, null, null, null, null, null, false);
+        Job expectedJob2 = new Job("job-2", "/path/2", null, "model2", "repo2", AgentState.CREATING(), now, now, null, null, null, null, null, null, false);
+        assertThat(allJobs).containsExactlyInAnyOrder(expectedJob1, expectedJob2);
     }
 
     @Test
@@ -184,7 +189,9 @@ class JobRepositoryTest {
 
         // Then
         assertThat(result).isPresent();
-        assertThat(result.get().getJob()).isEqualTo(job);
+        // After XML round-trip, null fallbackExecuted becomes false
+        Job expectedJob = new Job("job-1", "/path/1", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, null, null, null, null, false);
+        assertThat(result.get().getJob()).isEqualTo(expectedJob);
         assertThat(result.get().getPrompts()).hasSize(2);
         assertThat(result.get().getPrompts()).containsExactlyInAnyOrder(prompt1, prompt2);
     }
@@ -215,7 +222,10 @@ class JobRepositoryTest {
 
         // Then
         assertThat(unfinishedJobs).hasSize(2);
-        assertThat(unfinishedJobs).containsExactlyInAnyOrder(unfinishedJob1, unfinishedJob2);
+        // After XML round-trip, null fallbackExecuted becomes false
+        Job expectedUnfinishedJob1 = new Job("job-2", "/path/2", null, "model2", "repo2", AgentState.CREATING(), now, now, null, null, null, null, null, null, false);
+        Job expectedUnfinishedJob2 = new Job("job-3", "/path/3", "cursor-agent-456", "model3", "repo3", AgentState.CREATING(), now, now, null, null, null, null, null, null, false);
+        assertThat(unfinishedJobs).containsExactlyInAnyOrder(expectedUnfinishedJob1, expectedUnfinishedJob2);
     }
 
     @Test
@@ -379,7 +389,10 @@ class JobRepositoryTest {
 
         // Then
         assertThat(childJobs).hasSize(2);
-        assertThat(childJobs).containsExactlyInAnyOrder(childJob1, childJob2);
+        // After XML round-trip, null fallbackExecuted becomes false
+        Job expectedChildJob1 = new Job("child-job-1", "/path/child1", "cursor-agent-124", "model1", "repo1", AgentState.RUNNING(), now, now, "parent-job", null, null, null, null, null, false);
+        Job expectedChildJob2 = new Job("child-job-2", "/path/child2", "cursor-agent-125", "model1", "repo1", AgentState.CREATING(), now, now, "parent-job", null, null, null, null, null, false);
+        assertThat(childJobs).containsExactlyInAnyOrder(expectedChildJob1, expectedChildJob2);
     }
 
     @Test
@@ -503,7 +516,9 @@ class JobRepositoryTest {
         // Then - should open existing database and find the job
         Optional<Job> found = newRepo.findById("test-job");
         assertThat(found).isPresent();
-        assertThat(found.get()).isEqualTo(job);
+        // After XML round-trip, null fallbackExecuted becomes false
+        Job expectedJob = new Job("test-job", "/path/to/job", null, "model", "repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, false);
+        assertThat(found.get()).isEqualTo(expectedJob);
 
         newRepo.close();
     }
@@ -533,7 +548,9 @@ class JobRepositoryTest {
 
         // Then - should successfully retrieve the valid job
         assertThat(jobs).hasSize(1);
-        assertThat(jobs.get(0)).isEqualTo(validJob);
+        // After XML round-trip, null fallbackExecuted becomes false
+        Job expectedJob = new Job("valid-job", "/path", null, "model", "repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, false);
+        assertThat(jobs.get(0)).isEqualTo(expectedJob);
     }
 
     @Test
