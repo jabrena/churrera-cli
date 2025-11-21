@@ -21,7 +21,7 @@
                 ```bash
                 jbang sonar-search.0.2.0-SNAPSHOT@jabrena \
                 --project jabrena_churrera-cli --query issues \
-                --types all  --severity major --status open --size 400 --quiet
+                --types all  --severity minor --status open --size 400 --quiet
                 ```
                 ]]>
 
