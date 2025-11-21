@@ -4,7 +4,6 @@ import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.cli.repository.JobRepository;
-import info.jab.churrera.workflow.WorkflowType;
 import org.basex.core.BaseXException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,10 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;

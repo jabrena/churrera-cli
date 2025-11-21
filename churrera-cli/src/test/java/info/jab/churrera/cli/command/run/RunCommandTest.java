@@ -1,7 +1,6 @@
 package info.jab.churrera.cli.command.run;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
-import info.jab.churrera.workflow.WorkflowType;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.workflow.WorkflowValidator;
 import info.jab.churrera.workflow.WorkflowParser;
@@ -15,7 +14,6 @@ import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.service.JobProcessor;
 import info.jab.churrera.cli.service.CLIAgent;
 import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -26,14 +24,9 @@ import org.mockito.quality.Strictness;
 import picocli.CommandLine;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -524,7 +517,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testIsJobAndChildrenSuccessful_AllSuccessful() throws BaseXException, QueryException {
+    void testIsJobAndChildrenSuccessful_AllSuccessful() {
         // Given
         String jobId = "parent-job";
         Job parentJob = new Job(jobId, "/path", null, "model", "repo",
@@ -544,7 +537,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testIsJobAndChildrenSuccessful_ParentNotSuccessful() throws BaseXException, QueryException {
+    void testIsJobAndChildrenSuccessful_ParentNotSuccessful() {
         // Given
         String jobId = "parent-job";
         Job parentJob = new Job(jobId, "/path", null, "model", "repo",
@@ -562,7 +555,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testIsJobAndChildrenSuccessful_ChildNotSuccessful() throws BaseXException, QueryException {
+    void testIsJobAndChildrenSuccessful_ChildNotSuccessful() {
         // Given
         String jobId = "parent-job";
         Job parentJob = new Job(jobId, "/path", null, "model", "repo",
@@ -725,7 +718,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDisplayFilteredJobsTable_SequenceWorkflow() throws BaseXException, QueryException {
+    void testDisplayFilteredJobsTable_SequenceWorkflow() {
         // Given
         String jobId = "test-job-id";
         Job job = new Job(jobId, testJobPath, null, "test-model", "test-repo",
@@ -748,7 +741,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDisplayFilteredJobsTable_ParallelWorkflowWithChildren() throws BaseXException, QueryException {
+    void testDisplayFilteredJobsTable_ParallelWorkflowWithChildren() {
         // Given
         String parentJobId = "parent-job-id";
         String childJobId1 = "child-job-id-1";
@@ -792,7 +785,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDisplayFilteredJobsTable_TerminalJob() throws BaseXException, QueryException {
+    void testDisplayFilteredJobsTable_TerminalJob() {
         // Given
         String jobId = "test-job-id";
         LocalDateTime createdAt = LocalDateTime.now().minusMinutes(5);
@@ -817,7 +810,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDisplayFilteredJobsTable_JobNotFound() throws BaseXException, QueryException {
+    void testDisplayFilteredJobsTable_JobNotFound() {
         // Given
         String jobId = "non-existent-job";
         when(jobRepository.findById(jobId)).thenReturn(Optional.empty());
@@ -827,7 +820,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDisplayFilteredJobsTable_ExceptionRetrievingPrompts() throws BaseXException, QueryException {
+    void testDisplayFilteredJobsTable_ExceptionRetrievingPrompts() {
         // Given
         String jobId = "test-job-id";
         Job job = new Job(jobId, testJobPath, null, "test-model", "test-repo",
@@ -843,7 +836,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDisplayFilteredJobsTable_JobWithNullType() throws BaseXException, QueryException {
+    void testDisplayFilteredJobsTable_JobWithNullType() {
         // Given
         String jobId = "test-job-id";
         Job job = new Job(jobId, testJobPath, null, "test-model", "test-repo",
@@ -929,7 +922,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDeleteJobAndChildren_ExceptionHandling() throws BaseXException, QueryException {
+    void testDeleteJobAndChildren_ExceptionHandling() {
         // Given
         String jobId = "parent-job-id";
         Job parentJob = new Job(jobId, testJobPath, null, "test-model", "test-repo",

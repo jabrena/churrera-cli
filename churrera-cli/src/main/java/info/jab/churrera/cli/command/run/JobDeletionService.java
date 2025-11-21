@@ -114,7 +114,7 @@ public class JobDeletionService {
      * Recursively delete all child jobs of a parent job.
      * Package-private for testing.
      */
-    void deleteChildJobsRecursively(String parentJobId) throws BaseXException, QueryException {
+    void deleteChildJobsRecursively(String parentJobId) {
         List<Job> childJobs = jobRepository.findJobsByParentId(parentJobId);
 
         for (Job childJob : childJobs) {
@@ -131,7 +131,7 @@ public class JobDeletionService {
      * Delete a single job including its Cursor agent and prompts.
      * Package-private for testing.
      */
-    void deleteJob(Job job) throws BaseXException, QueryException {
+    void deleteJob(Job job) {
         // Delete Cursor agent if it exists
         if (job.cursorAgentId() != null) {
             try {

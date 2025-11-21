@@ -5,7 +5,6 @@ import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.service.CLIAgent;
 import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,11 +12,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,7 +49,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_ValidInput() throws BaseXException, QueryException, IOException {
+    void testRun_ValidInput() {
         // When
         newJobCommand.run();
 
@@ -62,7 +58,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_EmptyPath() throws BaseXException, QueryException, IOException {
+    void testRun_EmptyPath() {
         // Given
         String input = "\nmodel-name\nrepo-url\n";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
@@ -77,7 +73,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_EmptyModel() throws BaseXException, QueryException, IOException {
+    void testRun_EmptyModel() {
         // Given
         String input = "test/path\n\nrepo-url\n";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
@@ -92,7 +88,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_EmptyRepository() throws BaseXException, QueryException, IOException {
+    void testRun_EmptyRepository() {
         // Given
         String input = "test/path\nmodel-name\n\n";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
@@ -107,7 +103,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_AllEmpty() throws BaseXException, QueryException, IOException {
+    void testRun_AllEmpty() {
         // Given
         String input = "\n\n\n";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
@@ -122,7 +118,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_RepositoryException() throws BaseXException, QueryException, IOException {
+    void testRun_RepositoryException() {
         // Given
         doThrow(new BaseXException("Database error")).when(jobRepository).save(any(Job.class));
 
@@ -132,7 +128,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_QueryException() throws BaseXException, QueryException, IOException {
+    void testRun_QueryException() {
         // Given
         doThrow(new QueryException("Query error")).when(jobRepository).save(any(Job.class));
 
@@ -142,7 +138,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_IOException() throws BaseXException, QueryException, IOException {
+    void testRun_IOException() {
         // Given
         doThrow(new IOException("IO error")).when(jobRepository).save(any(Job.class));
 
@@ -152,7 +148,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_JobCreatedWithCorrectValues() throws BaseXException, QueryException, IOException {
+    void testRun_JobCreatedWithCorrectValues() {
         // When
         newJobCommand.run();
 
@@ -170,7 +166,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_JobCreatedWithDefaultValues() throws BaseXException, QueryException, IOException {
+    void testRun_JobCreatedWithDefaultValues() {
         // Given
         String input = "test/path\n\n\n";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
@@ -191,7 +187,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_ModelValidationFails() throws BaseXException, QueryException, IOException {
+    void testRun_ModelValidationFails() {
         // Given
         String input = "test/path\ninvalid-model\nrepo-url\n";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
@@ -209,7 +205,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_ModelValidation_EmptyModelList() throws BaseXException, QueryException, IOException {
+    void testRun_ModelValidation_EmptyModelList() {
         // Given
         String input = "test/path\nsome-model\nrepo-url\n";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
@@ -228,7 +224,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_ModelValidation_NullModelList() throws BaseXException, QueryException, IOException {
+    void testRun_ModelValidation_NullModelList() {
         // Given
         String input = "test/path\nsome-model\nrepo-url\n";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
@@ -246,7 +242,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_ModelValidation_Exception() throws BaseXException, QueryException, IOException {
+    void testRun_ModelValidation_Exception() {
         // Given
         String input = "test/path\nsome-model\nrepo-url\n";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
@@ -264,7 +260,7 @@ class NewJobCommandTest {
     }
 
     @Test
-    void testRun_ModelValidation_WhitespaceTrimmed() throws BaseXException, QueryException, IOException {
+    void testRun_ModelValidation_WhitespaceTrimmed() {
         // Given
         String input = "test/path\n  model-name  \nrepo-url\n";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());

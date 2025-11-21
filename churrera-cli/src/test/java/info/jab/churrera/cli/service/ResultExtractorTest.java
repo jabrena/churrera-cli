@@ -4,16 +4,12 @@ import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.workflow.ParallelWorkflowData;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;

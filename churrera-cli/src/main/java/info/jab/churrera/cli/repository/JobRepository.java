@@ -116,7 +116,7 @@ public class JobRepository {
      *
      * @return list of all jobs
      */
-    public List<Job> findAll() throws BaseXException, QueryException {
+    public List<Job> findAll() {
         try {
             // Use BaseX Get command to retrieve the document content
             String xmlContent = new Get(JOBS_XML).execute(context);
@@ -134,7 +134,7 @@ public class JobRepository {
      * @param jobId the job ID to search for
      * @return Optional containing the job if found
      */
-    public Optional<Job> findById(String jobId) throws BaseXException, QueryException {
+    public Optional<Job> findById(String jobId) {
         try {
             // Use BaseX Get command to retrieve the document content
             String xmlContent = new Get(JOBS_XML).execute(context);
@@ -155,7 +155,7 @@ public class JobRepository {
      *
      * @param job the job to save
      */
-    public void save(Job job) throws IOException, QueryException {
+    public void save(Job job) throws IOException {
         // Check if job already exists
         Optional<Job> existingJob = findById(job.jobId());
 
@@ -181,11 +181,15 @@ public class JobRepository {
      *
      * @param jobId the job ID to delete
      */
-    public void deleteById(String jobId) throws BaseXException, QueryException {
+    public void deleteById(String jobId) {
         logger.debug("Deleting job: {}", jobId);
         String deleteQuery = "delete node doc('" + DATABASE_NAME + "/" + JOBS_XML + "')/jobs/job[jobId='" + jobId + "']";
-        new XQuery(deleteQuery).execute(context);
-        logger.info("Deleted job: {}", jobId);
+        try {
+            new XQuery(deleteQuery).execute(context);
+            logger.info("Deleted job: {}", jobId);
+        } catch (BaseXException e) {
+            logger.error("Error deleting job: {}", jobId, e);
+        }
     }
 
     /**
@@ -193,7 +197,7 @@ public class JobRepository {
      *
      * @param prompt the prompt to save
      */
-    public void savePrompt(Prompt prompt) throws IOException, QueryException {
+    public void savePrompt(Prompt prompt) throws IOException {
         // Check if prompt already exists
         Optional<Prompt> existingPrompt = findPromptById(prompt.promptId());
 
@@ -221,7 +225,7 @@ public class JobRepository {
      * @param promptId the prompt ID to search for
      * @return Optional containing the prompt if found
      */
-    public Optional<Prompt> findPromptById(String promptId) throws BaseXException, QueryException {
+    public Optional<Prompt> findPromptById(String promptId) {
         try {
             String xmlContent = new Get(PROMPTS_XML).execute(context);
 
@@ -242,7 +246,7 @@ public class JobRepository {
      * @param jobId the job ID to search for
      * @return list of prompts for the job
      */
-    public List<Prompt> findPromptsByJobId(String jobId) throws BaseXException, QueryException {
+    public List<Prompt> findPromptsByJobId(String jobId) {
         try {
             String xmlContent = new Get(PROMPTS_XML).execute(context);
             List<Prompt> allPrompts = PromptXmlMapper.fromDocument(xmlContent, DATE_TIME_FORMATTER);
@@ -268,7 +272,7 @@ public class JobRepository {
      * @param jobId the job ID to search for
      * @return JobWithDetails containing job and prompts
      */
-    public Optional<JobWithDetails> findJobWithDetails(String jobId) throws BaseXException, QueryException {
+    public Optional<JobWithDetails> findJobWithDetails(String jobId) {
         Optional<Job> job = findById(jobId);
         if (job.isEmpty()) {
             return Optional.empty();
@@ -284,7 +288,7 @@ public class JobRepository {
      *
      * @return list of unfinished jobs
      */
-    public List<Job> findUnfinishedJobs() throws BaseXException, QueryException {
+    public List<Job> findUnfinishedJobs() {
         try {
             String xmlContent = new Get(JOBS_XML).execute(context);
             List<Job> allJobs = JobXmlMapper.fromDocument(xmlContent, DATE_TIME_FORMATTER);
@@ -309,7 +313,7 @@ public class JobRepository {
      *
      * @param jobId the job ID to delete prompts for
      */
-    public void deletePromptsByJobId(String jobId) throws BaseXException, QueryException {
+    public void deletePromptsByJobId(String jobId) {
         try {
             String xmlContent = new Get(PROMPTS_XML).execute(context);
             List<Prompt> allPrompts = PromptXmlMapper.fromDocument(xmlContent, DATE_TIME_FORMATTER);
@@ -333,7 +337,7 @@ public class JobRepository {
      * @param parentJobId the parent job ID to search for
      * @return list of child jobs
      */
-    public List<Job> findJobsByParentId(String parentJobId) throws BaseXException, QueryException {
+    public List<Job> findJobsByParentId(String parentJobId) {
         try {
             String xmlContent = new Get(JOBS_XML).execute(context);
             List<Job> allJobs = JobXmlMapper.fromDocument(xmlContent, DATE_TIME_FORMATTER);

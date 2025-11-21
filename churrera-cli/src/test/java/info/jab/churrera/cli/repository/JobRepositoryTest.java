@@ -6,7 +6,6 @@ import info.jab.churrera.cli.model.JobWithDetails;
 import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.util.PropertyResolver;
 import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -43,7 +40,7 @@ class JobRepositoryTest {
     private JobRepository jobRepository;
 
     @BeforeEach
-    void setUp() throws IOException, BaseXException {
+    void setUp() throws IOException {
         // Mock PropertyResolver to return the tempDir path
         when(propertyResolver.getProperty(eq("application.properties"), eq("basex.database.path")))
                 .thenReturn(Optional.of(tempDir.toString()));
@@ -65,7 +62,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldSaveAndFindJob() throws BaseXException, IOException, QueryException {
+    void shouldSaveAndFindJob() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job job = new Job("test-job-1", "/path/to/job", null, "default-model", "default-repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
@@ -82,7 +79,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldReturnEmptyWhenJobNotFound() throws BaseXException, QueryException {
+    void shouldReturnEmptyWhenJobNotFound() {
         // When
         Optional<Job> found = jobRepository.findById("non-existent-job");
 
@@ -91,7 +88,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldFindAllJobs() throws BaseXException, IOException, QueryException {
+    void shouldFindAllJobs() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job job1 = new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
@@ -112,7 +109,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldReturnEmptyListWhenNoJobs() throws BaseXException, QueryException {
+    void shouldReturnEmptyListWhenNoJobs() {
         // When
         List<Job> allJobs = jobRepository.findAll();
 
@@ -121,7 +118,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldDeleteJob() throws BaseXException, IOException, QueryException {
+    void shouldDeleteJob() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job job = new Job("job-to-delete", "/path/to/delete", null, "model", "repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
@@ -138,7 +135,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldSaveAndFindPrompt() throws BaseXException, IOException, QueryException {
+    void shouldSaveAndFindPrompt() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Prompt prompt = new Prompt("prompt-1", "job-1", "prompt1.xml", "UNKNOWN", now, now);
@@ -153,7 +150,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldFindPromptsByJobId() throws BaseXException, IOException, QueryException {
+    void shouldFindPromptsByJobId() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Prompt prompt1 = new Prompt("prompt-1", "job-1", "prompt1.xml", "UNKNOWN", now, now);
@@ -173,7 +170,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldFindJobWithDetails() throws BaseXException, IOException, QueryException {
+    void shouldFindJobWithDetails() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job job = new Job("job-1", "/path/1", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, null, null, null, null, null);
@@ -197,7 +194,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldReturnEmptyWhenJobWithDetailsNotFound() throws BaseXException, QueryException {
+    void shouldReturnEmptyWhenJobWithDetailsNotFound() {
         // When
         Optional<JobWithDetails> result = jobRepository.findJobWithDetails("non-existent-job");
 
@@ -206,7 +203,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldFindUnfinishedJobs() throws BaseXException, IOException, QueryException {
+    void shouldFindUnfinishedJobs() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job finishedJob = new Job("job-1", "/path/1", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, null, null, null, null, null);
@@ -229,7 +226,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldDeletePromptsByJobId() throws BaseXException, IOException, QueryException {
+    void shouldDeletePromptsByJobId() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Prompt prompt1 = new Prompt("prompt-1", "job-1", "prompt1.xml", "UNKNOWN", now, now);
@@ -254,7 +251,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldUpdateExistingJob() throws BaseXException, IOException, QueryException {
+    void shouldUpdateExistingJob() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job originalJob = new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
@@ -272,7 +269,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldUpdateExistingPrompt() throws BaseXException, IOException, QueryException {
+    void shouldUpdateExistingPrompt() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Prompt originalPrompt = new Prompt("prompt-1", "job-1", "prompt1.xml", "UNKNOWN", now, now);
@@ -289,7 +286,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleJobWithNullCursorAgentId() throws BaseXException, IOException, QueryException {
+    void shouldHandleJobWithNullCursorAgentId() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job jobWithNullAgent = new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
@@ -304,7 +301,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleJobWithCursorAgentId() throws BaseXException, IOException, QueryException {
+    void shouldHandleJobWithCursorAgentId() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job jobWithAgent = new Job("job-1", "/path/1", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, null, null, null, null, null);
@@ -319,7 +316,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleAllAgentStates() throws BaseXException, IOException, QueryException {
+    void shouldHandleAllAgentStates() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job[] jobs = {
@@ -345,7 +342,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleEmptyJobList() throws BaseXException, QueryException {
+    void shouldHandleEmptyJobList() {
         // When
         List<Job> allJobs = jobRepository.findAll();
         List<Job> unfinishedJobs = jobRepository.findUnfinishedJobs();
@@ -356,7 +353,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleEmptyPromptList() throws BaseXException, QueryException {
+    void shouldHandleEmptyPromptList() {
         // When
         List<Prompt> prompts = jobRepository.findPromptsByJobId("non-existent-job");
 
@@ -371,7 +368,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldFindJobsByParentId() throws BaseXException, IOException, QueryException {
+    void shouldFindJobsByParentId() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job parentJob = new Job("parent-job", "/path/parent", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, null, null, null, null, null);
@@ -396,7 +393,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldReturnEmptyListWhenNoChildJobs() throws BaseXException, QueryException {
+    void shouldReturnEmptyListWhenNoChildJobs() {
         // When
         List<Job> childJobs = jobRepository.findJobsByParentId("non-existent-parent");
 
@@ -405,7 +402,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleJobWithParentJobId() throws BaseXException, IOException, QueryException {
+    void shouldHandleJobWithParentJobId() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job jobWithParent = new Job("child-job", "/path/child", "cursor-agent-123", "model1", "repo1", AgentState.RUNNING(), now, now, "parent-job-id", null, null, null, null, null, null);
@@ -420,7 +417,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleJobWithResult() throws BaseXException, IOException, QueryException {
+    void shouldHandleJobWithResult() {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job jobWithResult = new Job("job-with-result", "/path/job", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, "Some result data", null, null, null, null, null);
@@ -435,7 +432,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleJobWithWorkflowType() throws BaseXException, IOException, QueryException {
+    void shouldHandleJobWithWorkflowType() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job sequenceJob = new Job("sequence-job", "/path/seq", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, null, info.jab.churrera.workflow.WorkflowType.SEQUENCE, null, null, null, null);
@@ -456,7 +453,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleJobWithSpecialCharactersInXml() throws BaseXException, IOException, QueryException {
+    void shouldHandleJobWithSpecialCharactersInXml() throws IOException {
         // Given - test XML escaping - Note: current implementation stores escaped but retrieves escaped too
         LocalDateTime now = LocalDateTime.now();
         Job jobWithSpecialChars = new Job(
@@ -501,7 +498,7 @@ class JobRepositoryTest {
 
 
     @Test
-    void shouldHandleInitializeWhenDatabaseExists() throws BaseXException, IOException, QueryException {
+    void shouldHandleInitializeWhenDatabaseExists() throws IOException {
         // Given - repository already initialized
         LocalDateTime now = LocalDateTime.now();
         Job job = new Job("test-job", "/path/to/job", null, "model", "repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
@@ -524,7 +521,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldReturnEmptyWhenPromptNotFound() throws BaseXException, QueryException {
+    void shouldReturnEmptyWhenPromptNotFound() {
         // When
         Optional<Prompt> found = jobRepository.findPromptById("non-existent-prompt");
 
@@ -533,7 +530,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleMalformedJobXmlGracefully() throws BaseXException, IOException, QueryException {
+    void shouldHandleMalformedJobXmlGracefully() throws IOException {
         // This test verifies that parseJobsFromDocument handles exceptions gracefully
         // We can't directly inject malformed XML into the database, but we can test
         // that the error handling path exists by checking the behavior with edge cases
@@ -554,7 +551,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleNullInEscapeXml() throws BaseXException, IOException, QueryException {
+    void shouldHandleNullInEscapeXml() throws IOException {
         // Given - Job with null values that get escaped
         LocalDateTime now = LocalDateTime.now();
         Job jobWithNulls = new Job("job-1", "/path", null, "model", "repo", AgentState.CREATING(), now, now, null, null, null, null, null, null, null);
@@ -571,7 +568,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleJobWithInvalidWorkflowType() throws BaseXException, IOException, QueryException {
+    void shouldHandleJobWithInvalidWorkflowType() throws IOException {
         // Given - Save a job with valid workflow type
         LocalDateTime now = LocalDateTime.now();
         Job job = new Job("job-1", "/path", "cursor-agent-123", "model1", "repo1",
@@ -594,7 +591,7 @@ class JobRepositoryTest {
 
 
     @Test
-    void shouldHandleChildJobsInFindJobsByParentId() throws BaseXException, IOException, QueryException {
+    void shouldHandleChildJobsInFindJobsByParentId() throws IOException {
         // Given - Create multiple child jobs to test exception handling path
         LocalDateTime now = LocalDateTime.now();
         Job parentJob = new Job("parent", "/parent", "agent-1", "model", "repo",
@@ -616,7 +613,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleJobWithAllOptionalFields() throws BaseXException, IOException, QueryException {
+    void shouldHandleJobWithAllOptionalFields() throws IOException {
         // Given - Job with all optional fields populated
         LocalDateTime now = LocalDateTime.now();
         Job completeJob = new Job(
@@ -651,7 +648,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleRepositoryWithDefaultDatabasePath(@TempDir Path testTempDir) throws IOException, BaseXException, QueryException {
+    void shouldHandleRepositoryWithDefaultDatabasePath(@TempDir Path testTempDir) throws IOException {
         // Given - Create repository with PropertyResolver that returns empty Optional (default path behavior)
         // Use a temp directory to avoid conflicts and database lock issues
         PropertyResolver testPropertyResolver = mock(PropertyResolver.class);
@@ -675,7 +672,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandlePromptsWithExceptionPath() throws BaseXException, IOException, QueryException {
+    void shouldHandlePromptsWithExceptionPath() throws IOException {
         // Given - Create multiple prompts to exercise different code paths
         LocalDateTime now = LocalDateTime.now();
         for (int i = 0; i < 5; i++) {
@@ -692,7 +689,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldDeleteMultiplePromptsByJobId() throws BaseXException, IOException, QueryException {
+    void shouldDeleteMultiplePromptsByJobId() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         // Create multiple prompts for the same job to test the exception handling loop

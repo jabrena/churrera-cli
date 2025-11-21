@@ -92,7 +92,7 @@ public class NewJobCommand implements Runnable {
             logger.info("  Path: {}", path);
             logger.info("  Created: {}", now);
 
-        } catch (IOException | QueryException e) {
+        } catch (IOException e) {
             logger.error("Error creating job: {}", e.getMessage());
         }
     }

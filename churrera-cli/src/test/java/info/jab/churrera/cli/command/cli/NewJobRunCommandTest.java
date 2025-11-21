@@ -2,7 +2,6 @@ package info.jab.churrera.cli.command.cli;
 
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
-import info.jab.churrera.workflow.WorkflowType;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.workflow.WorkflowValidator;
 import info.jab.churrera.workflow.WorkflowParser;
@@ -12,7 +11,6 @@ import info.jab.churrera.workflow.WorkflowParseException;
 import info.jab.churrera.workflow.PmlValidator;
 import info.jab.churrera.cli.model.AgentState;
 import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -21,12 +19,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

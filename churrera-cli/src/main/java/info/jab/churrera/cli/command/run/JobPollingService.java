@@ -69,7 +69,7 @@ public class JobPollingService {
             try {
                 job = jobRepository.findById(jobId)
                     .orElseThrow(() -> new RuntimeException("Job not found: " + jobId));
-            } catch (BaseXException | QueryException e) {
+            } catch (Exception e) {
                 throw new RuntimeException("Error retrieving job " + jobId + ": " + e.getMessage(), e);
             }
 

@@ -14,7 +14,6 @@ import info.jab.churrera.util.PropertyResolver;
 import info.jab.churrera.workflow.PmlValidator;
 import info.jab.churrera.workflow.WorkflowParser;
 import info.jab.churrera.workflow.WorkflowValidator;
-import info.jab.churrera.workflow.WorkflowType;
 import info.jab.cursor.generated.client.ApiClient;
 import info.jab.cursor.generated.client.api.DefaultApi;
 import org.basex.core.BaseXException;
@@ -29,15 +28,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import java.util.List;
+import java.util.Optional;
+import java.time.LocalDateTime;
+import info.jab.churrera.workflow.WorkflowType;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
 
 import static org.assertj.core.api.Assertions.assertThat;

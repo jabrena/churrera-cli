@@ -88,7 +88,7 @@ public class JobLogsCommand implements Runnable {
                 }
                 logger.info("Successfully displayed job logs for jobId: {}", resolvedJobId);
             }
-        } catch (BaseXException | QueryException e) {
+        } catch (Exception e) {
             logger.error("Error retrieving job logs for jobId: {}", jobId, e);
             System.err.println("Error retrieving job logs: " + e.getMessage());
         }
@@ -101,7 +101,7 @@ public class JobLogsCommand implements Runnable {
      *
      * Prints helpful messages for not found or ambiguous prefix cases.
      */
-    private String resolveJobId(String provided) throws BaseXException, QueryException {
+    private String resolveJobId(String provided) {
         logger.debug("Resolving jobId: {}", provided);
         // Try exact match first
         var exact = jobRepository.findById(provided);
@@ -121,7 +121,7 @@ public class JobLogsCommand implements Runnable {
         return null;
     }
 
-    private String resolveByPrefix(String provided) throws BaseXException, QueryException {
+    private String resolveByPrefix(String provided) {
         logger.debug("Attempting prefix match for jobId prefix: {}", provided);
         List<Job> all = jobRepository.findAll();
         List<Job> matches = new java.util.ArrayList<>();

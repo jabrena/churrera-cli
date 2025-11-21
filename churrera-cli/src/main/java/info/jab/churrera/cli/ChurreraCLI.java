@@ -16,7 +16,6 @@ import info.jab.cursor.client.impl.CursorAgentInformationImpl;
 import info.jab.cursor.client.impl.CursorAgentGeneralEndpointsImpl;
 import info.jab.cursor.generated.client.ApiClient;
 import info.jab.cursor.generated.client.api.DefaultApi;
-import org.basex.core.BaseXException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;

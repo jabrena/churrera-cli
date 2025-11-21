@@ -7,19 +7,14 @@ import info.jab.churrera.cli.model.JobWithDetails;
 import info.jab.churrera.cli.service.CLIAgent;
 import info.jab.churrera.cli.model.AgentState;
 import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import info.jab.churrera.workflow.WorkflowType;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -71,7 +66,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_JobNotFound() throws BaseXException, QueryException {
+    void testRun_JobNotFound() {
         // Given
         String jobId = "non-existent-job";
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -86,7 +81,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_JobFoundWithPrompts() throws BaseXException, QueryException {
+    void testRun_JobFoundWithPrompts() {
         // Given
         String jobId = "test-job-id";
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -104,7 +99,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_JobFoundWithoutPrompts() throws BaseXException, QueryException {
+    void testRun_JobFoundWithoutPrompts() {
         // Given
         String jobId = "test-job-id";
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -122,7 +117,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_JobFoundWithNullCursorAgentId() throws BaseXException, QueryException {
+    void testRun_JobFoundWithNullCursorAgentId() {
         // Given
         String jobId = "test-job-id";
         Job jobWithoutAgent = new Job(jobId,
@@ -147,7 +142,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_DatabaseException() throws BaseXException, QueryException {
+    void testRun_DatabaseException() {
         // Given
         String jobId = "test-job-id";
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -162,7 +157,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_QueryException() throws BaseXException, QueryException {
+    void testRun_QueryException() {
         // Given
         String jobId = "test-job-id";
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -177,7 +172,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_JobWithParentJobId() throws BaseXException, QueryException {
+    void testRun_JobWithParentJobId() {
         // Given
         String jobId = "child-job-id";
         Job childJob = new Job(jobId,
@@ -368,7 +363,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_SequenceWorkflowType() throws BaseXException, QueryException {
+    void testRun_SequenceWorkflowType() {
         // Given
         String jobId = "sequence-job-id";
         Job sequenceJob = new Job(jobId,
@@ -394,7 +389,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_JobWithNullTypeAndInvalidWorkflowFile() throws BaseXException, QueryException {
+    void testRun_JobWithNullTypeAndInvalidWorkflowFile() {
         // Given
         String jobId = "invalid-workflow-job";
         Job jobWithInvalidWorkflow = new Job(jobId,
@@ -818,7 +813,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_ParallelWorkflowExceptionDuringWorkflowParsing() throws BaseXException, QueryException {
+    void testRun_ParallelWorkflowExceptionDuringWorkflowParsing() {
         // Given - Test exception during workflow parsing (line 143-145)
         String jobId = "parallel-parse-error";
 
@@ -894,7 +889,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_ShortUuidPrefixResolvesToFullId() throws BaseXException, QueryException {
+    void testRun_ShortUuidPrefixResolvesToFullId() {
         // Given
         String fullId = "abcdef01-1234-5678-90ab-cdef12345678";
         String prefix = "abcdef01"; // 8-char prefix
@@ -924,7 +919,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_ShortUuidPrefixAmbiguous() throws BaseXException, QueryException {
+    void testRun_ShortUuidPrefixAmbiguous() {
         // Given
         String prefix = "abcdef01";
         Job job1 = new Job("abcdef01-aaaa-bbbb-cccc-111111111111",
@@ -947,7 +942,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_ShortUuidPrefixNotFound() throws BaseXException, QueryException {
+    void testRun_ShortUuidPrefixNotFound() {
         // Given
         String prefix = "12345678";
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, prefix);
@@ -965,7 +960,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_ResolveJobId_ExactMatch() throws BaseXException, QueryException {
+    void testRun_ResolveJobId_ExactMatch() {
         // Given
         String jobId = "exact-match-job-id";
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -984,7 +979,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_ResolveJobId_Non8CharPrefix() throws BaseXException, QueryException {
+    void testRun_ResolveJobId_Non8CharPrefix() {
         // Given - prefix that's not exactly 8 characters
         String prefix = "abc"; // 3 characters, not 8
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, prefix);
@@ -1001,7 +996,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_ResolveJobId_LongerThan8Chars() throws BaseXException, QueryException {
+    void testRun_ResolveJobId_LongerThan8Chars() {
         // Given - ID longer than 8 characters but not exact match
         String longId = "123456789012345"; // 15 characters
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, longId);
@@ -1018,7 +1013,7 @@ class JobStatusCommandTest {
     }
 
     @Test
-    void testRun_ResolveJobId_NullProvided() throws BaseXException, QueryException {
+    void testRun_ResolveJobId_NullProvided() {
         // Given
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, null);
 

@@ -4,7 +4,6 @@ import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.service.CLIAgent;
 import info.jab.churrera.cli.model.Job;
 import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -67,7 +66,7 @@ public class DeleteJobCommand implements Runnable {
 
             System.out.println("Job and all child jobs deleted from Database");
 
-        } catch (BaseXException | QueryException e) {
+        } catch (Exception e) {
             logger.error("Error deleting job {}: {}", jobId, e.getMessage());
             System.err.println("Error deleting job: " + e.getMessage());
         }
@@ -80,7 +79,7 @@ public class DeleteJobCommand implements Runnable {
      *
      * Prints helpful messages for not found or ambiguous prefix cases.
      */
-    private String resolveJobId(String provided) throws BaseXException, QueryException {
+    private String resolveJobId(String provided) {
         // Try exact match first
         String exactMatch = tryExactMatch(provided);
         if (exactMatch != null) {
@@ -103,7 +102,7 @@ public class DeleteJobCommand implements Runnable {
      * @param provided the job ID to search for
      * @return the job ID if found, null otherwise
      */
-    String tryExactMatch(String provided) throws BaseXException, QueryException {
+    String tryExactMatch(String provided) {
         if (provided == null) {
             return null;
         }
@@ -130,7 +129,7 @@ public class DeleteJobCommand implements Runnable {
      * @param prefix the 8-character prefix to match
      * @return the full job ID if uniquely matched, null otherwise
      */
-    String resolveByPrefix(String prefix) throws BaseXException, QueryException {
+    String resolveByPrefix(String prefix) {
         List<Job> all = jobRepository.findAll();
         List<Job> matches = findMatchingJobsByPrefix(all, prefix);
 
@@ -172,7 +171,7 @@ public class DeleteJobCommand implements Runnable {
      *
      * @param parentJobId the parent job ID
      */
-    private void deleteChildJobsRecursively(String parentJobId) throws BaseXException, QueryException {
+    private void deleteChildJobsRecursively(String parentJobId) {
         List<Job> childJobs = jobRepository.findJobsByParentId(parentJobId);
 
         for (Job childJob : childJobs) {
@@ -190,7 +189,7 @@ public class DeleteJobCommand implements Runnable {
      *
      * @param job the job to delete
      */
-    private void deleteJob(Job job) throws BaseXException, QueryException {
+    private void deleteJob(Job job) {
         // Delete Cursor agent if it exists
         if (job.cursorAgentId() != null) {
             try {

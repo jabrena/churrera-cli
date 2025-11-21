@@ -94,28 +94,27 @@ public class CliCommand implements Runnable {
                     .trim();
 
         try {
-            while (true) {
+            boolean running = true;
+            while (running) {
                 System.out.print(prompt);
                 System.out.flush(); // Ensure prompt is visible/flushed
                 String input = scanner.nextLine().trim();
 
                 if (input.isEmpty()) {
-                    continue;
-                }
-
-                if (isExitCommand(input)) {
+                    // Continue to next iteration
+                } else if (isExitCommand(input)) {
                     logger.info("Exit command received, shutting down");
                     System.out.println("Goodbye!");
                     System.out.println("\nShutting down...");
                     System.out.println("\nThanks for using Churrera! ✨");
-                    break;
-                }
-
-                try {
-                    executeCommand(input);
-                } catch (Exception e) {
-                    logger.error("Error executing command: {}", e.getMessage(), e);
-                    System.err.println("Error executing command: " + e.getMessage());
+                    running = false;
+                } else {
+                    try {
+                        executeCommand(input);
+                    } catch (Exception e) {
+                        logger.error("Error executing command: {}", e.getMessage(), e);
+                        System.err.println("Error executing command: " + e.getMessage());
+                    }
                 }
             }
         } finally {
@@ -139,7 +138,7 @@ public class CliCommand implements Runnable {
         }
     }
 
-    private void executeCommand(String input) throws Exception {
+    private void executeCommand(String input) {
         logger.debug("Executing command: {}", input);
 
         // Handle exact command matches first

@@ -5,7 +5,6 @@ import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.service.CLIAgent;
 import info.jab.churrera.cli.model.AgentState;
 import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,11 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,7 +47,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_JobNotFound() throws BaseXException, QueryException {
+    void testRun_JobNotFound() {
         // Given
         String jobId = "non-existent-job";
         deleteJobCommand = new DeleteJobCommand(jobRepository, cliAgent, jobId);
@@ -70,7 +66,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_JobFoundWithoutCursorAgent() throws BaseXException, QueryException {
+    void testRun_JobFoundWithoutCursorAgent() {
         // Given
         String jobId = "test-job-id";
         Job jobWithoutAgent = new Job(jobId,
@@ -97,7 +93,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_JobFoundWithCursorAgent_Success() throws BaseXException, QueryException {
+    void testRun_JobFoundWithCursorAgent_Success() {
         // Given
         String jobId = "test-job-id";
         deleteJobCommand = new DeleteJobCommand(jobRepository, cliAgent, jobId);
@@ -117,7 +113,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_JobFoundWithCursorAgent_DeleteAgentFails() throws BaseXException, QueryException {
+    void testRun_JobFoundWithCursorAgent_DeleteAgentFails() {
         // Given
         String jobId = "test-job-id";
         deleteJobCommand = new DeleteJobCommand(jobRepository, cliAgent, jobId);
@@ -139,7 +135,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_DatabaseException() throws BaseXException, QueryException {
+    void testRun_DatabaseException() {
         // Given
         String jobId = "test-job-id";
         deleteJobCommand = new DeleteJobCommand(jobRepository, cliAgent, jobId);
@@ -153,7 +149,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_QueryException() throws BaseXException, QueryException {
+    void testRun_QueryException() {
         // Given
         String jobId = "test-job-id";
         deleteJobCommand = new DeleteJobCommand(jobRepository, cliAgent, jobId);
@@ -167,7 +163,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_JobWithChildJobs_CascadeDelete() throws BaseXException, QueryException {
+    void testRun_JobWithChildJobs_CascadeDelete() {
         // Given
         String parentJobId = "parent-job-id";
         Job parentJob = new Job(parentJobId,
@@ -223,7 +219,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_JobWithNestedChildJobs_RecursiveCascadeDelete() throws BaseXException, QueryException {
+    void testRun_JobWithNestedChildJobs_RecursiveCascadeDelete() {
         // Given
         String grandparentJobId = "grandparent-job-id";
         Job grandparentJob = new Job(grandparentJobId,
@@ -283,7 +279,7 @@ class DeleteJobCommandTest {
     // Tests for resolveJobId method scenarios
 
     @Test
-    void testRun_ExactMatchSuccess() throws BaseXException, QueryException {
+    void testRun_ExactMatchSuccess() {
         // Given
         String fullJobId = "12345678-1234-1234-1234-123456789abc";
         Job jobWithMatchingId = new Job(fullJobId,
@@ -311,7 +307,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_EightCharPrefix_UniqueMatch() throws BaseXException, QueryException {
+    void testRun_EightCharPrefix_UniqueMatch() {
         // Given
         String prefix = "12345678";
         String fullJobId = "12345678-1234-1234-1234-123456789abc";
@@ -355,7 +351,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_EightCharPrefix_MultipleMatches_Ambiguous() throws BaseXException, QueryException {
+    void testRun_EightCharPrefix_MultipleMatches_Ambiguous() {
         // Given
         String prefix = "12345678";
         String fullJobId1 = "12345678-1234-1234-1234-123456789abc";
@@ -409,7 +405,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_EightCharPrefix_NoMatches() throws BaseXException, QueryException {
+    void testRun_EightCharPrefix_NoMatches() {
         // Given
         String prefix = "12345678";
         String nonMatchingJobId = "87654321-1234-1234-1234-123456789abc";
@@ -450,7 +446,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_EightCharPrefix_EmptyJobList() throws BaseXException, QueryException {
+    void testRun_EightCharPrefix_EmptyJobList() {
         // Given
         String prefix = "12345678";
         deleteJobCommand = new DeleteJobCommand(jobRepository, cliAgent, prefix);
@@ -483,7 +479,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_NonEightChar_NonExactMatch() throws BaseXException, QueryException {
+    void testRun_NonEightChar_NonExactMatch() {
         // Given
         String partialId = "1234567"; // 7 characters
         deleteJobCommand = new DeleteJobCommand(jobRepository, cliAgent, partialId);
@@ -515,7 +511,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_TooLongPrefix_NonExactMatch() throws BaseXException, QueryException {
+    void testRun_TooLongPrefix_NonExactMatch() {
         // Given
         String longPrefix = "123456789"; // 9 characters
         deleteJobCommand = new DeleteJobCommand(jobRepository, cliAgent, longPrefix);
@@ -545,7 +541,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_EightCharPrefix_FiltersNullJobIds() throws BaseXException, QueryException {
+    void testRun_EightCharPrefix_FiltersNullJobIds() {
         // Given
         String prefix = "12345678";
         String fullJobId = "12345678-1234-1234-1234-123456789abc";
@@ -586,7 +582,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_EightCharPrefix_FindAllThrowsBaseXException() throws BaseXException, QueryException {
+    void testRun_EightCharPrefix_FindAllThrowsBaseXException() {
         // Given
         String prefix = "12345678";
         deleteJobCommand = new DeleteJobCommand(jobRepository, cliAgent, prefix);
@@ -602,7 +598,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_EightCharPrefix_FindAllThrowsQueryException() throws BaseXException, QueryException {
+    void testRun_EightCharPrefix_FindAllThrowsQueryException() {
         // Given
         String prefix = "12345678";
         deleteJobCommand = new DeleteJobCommand(jobRepository, cliAgent, prefix);
@@ -618,7 +614,7 @@ class DeleteJobCommandTest {
     }
 
     @Test
-    void testRun_NullJobIdProvided() throws BaseXException, QueryException {
+    void testRun_NullJobIdProvided() {
         // Given
         String nullJobId = null;
         deleteJobCommand = new DeleteJobCommand(jobRepository, cliAgent, nullJobId);

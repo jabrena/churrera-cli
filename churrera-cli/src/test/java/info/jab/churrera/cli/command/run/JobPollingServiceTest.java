@@ -4,18 +4,13 @@ import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.service.JobProcessor;
-import info.jab.churrera.workflow.WorkflowType;
 import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +39,7 @@ class JobPollingServiceTest {
     private Job job;
 
     @BeforeEach
-    void setUp() throws BaseXException, QueryException {
+    void setUp() {
         job = createJob(AgentState.RUNNING());
         lenient().when(jobRepository.findById(JOB_ID)).thenReturn(Optional.of(job));
         lenient().when(completionCheckerFactory.create(any())).thenReturn(completionChecker);
@@ -103,7 +98,7 @@ class JobPollingServiceTest {
     }
 
     @Test
-    void shouldPropagateRepositoryErrorsAsRuntimeException() throws BaseXException, QueryException {
+    void shouldPropagateRepositoryErrorsAsRuntimeException() {
         // Given
         when(jobRepository.findById(JOB_ID)).thenThrow(new BaseXException("boom"));
         JobPollingService service = new JobPollingService(
@@ -125,7 +120,7 @@ class JobPollingServiceTest {
     }
 
     @Test
-    void shouldFallbackToSequenceCheckerWhenJobTypeIsNull() throws BaseXException, QueryException {
+    void shouldFallbackToSequenceCheckerWhenJobTypeIsNull() {
         Job jobWithoutType = createJob(AgentState.RUNNING(), null);
         Job completedJob = jobWithoutType.withStatus(AgentState.FINISHED());
         when(jobRepository.findById(JOB_ID)).thenReturn(Optional.of(jobWithoutType));

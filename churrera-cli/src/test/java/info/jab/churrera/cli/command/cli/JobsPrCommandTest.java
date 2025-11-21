@@ -4,15 +4,12 @@ import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.model.AgentState;
 import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -41,7 +38,7 @@ class JobsPrCommandTest {
     }
 
     @Test
-    void testRun_JobNotFound() throws BaseXException, QueryException {
+    void testRun_JobNotFound() {
         // Given
         String jobId = "non-existent-job";
         jobsPrCommand = new JobsPrCommand(jobRepository, jobId);
@@ -56,7 +53,7 @@ class JobsPrCommandTest {
     }
 
     @Test
-    void testRun_JobFinishedSuccessfully_WithCursorAgent() throws BaseXException, QueryException {
+    void testRun_JobFinishedSuccessfully_WithCursorAgent() {
         // Given
         String jobId = "test-job-id";
         jobsPrCommand = new JobsPrCommand(jobRepository, jobId);
@@ -71,7 +68,7 @@ class JobsPrCommandTest {
     }
 
     @Test
-    void testRun_JobFinishedSuccessfully_WithoutCursorAgent() throws BaseXException, QueryException {
+    void testRun_JobFinishedSuccessfully_WithoutCursorAgent() {
         // Given
         String jobId = "test-job-id";
         Job jobWithoutAgent = new Job(jobId,
@@ -93,7 +90,7 @@ class JobsPrCommandTest {
     }
 
     @Test
-    void testRun_JobFailed() throws BaseXException, QueryException {
+    void testRun_JobFailed() {
         // Given
         String jobId = "test-job-id";
         Job failedJob = new Job(jobId,
@@ -115,7 +112,7 @@ class JobsPrCommandTest {
     }
 
     @Test
-    void testRun_JobStillRunning() throws BaseXException, QueryException {
+    void testRun_JobStillRunning() {
         // Given
         String jobId = "test-job-id";
         Job runningJob = new Job(jobId,
@@ -137,7 +134,7 @@ class JobsPrCommandTest {
     }
 
     @Test
-    void testRun_JobTerminated() throws BaseXException, QueryException {
+    void testRun_JobTerminated() {
         // Given
         String jobId = "test-job-id";
         Job terminatedJob = new Job(jobId,
@@ -159,7 +156,7 @@ class JobsPrCommandTest {
     }
 
     @Test
-    void testRun_JobWithNullRepository() throws BaseXException, QueryException {
+    void testRun_JobWithNullRepository() {
         // Given
         String jobId = "test-job-id";
         Job jobWithNullRepo = new Job(jobId,
@@ -181,7 +178,7 @@ class JobsPrCommandTest {
     }
 
     @Test
-    void testRun_JobWithEmptyRepository() throws BaseXException, QueryException {
+    void testRun_JobWithEmptyRepository() {
         // Given
         String jobId = "test-job-id";
         Job jobWithEmptyRepo = new Job(jobId,
@@ -203,7 +200,7 @@ class JobsPrCommandTest {
     }
 
     @Test
-    void testRun_JobWithNonGitHubRepository() throws BaseXException, QueryException {
+    void testRun_JobWithNonGitHubRepository() {
         // Given
         String jobId = "test-job-id";
         Job jobWithNonGitHubRepo = new Job(jobId,
@@ -225,7 +222,7 @@ class JobsPrCommandTest {
     }
 
     @Test
-    void testRun_DatabaseException() throws BaseXException, QueryException {
+    void testRun_DatabaseException() {
         // Given
         String jobId = "test-job-id";
         jobsPrCommand = new JobsPrCommand(jobRepository, jobId);
@@ -238,7 +235,7 @@ class JobsPrCommandTest {
     }
 
     @Test
-    void testRun_QueryException() throws BaseXException, QueryException {
+    void testRun_QueryException() {
         // Given
         String jobId = "test-job-id";
         jobsPrCommand = new JobsPrCommand(jobRepository, jobId);
@@ -251,7 +248,7 @@ class JobsPrCommandTest {
     }
 
     @Test
-    void testRun_Resolves8CharPrefixUnique() throws BaseXException, QueryException {
+    void testRun_Resolves8CharPrefixUnique() {
         // Given
         String fullJobId = "test-job-id";
         String prefix = fullJobId.substring(0, 8);

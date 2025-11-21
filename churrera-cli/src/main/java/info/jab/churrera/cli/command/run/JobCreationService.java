@@ -191,7 +191,7 @@ public class JobCreationService {
         } catch (WorkflowParseException e) {
             logger.error("Error parsing workflow: {}", jobPath, e);
             return JobCreationResult.failure(List.of("Error parsing workflow: " + e.getMessage()));
-        } catch (QueryException | IOException e) {
+        } catch (IOException e) {
             logger.error("Error creating job: {}", jobPath, e);
             return JobCreationResult.failure(List.of("Error creating job: " + e.getMessage()));
         }
