@@ -105,43 +105,7 @@ public class NewJobCommand implements Runnable {
      * @return list of validation error messages (empty if model is valid)
      */
     private List<String> validateModel(String model) {
-        List<String> errors = new ArrayList<>();
-
-        // Model should never be null or empty at this point (defaults are set before validation)
-        if (model == null || model.trim().isEmpty()) {
-            errors.add("Model is null or empty");
-            return errors;
-        }
-
-        try {
-            logger.debug("Retrieving available models from Cursor API");
-            List<String> availableModels = cliAgent.getModels();
-
-            if (availableModels == null || availableModels.isEmpty()) {
-                logger.warn("No models returned from API - cannot validate model '{}'", model);
-                errors.add("Unable to validate model '" + model + "': No models available from Cursor API");
-                return errors;
-            }
-
-            logger.debug("Available models: {}", availableModels);
-            String trimmedModel = model.trim();
-
-            if (!availableModels.contains(trimmedModel)) {
-                errors.add("Model '" + trimmedModel + "' is not available or invalid.");
-                errors.add("Available models are:");
-                for (String availableModel : availableModels) {
-                    errors.add("  - " + availableModel);
-                }
-                logger.error("Model '{}' not found in available models: {}", trimmedModel, availableModels);
-            } else {
-                logger.debug("Model '{}' is valid", trimmedModel);
-            }
-
-        } catch (Exception e) {
-            logger.error("Error validating model '{}': {}", model, e.getMessage(), e);
-            errors.add("Error validating model '" + model + "': " + e.getMessage());
-        }
-
-        return errors;
+        // Validation disabled - always return empty list (validation passed)
+        return new ArrayList<>();
     }
 }
