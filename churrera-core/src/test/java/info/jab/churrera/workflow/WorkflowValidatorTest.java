@@ -5,6 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
@@ -13,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -280,19 +284,28 @@ class WorkflowValidatorTest {
         assertThat(errors).isEmpty();
     }
 
-    @Test
-    @DisplayName("Should validate timeout and fallback when timeout is specified without fallback")
-    void testValidateTimeoutAndFallback_TimeoutWithoutFallback() {
+    @ParameterizedTest(name = "Should validate timeout and fallback when timeout is specified with fallback: {1}")
+    @MethodSource("provideTimeoutWithFallbackTestCases")
+    @DisplayName("Should validate timeout and fallback when timeout is specified")
+    void testValidateTimeoutAndFallback_TimeoutWithFallback(String fallbackSrc) {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
         Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
-        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, null);
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, fallbackSrc);
 
         // When
         List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
 
         // Then
         assertThat(errors).isEmpty();
+    }
+
+    private static Stream<Arguments> provideTimeoutWithFallbackTestCases() {
+        return Stream.of(
+            Arguments.of((String) null),
+            Arguments.of(""),
+            Arguments.of("   ")
+        );
     }
 
     @Test
@@ -312,23 +325,33 @@ class WorkflowValidatorTest {
         assertThat(errors.get(0)).contains("fallback-src is specified but timeout is not");
     }
 
-    @Test
-    @DisplayName("Should validate timeout and fallback when both are specified and file exists")
-    void testValidateTimeoutAndFallback_FallbackWithTimeout_FileExists() throws IOException {
+    @ParameterizedTest(name = "Should validate timeout and fallback when both are specified with valid extension: {0}")
+    @MethodSource("provideValidFallbackExtensionTestCases")
+    @DisplayName("Should validate timeout and fallback when both are specified with valid extension")
+    void testValidateTimeoutAndFallback_FallbackWithTimeout_ValidExtension(String fallbackFileName) throws IOException {
         // Given
         PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
         Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
-        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.xml");
+        File fallbackFile = new File(testWorkflowFile.getParentFile(), fallbackFileName);
         fallbackFile.createNewFile();
         fallbackFile.deleteOnExit();
 
-        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "fallback.xml");
+        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, fallbackFileName);
 
         // When
         List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
 
         // Then
         assertThat(errors).isEmpty();
+    }
+
+    private static Stream<Arguments> provideValidFallbackExtensionTestCases() {
+        return Stream.of(
+            Arguments.of("fallback.xml"),
+            Arguments.of("fallback.XML"),
+            Arguments.of("fallback.md"),
+            Arguments.of("fallback.txt")
+        );
     }
 
     @Test
@@ -365,92 +388,7 @@ class WorkflowValidatorTest {
             .anyMatch(e -> e.contains("must have extension .xml, .md, or .txt"));
     }
 
-    @Test
-    @DisplayName("Should validate fallback file with valid XML extension")
-    void testValidateTimeoutAndFallback_FallbackWithTimeout_ValidXmlExtension() throws IOException {
-        // Given
-        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
-        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
-        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.XML");
-        fallbackFile.createNewFile();
-        fallbackFile.deleteOnExit();
 
-        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "fallback.XML");
-
-        // When
-        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
-
-        // Then
-        assertThat(errors).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Should validate fallback file with valid MD extension")
-    void testValidateTimeoutAndFallback_FallbackWithTimeout_ValidMdExtension() throws IOException {
-        // Given
-        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
-        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
-        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.md");
-        fallbackFile.createNewFile();
-        fallbackFile.deleteOnExit();
-
-        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "fallback.md");
-
-        // When
-        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
-
-        // Then
-        assertThat(errors).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Should validate fallback file with valid TXT extension")
-    void testValidateTimeoutAndFallback_FallbackWithTimeout_ValidTxtExtension() throws IOException {
-        // Given
-        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
-        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
-        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.txt");
-        fallbackFile.createNewFile();
-        fallbackFile.deleteOnExit();
-
-        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "fallback.txt");
-
-        // When
-        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
-
-        // Then
-        assertThat(errors).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Should validate timeout and fallback when fallback is empty")
-    void testValidateTimeoutAndFallback_EmptyFallback() {
-        // Given
-        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
-        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
-        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "");
-
-        // When
-        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
-
-        // Then
-        assertThat(errors).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Should validate timeout and fallback when fallback is whitespace")
-    void testValidateTimeoutAndFallback_WhitespaceFallback() {
-        // Given
-        PromptInfo launchPrompt = new PromptInfo("prompt1.xml", "xml");
-        Long timeoutMillis = 5L * 60 * 1000; // 5 minutes
-        WorkflowData workflowData = new WorkflowData(launchPrompt, "model", "repo", List.of(), null, timeoutMillis, "   ");
-
-        // When
-        List<String> errors = workflowValidator.validateTimeoutAndFallback(testWorkflowFile, workflowData);
-
-        // Then
-        assertThat(errors).isEmpty();
-    }
 
     @Test
     @DisplayName("Should return error when parallel workflow sequence has fallback without timeout")
@@ -542,79 +480,47 @@ class WorkflowValidatorTest {
             .anyMatch(e -> e.contains("Fallback file not found"));
     }
 
-    @Test
-    @DisplayName("Should validate fallback file when fallback source is null")
-    void testValidateFallbackFile_NullFallbackSrc() {
+    @ParameterizedTest(name = "Should validate fallback file when fallback source is: {0}")
+    @MethodSource("provideFallbackSrcTestCases")
+    @DisplayName("Should validate fallback file when fallback source is null/empty/whitespace")
+    void testValidateFallbackFile_NullEmptyWhitespaceFallbackSrc(String fallbackSrc) {
         // When
-        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, null);
+        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, fallbackSrc);
 
         // Then
         assertThat(errors).isEmpty();
     }
 
-    @Test
-    @DisplayName("Should validate fallback file when fallback source is empty")
-    void testValidateFallbackFile_EmptyFallbackSrc() {
-        // When
-        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "");
-
-        // Then
-        assertThat(errors).isEmpty();
+    private static Stream<Arguments> provideFallbackSrcTestCases() {
+        return Stream.of(
+            Arguments.of((String) null),
+            Arguments.of(""),
+            Arguments.of("   ")
+        );
     }
 
-    @Test
-    @DisplayName("Should validate fallback file when fallback source is whitespace")
-    void testValidateFallbackFile_WhitespaceFallbackSrc() {
-        // When
-        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "   ");
-
-        // Then
-        assertThat(errors).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Should validate fallback file with valid XML extension when file exists")
-    void testValidateFallbackFile_ValidXmlExtension_FileExists() throws IOException {
+    @ParameterizedTest(name = "Should validate fallback file with valid extension when file exists: {0}")
+    @MethodSource("provideValidFallbackFileExtensionTestCases")
+    @DisplayName("Should validate fallback file with valid extension when file exists")
+    void testValidateFallbackFile_ValidExtension_FileExists(String fallbackFileName) throws IOException {
         // Given
-        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.xml");
+        File fallbackFile = new File(testWorkflowFile.getParentFile(), fallbackFileName);
         fallbackFile.createNewFile();
         fallbackFile.deleteOnExit();
 
         // When
-        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "fallback.xml");
+        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, fallbackFileName);
 
         // Then
         assertThat(errors).isEmpty();
     }
 
-    @Test
-    @DisplayName("Should validate fallback file with valid MD extension when file exists")
-    void testValidateFallbackFile_ValidMdExtension_FileExists() throws IOException {
-        // Given
-        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.md");
-        fallbackFile.createNewFile();
-        fallbackFile.deleteOnExit();
-
-        // When
-        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "fallback.md");
-
-        // Then
-        assertThat(errors).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Should validate fallback file with valid TXT extension when file exists")
-    void testValidateFallbackFile_ValidTxtExtension_FileExists() throws IOException {
-        // Given
-        File fallbackFile = new File(testWorkflowFile.getParentFile(), "fallback.txt");
-        fallbackFile.createNewFile();
-        fallbackFile.deleteOnExit();
-
-        // When
-        List<String> errors = workflowValidator.validateFallbackFile(testWorkflowFile, "fallback.txt");
-
-        // Then
-        assertThat(errors).isEmpty();
+    private static Stream<Arguments> provideValidFallbackFileExtensionTestCases() {
+        return Stream.of(
+            Arguments.of("fallback.xml"),
+            Arguments.of("fallback.md"),
+            Arguments.of("fallback.txt")
+        );
     }
 
     @Test

@@ -4,9 +4,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -62,9 +66,10 @@ class CursorApiKeyResolverTest {
             .hasMessageContaining("API key not found");
     }
 
-    @Test
+    @ParameterizedTest(name = "Should resolve API key from .env file: {0}")
+    @MethodSource("provideApiKeyTestCases")
     @DisplayName("Should resolve API key from .env file")
-    void shouldResolveApiKeyFromEnvFile() throws IOException {
+    void shouldResolveApiKeyFromEnvFile(String envFileContent, String expectedApiKey) throws IOException {
         // Create .env file in the current working directory (project root)
         File projectRoot = new File(System.getProperty("user.dir"));
         File envFile = new File(projectRoot, ".env");
@@ -72,7 +77,7 @@ class CursorApiKeyResolverTest {
         try {
             // Create .env file with test content
             try (FileWriter writer = new FileWriter(envFile)) {
-                writer.write("CURSOR_API_KEY=env-file-key-789");
+                writer.write(envFileContent);
             }
 
             // Test resolution
@@ -82,7 +87,7 @@ class CursorApiKeyResolverTest {
             String result = resolver.resolveApiKey();
 
             // Then
-            assertThat(result).isEqualTo("env-file-key-789");
+            assertThat(result).isEqualTo(expectedApiKey);
         } finally {
             // Clean up the .env file
             if (envFile.exists()) {
@@ -91,66 +96,12 @@ class CursorApiKeyResolverTest {
         }
     }
 
-    @Test
-    @DisplayName("Should trim whitespace from API key in .env file")
-    void shouldTrimWhitespaceFromApiKeyInEnvFile() throws IOException {
-        // Create .env file in the current working directory (project root)
-        File projectRoot = new File(System.getProperty("user.dir"));
-        File envFile = new File(projectRoot, ".env");
-
-        try {
-            // Create .env file with whitespace
-            try (FileWriter writer = new FileWriter(envFile)) {
-                writer.write("CURSOR_API_KEY=  env-file-key-whitespace  ");
-            }
-
-            // Test resolution - should trim whitespace
-            CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-
-            // When
-            String result = resolver.resolveApiKey();
-
-            // Then
-            assertThat(result).isEqualTo("env-file-key-whitespace");
-        } finally {
-            // Clean up the .env file
-            if (envFile.exists()) {
-                envFile.delete();
-            }
-        }
-    }
-
-    @Test
-    @DisplayName("Should prioritize .env file over system environment")
-    void shouldPrioritizeEnvFileOverSystemEnvironment() throws IOException {
-        // Test that .env file takes priority over system environment
-        // Note: This test focuses on .env file functionality since environment variable
-        // manipulation in tests is complex and environment-dependent
-
-        // Create .env file in the current working directory (project root)
-        File projectRoot = new File(System.getProperty("user.dir"));
-        File envFile = new File(projectRoot, ".env");
-
-        try {
-            // Create .env file with test content
-            try (FileWriter writer = new FileWriter(envFile)) {
-                writer.write("CURSOR_API_KEY=env-file-key");
-            }
-
-            // Test resolution - .env file should be used
-            CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-
-            // When
-            String result = resolver.resolveApiKey();
-
-            // Then
-            assertThat(result).isEqualTo("env-file-key");
-        } finally {
-            // Clean up the .env file
-            if (envFile.exists()) {
-                envFile.delete();
-            }
-        }
+    private static Stream<Arguments> provideApiKeyTestCases() {
+        return Stream.of(
+            Arguments.of("CURSOR_API_KEY=env-file-key-789", "env-file-key-789"),
+            Arguments.of("CURSOR_API_KEY=  env-file-key-whitespace  ", "env-file-key-whitespace"),
+            Arguments.of("CURSOR_API_KEY=env-file-key", "env-file-key")
+        );
     }
 
     @Test
@@ -171,17 +122,25 @@ class CursorApiKeyResolverTest {
     }
 
 
-    @Test
-    @DisplayName("Should throw exception when API key is empty in .env file")
-    void shouldThrowExceptionWhenApiKeyIsEmptyInEnvFile() throws IOException {
+    @ParameterizedTest(name = "Should throw exception when API key is invalid: {0}")
+    @MethodSource("provideInvalidApiKeyTestCases")
+    @DisplayName("Should throw exception when API key is invalid")
+    void shouldThrowExceptionWhenApiKeyIsInvalid(String envFileContent, boolean createFile) throws IOException {
         // Create .env file in the current working directory (project root)
         File projectRoot = new File(System.getProperty("user.dir"));
         File envFile = new File(projectRoot, ".env");
 
+        // Ensure file doesn't exist initially
+        if (envFile.exists()) {
+            envFile.delete();
+        }
+
         try {
-            // Create .env file with empty value
-            try (FileWriter writer = new FileWriter(envFile)) {
-                writer.write("CURSOR_API_KEY=");
+            if (createFile) {
+                // Create .env file with invalid content
+                try (FileWriter writer = new FileWriter(envFile)) {
+                    writer.write(envFileContent);
+                }
             }
 
             // Test that exception is thrown
@@ -199,100 +158,13 @@ class CursorApiKeyResolverTest {
         }
     }
 
-    @Test
-    @DisplayName("Should throw exception when API key is whitespace-only in .env file")
-    void shouldThrowExceptionWhenApiKeyIsWhitespaceOnlyInEnvFile() throws IOException {
-        // Create .env file in the current working directory (project root)
-        File projectRoot = new File(System.getProperty("user.dir"));
-        File envFile = new File(projectRoot, ".env");
-
-        try {
-            // Create .env file with whitespace-only value
-            try (FileWriter writer = new FileWriter(envFile)) {
-                writer.write("CURSOR_API_KEY=   ");
-            }
-
-            // Test that exception is thrown
-            CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-
-            // When & Then
-            assertThatThrownBy(resolver::resolveApiKey)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("API key not found");
-        } finally {
-            // Clean up the .env file
-            if (envFile.exists()) {
-                envFile.delete();
-            }
-        }
-    }
-
-    @Test
-    @DisplayName("Should throw exception when .env file is malformed")
-    void shouldThrowExceptionWhenEnvFileIsMalformed() throws IOException {
-        // Create .env file in the current working directory (project root)
-        File projectRoot = new File(System.getProperty("user.dir"));
-        File envFile = new File(projectRoot, ".env");
-
-        try {
-            // Create malformed .env file
-            try (FileWriter writer = new FileWriter(envFile)) {
-                writer.write("invalid-env-file-content");
-            }
-
-            // Test resolution - should throw exception since no valid API key is found
-            CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-
-            // When & Then
-            assertThatThrownBy(resolver::resolveApiKey)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("API key not found");
-        } finally {
-            // Clean up the .env file
-            if (envFile.exists()) {
-                envFile.delete();
-            }
-        }
-    }
-
-    @Test
-    @DisplayName("Should throw exception when .env file is missing")
-    void shouldThrowExceptionWhenEnvFileIsMissing() {
-        // Test resolution when no .env file exists - should throw exception since no API key is found
-        CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-
-        // When & Then
-        assertThatThrownBy(resolver::resolveApiKey)
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("API key not found");
-    }
-
-    @Test
-    @DisplayName("Should throw exception when .env file exists but missing CURSOR_API_KEY")
-    void shouldThrowExceptionWhenEnvFileExistsButMissingKey() throws IOException {
-        // Create .env file in the current working directory (project root)
-        File projectRoot = new File(System.getProperty("user.dir"));
-        File envFile = new File(projectRoot, ".env");
-
-        try {
-            // Create .env file without CURSOR_API_KEY
-            try (FileWriter writer = new FileWriter(envFile)) {
-                writer.write("OTHER_KEY=some-value");
-            }
-
-            // Test resolution - should throw exception since no API key is found
-            CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-
-            // When & Then
-            assertThatThrownBy(resolver::resolveApiKey)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("API key not found");
-        } finally {
-            // Clean up the .env file
-            if (envFile.exists()) {
-                envFile.delete();
-            }
-        }
+    private static Stream<Arguments> provideInvalidApiKeyTestCases() {
+        return Stream.of(
+            Arguments.of("CURSOR_API_KEY=", true),
+            Arguments.of("CURSOR_API_KEY=   ", true),
+            Arguments.of("invalid-env-file-content", true),
+            Arguments.of("OTHER_KEY=some-value", true)
+        );
     }
 
     @Test
