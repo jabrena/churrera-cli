@@ -424,32 +424,28 @@ class ChurreraCLITest {
 
 
 
-    @Test
-    void testRun_DisplaysVersionAndWelcomeMessage() {
+    @ParameterizedTest(name = "Should handle CLI input ''{0}'' and check for ''{1}''")
+    @MethodSource("cliBasicBehaviorTestCases")
+    void testRun_CLIBasicBehavior(String input, String expectedOutput) {
         // Given
-        churreraCLI = createCLI("quit\n");
+        churreraCLI = createCLI(input);
 
         // When
         churreraCLI.run();
 
         // Then
         String output = outputStream.toString();
-        // Note: The test constructor doesn't call printBanner(), so no version info is printed
-        assertThat(output).contains("Type 'help' for available commands");
+        assertThat(output).contains(expectedOutput);
     }
 
-    @Test
-    void testRun_DisplaysPrompt() {
-        // Given
-        churreraCLI = createCLI("quit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        // The prompt should be displayed, or at minimum "Goodbye!" confirms the loop ran
-        assertThat(output).contains(">");
+    private static Stream<Arguments> cliBasicBehaviorTestCases() {
+        return Stream.of(
+                Arguments.of("quit\n", "Type 'help' for available commands"),
+                Arguments.of("quit\n", ">"),
+                Arguments.of("     \nquit\n", "Goodbye!"),
+                Arguments.of("\t\t\t\nquit\n", "Goodbye!"),
+                Arguments.of("\n\n\n\n\n\n\nquit\n", "Goodbye!")
+        );
     }
 
     @Test
@@ -592,33 +588,6 @@ class ChurreraCLITest {
 
 
 
-    @Test
-    void testRun_CommandWithOnlySpaces() {
-        // Given
-        churreraCLI = createCLI("     \nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        // Empty/whitespace-only commands should be ignored
-        String output = outputStream.toString();
-        assertThat(output).contains("Goodbye!");
-    }
-
-    @Test
-    void testRun_CommandWithOnlyTabs() {
-        // Given
-        churreraCLI = createCLI("\t\t\t\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        // Tab-only commands should be ignored
-        String output = outputStream.toString();
-        assertThat(output).contains("Goodbye!");
-    }
 
     @Test
     void testRun_JobsCommandWithExceptionHandling() {
@@ -715,18 +684,6 @@ class ChurreraCLITest {
     }
 
 
-    @Test
-    void testRun_ManyEmptyLinesBeforeQuit() {
-        // Given
-        churreraCLI = createCLI("\n\n\n\n\n\n\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Goodbye!");
-    }
 
 
     @ParameterizedTest(name = "Should treat ''{0}'' as unknown due to case sensitivity")
