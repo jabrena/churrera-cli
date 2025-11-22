@@ -1,6 +1,7 @@
 package info.jab.churrera.cli.command.run;
 
 import info.jab.churrera.cli.repository.JobRepository;
+import info.jab.churrera.workflow.WorkflowType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

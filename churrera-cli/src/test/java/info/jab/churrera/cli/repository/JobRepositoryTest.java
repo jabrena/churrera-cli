@@ -1,29 +1,30 @@
 package info.jab.churrera.cli.repository;
 
-import info.jab.churrera.cli.model.Job;
-import info.jab.churrera.cli.model.Prompt;
-import info.jab.churrera.cli.model.JobWithDetails;
 import info.jab.churrera.cli.model.AgentState;
+import info.jab.churrera.cli.model.Job;
+import info.jab.churrera.cli.model.JobWithDetails;
+import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.util.PropertyResolver;
 import org.basex.core.BaseXException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for JobRepository.
@@ -417,7 +418,7 @@ class JobRepositoryTest {
     }
 
     @Test
-    void shouldHandleJobWithResult() {
+    void shouldHandleJobWithResult() throws IOException {
         // Given
         LocalDateTime now = LocalDateTime.now();
         Job jobWithResult = new Job("job-with-result", "/path/job", "cursor-agent-123", "model1", "repo1", AgentState.FINISHED(), now, now, null, "Some result data", null, null, null, null, null);

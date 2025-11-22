@@ -1,20 +1,24 @@
 package info.jab.churrera.cli.command.cli;
 
+import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.model.Job;
+import info.jab.churrera.cli.model.JobWithDetails;
 import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.cli.repository.JobRepository;
-import info.jab.churrera.cli.model.JobWithDetails;
 import info.jab.churrera.cli.service.CLIAgent;
 import info.jab.cursor.client.model.ConversationMessage;
 import info.jab.cursor.client.model.ConversationResponse;
-import info.jab.churrera.cli.model.AgentState;
 import org.basex.core.BaseXException;
+import org.basex.query.QueryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
