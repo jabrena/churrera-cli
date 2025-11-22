@@ -612,7 +612,7 @@
                                 </goals>
                                 <configuration>
                                     <files>
-                                        <file>${project.basedir}/sonar-project.properties</file>
+                                        <file>${maven.multiModuleProjectDirectory}/sonar-project.properties</file>
                                     </files>
                                 </configuration>
                             </execution>
