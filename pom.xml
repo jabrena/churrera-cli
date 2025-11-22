@@ -594,11 +594,30 @@
                 <sonar.projectKey>jabrena_churrera-cli</sonar.projectKey>
                 <sonar.projectName>Churrera CLI</sonar.projectName>
                 <sonar.projectVersion>${project.version}</sonar.projectVersion>
-                <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/jacoco-report-aggregated/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+                <sonar.coverage.jacoco.xmlReportPaths>${project.multiModuleProjectDirectory}/jacoco-report-aggregated/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
                 <sonar.java.source>${java.version}</sonar.java.source>
             </properties>
+
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <version>1.0.0</version>
+                        <executions>
+                            <execution>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>read-project-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <files>
+                                        <file>${maven.multiModuleProjectDirectory}/sonar-project.properties</file>
+                                    </files>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.sonarsource.scanner.maven</groupId>
                         <artifactId>sonar-maven-plugin</artifactId>
