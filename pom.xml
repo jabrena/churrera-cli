@@ -68,6 +68,7 @@
         <maven-plugin-antrun.version>3.2.0</maven-plugin-antrun.version>
         <maven-plugin-shade.version>3.6.1</maven-plugin-shade.version>
         <maven-plugin-sonar.version>5.3.0.6276</maven-plugin-sonar.version>
+        <maven-plugin-rewrite.version>6.23.0</maven-plugin-rewrite.version>
 
         <!-- Quality thresholds -->
         <coverage.level>70</coverage.level>
@@ -382,6 +383,24 @@
                         <id>enforce</id>
                         <goals>
                             <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.openrewrite.maven</groupId>
+                <artifactId>rewrite-maven-plugin</artifactId>
+                <version>${maven-plugin-rewrite.version}</version>
+                <configuration>
+                    <activeRecipes>
+                        <recipe>org.openrewrite.java.RemoveUnusedImports</recipe>
+                    </activeRecipes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>prepare-sources</phase>
+                        <goals>
+                            <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>

@@ -13,7 +13,6 @@ import org.basex.core.cmd.CreateDB;
 import org.basex.core.cmd.Get;
 import org.basex.core.cmd.Open;
 import org.basex.core.cmd.XQuery;
-import org.basex.query.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
