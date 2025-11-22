@@ -19,6 +19,8 @@ import info.jab.cursor.client.model.Target;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -483,11 +485,22 @@ class CLIAgentTest {
             assertTrue(exception.getMessage().contains("Failed to get agent status"));    }
 
     // Tests for bindValue replacement logic
-    @Test
-    void testLaunchAgentForJob_WithBindValue() {
+    @ParameterizedTest(name = "Should launch agent with bindValue ''{0}'' and content type ''{1}''")
+    @CsvSource({
+        "null, pml, converted markdown, converted markdown",
+        "test-value, pml, converted markdown with <input>INPUT</input>, converted markdown with <input>test-value</input>",
+        "'', pml, converted markdown, converted markdown",
+        "null, md, markdown content, markdown content"
+    })
+    void testLaunchAgentForJob_WithBindValueScenarios(String bindValue, String contentType, String convertedContent, String expectedLaunchContent) {
         // Given
-        when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
-                .thenReturn("converted markdown with <input>INPUT</input>");
+        String actualBindValue = "null".equals(bindValue) ? null : bindValue;
+        String actualContent = "pml".equals(contentType) ? "pml content" : "markdown content";
+        
+        if (!"md".equals(contentType)) {
+            when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
+                    .thenReturn(convertedContent);
+        }
 
         cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter);
 
@@ -495,55 +508,28 @@ class CLIAgentTest {
             .thenReturn(createTestAgentResponse("new-agent-id", AgentStatus.CREATING));
 
         // When
-        String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", "test-value", true);
+        String result = cliAgent.launchAgentForJob(testJob, actualContent, contentType, actualBindValue, true);
 
         // Then
         assertEquals("new-agent-id", result);
-        verify(cursorAgentManagement).launch("converted markdown with <input>test-value</input>", "test-model", "test-repo", true);
+        verify(cursorAgentManagement).launch(expectedLaunchContent, "test-model", "test-repo", true);
     }
 
-    @Test
-    void testLaunchAgentForJob_WithEmptyBindValue() {
+    @ParameterizedTest(name = "Should follow up with bindValue ''{0}'' and content type ''{1}''")
+    @CsvSource({
+        "bound-value, pml, converted markdown with <input>INPUT</input>, converted markdown with <input>bound-value</input>",
+        "'', pml, converted markdown, converted markdown",
+        "null, md, markdown content, markdown content"
+    })
+    void testFollowUpForPrompt_WithBindValueScenarios(String bindValue, String contentType, String convertedContent, String expectedFollowUpContent) {
         // Given
-        when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
-                .thenReturn("converted markdown");
-
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter);
-
-            when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean()))
-                .thenReturn(createTestAgentResponse("new-agent-id", AgentStatus.CREATING));
-
-            // When - empty bindValue should skip replacement
-            String result = cliAgent.launchAgentForJob(testJob, "pml content", "pml", "", true);
-
-            // Then
-            assertEquals("new-agent-id", result);
-            verify(cursorAgentManagement).launch("converted markdown", "test-model", "test-repo", true);
-    }
-
-    @Test
-    void testLaunchAgentForJob_MarkdownType_NoConversion() {
-
-        // Given
-
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter);
-
-            when(cursorAgentManagement.launch(anyString(), anyString(), anyString(), anyBoolean()))
-                .thenReturn(createTestAgentResponse("new-agent-id", AgentStatus.CREATING));
-
-            // When - md type should not trigger PML conversion
-            String result = cliAgent.launchAgentForJob(testJob, "markdown content", "md", null, true);
-
-            // Then
-            assertEquals("new-agent-id", result);
-            verify(cursorAgentManagement).launch("markdown content", "test-model", "test-repo", true);
-    }
-
-    @Test
-    void testFollowUpForPrompt_WithBindValue() {
-        // Given
-        when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
-                .thenReturn("converted markdown with <input>INPUT</input>");
+        String actualBindValue = "null".equals(bindValue) ? null : bindValue;
+        String actualContent = "pml".equals(contentType) ? "pml content" : "markdown content";
+        
+        if (!"md".equals(contentType)) {
+            when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
+                    .thenReturn(convertedContent);
+        }
 
         cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter);
 
@@ -551,46 +537,11 @@ class CLIAgentTest {
             .thenReturn(createTestFollowUpResponse("follow-up-id"));
 
         // When
-        String result = cliAgent.followUpForPrompt("agent-id", "pml content", "pml", "bound-value");
+        String result = cliAgent.followUpForPrompt("agent-id", actualContent, contentType, actualBindValue);
 
         // Then
         assertEquals("follow-up-id", result);
-        verify(cursorAgentManagement).followUp("agent-id", "converted markdown with <input>bound-value</input>");
-    }
-
-    @Test
-    void testFollowUpForPrompt_WithEmptyBindValue() {
-        // Given
-        when(mockPmlConverter.toMarkdownFromContent(anyString(), anyString()))
-                .thenReturn("converted markdown");
-
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter);
-
-            when(cursorAgentManagement.followUp(anyString(), anyString()))
-                .thenReturn(createTestFollowUpResponse("follow-up-id"));
-
-            // When - empty bindValue should skip replacement
-            String result = cliAgent.followUpForPrompt("agent-id", "pml content", "pml", "");
-
-            // Then
-            assertEquals("follow-up-id", result);
-            verify(cursorAgentManagement).followUp("agent-id", "converted markdown");
-    }
-
-    @Test
-    void testFollowUpForPrompt_MarkdownType_NoConversion() {
-        // Given
-        cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter);
-
-            when(cursorAgentManagement.followUp(anyString(), anyString()))
-                .thenReturn(createTestFollowUpResponse("follow-up-id"));
-
-            // When - md type should not trigger PML conversion
-            String result = cliAgent.followUpForPrompt("agent-id", "markdown content", "md", null);
-
-            // Then
-            assertEquals("follow-up-id", result);
-            verify(cursorAgentManagement).followUp("agent-id", "markdown content");
+        verify(cursorAgentManagement).followUp("agent-id", expectedFollowUpContent);
     }
 
     @Test

@@ -238,10 +238,11 @@ class ChurreraCLITest {
                 .contains("Goodbye!");
     }
 
-    @Test
-    void testRun_HelpCommand() {
+    @ParameterizedTest(name = "Should display help for command ''{0}''")
+    @ValueSource(strings = {"help", "  help  ", "help\nhelp\nhelp", "   help   ", "help\n\n\n\n\n"})
+    void testRun_HelpCommand(String helpCommand) {
         // Given
-        churreraCLI = createCLI("help\nquit\n");
+        churreraCLI = createCLI(helpCommand + "\nquit\n");
 
         // When
         churreraCLI.run();
@@ -251,10 +252,11 @@ class ChurreraCLITest {
         assertThat(output).contains("Available commands");
     }
 
-    @Test
-    void testRun_ClearCommand() {
+    @ParameterizedTest(name = "Should display goodbye for command ''{0}''")
+    @ValueSource(strings = {"clear", "  clear  ", "\n\n", "   \n\t\n\n"})
+    void testRun_ClearCommand(String clearCommand) {
         // Given
-        churreraCLI = createCLI("clear\nquit\n");
+        churreraCLI = createCLI(clearCommand + "\nquit\n");
 
         // When
         churreraCLI.run();
@@ -265,10 +267,11 @@ class ChurreraCLITest {
         assertThat(errorStream.toString()).isEmpty();
     }
 
-    @Test
-    void testRun_JobsCommand() {
+    @ParameterizedTest(name = "Should list jobs for command ''{0}''")
+    @ValueSource(strings = {"jobs", "  jobs  ", "jobs\njobs\njobs"})
+    void testRun_JobsCommand(String jobsCommand) {
         // Given
-        churreraCLI = createCLI("jobs\nquit\n");
+        churreraCLI = createCLI(jobsCommand + "\nquit\n");
 
         // When
         churreraCLI.run();
@@ -390,33 +393,6 @@ class ChurreraCLITest {
         assertThat(output).contains("Unknown command");
     }
 
-    @Test
-    void testRun_EmptyInput() {
-        // Given
-        churreraCLI = createCLI("\n\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Goodbye!");
-        assertThat(errorStream.toString()).isEmpty();
-    }
-
-    @Test
-    void testRun_MultipleEmptyLines() {
-        // Given
-        churreraCLI = createCLI("   \n\t\n\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Goodbye!");
-        assertThat(errorStream.toString()).isEmpty();
-    }
 
     @Test
     void testRun_CommandWithException() {
@@ -433,19 +409,6 @@ class ChurreraCLITest {
         assertThat(errorStream.toString()).isEmpty();
     }
 
-    @Test
-    void testRun_MultipleCommands() {
-        // Given
-        churreraCLI = createCLI("help\nclear\njobs\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        // Check for help output instead of banner (which isn't printed in test constructor)
-        assertThat(output).contains("Available commands");
-    }
 
 
     @Test
@@ -515,45 +478,9 @@ class ChurreraCLITest {
     }
 
 
-    @Test
-    void testRun_JobsCommand_AloneWithoutArguments() {
-        // Given
-        churreraCLI = createCLI("jobs\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        verify(jobRepository).findAll();
-    }
-
-    @Test
-    void testRun_HelpCommand_AloneWithoutArguments() {
-        // Given
-        churreraCLI = createCLI("help\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output)
-            .contains("Available commands")
-            .contains("Goodbye!");
-    }
 
 
-    @Test
-    void testRun_JobsCommandWithWhitespace() {
-        // Given
-        churreraCLI = createCLI("  jobs  \nquit\n");
 
-        // When
-        churreraCLI.run();
-
-        // Then
-        verify(jobRepository, atLeastOnce()).findAll();
-    }
 
     @ParameterizedTest(name = "Should reject job subcommand without argument ''{1}''")
     @CsvSource({
@@ -573,32 +500,7 @@ class ChurreraCLITest {
         assertThat(result.stderr()).isEmpty();
     }
 
-    @Test
-    void testRun_HelpCommandWithWhitespace() {
-        // Given
-        churreraCLI = createCLI("  help  \nquit\n");
 
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Available commands");
-    }
-
-    @Test
-    void testRun_ClearCommandWithWhitespace() {
-        // Given
-        churreraCLI = createCLI("  clear  \nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Goodbye!");
-        assertThat(errorStream.toString()).isEmpty();
-    }
 
 
     @Test
@@ -675,57 +577,7 @@ class ChurreraCLITest {
         assertThat(output).contains("Job and all child jobs deleted from Database");
     }
 
-    @Test
-    void testRun_MultipleCommandsInSequence() {
-        // Given
-        churreraCLI = createCLI("help\nclear\njobs\nhelp\nquit\n");
 
-        // When
-        churreraCLI.run();
-
-        // Then
-        verify(jobRepository, atLeastOnce()).findAll();
-    }
-
-    @Test
-    void testRun_JobsCommandMultipleTimes() {
-        // Given
-        churreraCLI = createCLI("jobs\njobs\njobs\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        verify(jobRepository, atLeast(3)).findAll();
-    }
-
-    @Test
-    void testRun_HelpCommandMultipleTimes() {
-        // Given
-        churreraCLI = createCLI("help\nhelp\nhelp\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        // Help should be displayed multiple times
-        assertThat(output).contains("Available commands");
-    }
-
-
-    @Test
-    void testRun_CommandWithLeadingTrailingSpaces() {
-        // Given
-        churreraCLI = createCLI("   help   \nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Available commands");
-    }
 
     @Test
     void testRun_CommandWithOnlySpaces() {
@@ -902,18 +754,6 @@ class ChurreraCLITest {
         assertThat(output).contains("Goodbye!");
     }
 
-    @Test
-    void testRun_CommandFollowedByManyEmptyLines() {
-        // Given
-        churreraCLI = createCLI("help\n\n\n\n\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Goodbye!");
-    }
 
     @ParameterizedTest(name = "Should treat ''{0}'' as unknown due to case sensitivity")
     @ValueSource(strings = {"JOBS", "HELP", "CLEAR"})
