@@ -25,8 +25,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import java.util.stream.Stream;
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDateTime;
@@ -379,17 +382,28 @@ class ChurreraCLITest {
         verify(jobRepository).deleteById(jobId);
     }
 
-    @Test
-    void testRun_UnknownCommand() {
+    @ParameterizedTest(name = "Should handle unknown command: ''{0}''")
+    @MethodSource("unknownCommandTestCases")
+    void testRun_UnknownCommand(String command, String expectedOutput) {
         // Given
-        churreraCLI = createCLI("unknown command\nquit\n");
+        churreraCLI = createCLI(command + "\nquit\n");
 
         // When
         churreraCLI.run();
 
         // Then
         String output = outputStream.toString();
-        assertThat(output).contains("Unknown command");
+        assertThat(output).contains(expectedOutput);
+    }
+
+    private static Stream<Arguments> unknownCommandTestCases() {
+        String veryLongCommand = "x".repeat(1000);
+        return Stream.of(
+                Arguments.of("unknown command", "Unknown command"),
+                Arguments.of("unknown-command-123!@#", "Unknown command: unknown-command-123!@#"),
+                Arguments.of("🚀unknown", "Unknown command: 🚀unknown"),
+                Arguments.of(veryLongCommand, "Unknown command: " + veryLongCommand)
+        );
     }
 
 
@@ -700,45 +714,6 @@ class ChurreraCLITest {
         assertThat(errorOutput).contains("Error: Workflow file does not exist");
     }
 
-    @Test
-    void testRun_UnknownCommandWithSpecialCharacters() {
-        // Given
-        churreraCLI = createCLI("unknown-command-123!@#\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Unknown command: unknown-command-123!@#");
-    }
-
-    @Test
-    void testRun_CommandWithUnicodeCharacters() {
-        // Given
-        churreraCLI = createCLI("🚀unknown\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Unknown command: 🚀unknown");
-    }
-
-    @Test
-    void testRun_VeryLongCommand() {
-        // Given
-        String invalidCommand = "x".repeat(1000);
-        churreraCLI = createCLI(invalidCommand + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Unknown command: " + invalidCommand);
-    }
 
     @Test
     void testRun_ManyEmptyLinesBeforeQuit() {
