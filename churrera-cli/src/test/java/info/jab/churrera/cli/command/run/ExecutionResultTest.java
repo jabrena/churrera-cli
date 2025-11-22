@@ -15,10 +15,10 @@ class ExecutionResultTest {
     @Test
     void shouldExposeFieldsWhenCreatedWithoutChildren() {
         // When
-        ExecutionResult result = new ExecutionResult(AgentState.FINISHED(), true);
+        ExecutionResult result = new ExecutionResult(AgentState.finished(), true);
 
         // Then
-        assertThat(result.getFinalStatus()).isEqualTo(AgentState.FINISHED());
+        assertThat(result.getFinalStatus()).isEqualTo(AgentState.finished());
         assertThat(result.isInterrupted()).isTrue();
         assertThat(result.getChildJobs()).isEmpty();
     }
@@ -33,7 +33,7 @@ class ExecutionResultTest {
             null,
             "model",
             "repo",
-            AgentState.FINISHED(),
+            AgentState.finished(),
             now,
             now,
             "parent",
@@ -46,10 +46,10 @@ class ExecutionResultTest {
         );
 
         // When
-        ExecutionResult result = new ExecutionResult(AgentState.ERROR(), false, List.of(child));
+        ExecutionResult result = new ExecutionResult(AgentState.error(), false, List.of(child));
 
         // Then
-        assertThat(result.getFinalStatus()).isEqualTo(AgentState.ERROR());
+        assertThat(result.getFinalStatus()).isEqualTo(AgentState.error());
         assertThat(result.isInterrupted()).isFalse();
         assertThat(result.getChildJobs()).containsExactly(child);
     }

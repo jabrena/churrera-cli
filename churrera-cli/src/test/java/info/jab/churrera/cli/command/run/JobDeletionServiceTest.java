@@ -50,7 +50,7 @@ class JobDeletionServiceTest {
     @Test
     void shouldDeleteWhenDeleteOnCompletionFlagIsTrue() {
         JobDeletionService serviceSpy = spy(jobDeletionService);
-        Job job = createJob(JOB_ID, null, AgentState.FINISHED(), null);
+        Job job = createJob(JOB_ID, null, AgentState.finished(), null);
 
         doNothing().when(serviceSpy).deleteJobAndChildren(JOB_ID, "--delete-on-completion");
 
@@ -62,8 +62,8 @@ class JobDeletionServiceTest {
     @Test
     void shouldDeleteWhenSuccessFlagAndAllJobsSuccessful() {
         JobDeletionService serviceSpy = spy(jobDeletionService);
-        Job parentJob = createJob(JOB_ID, null, AgentState.FINISHED(), null);
-        List<Job> childJobs = List.of(createJob("child-1", JOB_ID, AgentState.FINISHED(), null));
+        Job parentJob = createJob(JOB_ID, null, AgentState.finished(), null);
+        List<Job> childJobs = List.of(createJob("child-1", JOB_ID, AgentState.finished(), null));
 
         doNothing().when(serviceSpy).deleteJobAndChildren(JOB_ID, "--delete-on-success-completion");
         when(serviceSpy.isJobAndChildrenSuccessful(JOB_ID, childJobs)).thenReturn(true);
@@ -76,8 +76,8 @@ class JobDeletionServiceTest {
     @Test
     void shouldNotDeleteWhenSuccessFlagButJobsNotSuccessful() {
         JobDeletionService serviceSpy = spy(jobDeletionService);
-        Job parentJob = createJob(JOB_ID, null, AgentState.FINISHED(), null);
-        List<Job> childJobs = List.of(createJob("child-1", JOB_ID, AgentState.ERROR(), null));
+        Job parentJob = createJob(JOB_ID, null, AgentState.finished(), null);
+        List<Job> childJobs = List.of(createJob("child-1", JOB_ID, AgentState.error(), null));
 
         when(serviceSpy.isJobAndChildrenSuccessful(JOB_ID, childJobs)).thenReturn(false);
 
@@ -88,8 +88,8 @@ class JobDeletionServiceTest {
 
     @Test
     void shouldReturnTrueWhenParentAndChildrenSuccessful() {
-        Job parentJob = createJob(JOB_ID, null, AgentState.FINISHED(), null);
-        Job childJob = createJob("child", JOB_ID, AgentState.FINISHED(), null);
+        Job parentJob = createJob(JOB_ID, null, AgentState.finished(), null);
+        Job childJob = createJob("child", JOB_ID, AgentState.finished(), null);
 
         when(jobRepository.findById(JOB_ID)).thenReturn(Optional.of(parentJob));
 
@@ -100,7 +100,7 @@ class JobDeletionServiceTest {
 
     @Test
     void shouldReturnFalseWhenParentNotSuccessful() {
-        Job parentJob = createJob(JOB_ID, null, AgentState.ERROR(), null);
+        Job parentJob = createJob(JOB_ID, null, AgentState.error(), null);
         when(jobRepository.findById(JOB_ID)).thenReturn(Optional.of(parentJob));
 
         boolean result = jobDeletionService.isJobAndChildrenSuccessful(JOB_ID, List.of());
@@ -111,7 +111,7 @@ class JobDeletionServiceTest {
     @Test
     void shouldDeleteJobAndChildrenInOrder() {
         JobDeletionService serviceSpy = spy(jobDeletionService);
-        Job parentJob = createJob(JOB_ID, null, AgentState.FINISHED(), null);
+        Job parentJob = createJob(JOB_ID, null, AgentState.finished(), null);
         when(jobRepository.findById(JOB_ID)).thenReturn(Optional.of(parentJob));
 
         doNothing().when(serviceSpy).deleteChildJobsRecursively(JOB_ID);
@@ -126,9 +126,9 @@ class JobDeletionServiceTest {
     @Test
     void shouldDeleteChildJobsRecursivelyDepthFirst() {
         JobDeletionService serviceSpy = spy(jobDeletionService);
-        Job child1 = createJob("child-1", JOB_ID, AgentState.FINISHED(), null);
-        Job child2 = createJob("child-2", JOB_ID, AgentState.FINISHED(), null);
-        Job grandChild = createJob("grand-child", "child-1", AgentState.FINISHED(), null);
+        Job child1 = createJob("child-1", JOB_ID, AgentState.finished(), null);
+        Job child2 = createJob("child-2", JOB_ID, AgentState.finished(), null);
+        Job grandChild = createJob("grand-child", "child-1", AgentState.finished(), null);
 
         when(jobRepository.findJobsByParentId(JOB_ID)).thenReturn(List.of(child1, child2));
         when(jobRepository.findJobsByParentId("child-1")).thenReturn(List.of(grandChild));
@@ -147,7 +147,7 @@ class JobDeletionServiceTest {
 
     @Test
     void shouldDeleteCursorAgentAndDatabaseEntries() {
-        Job job = createJob(JOB_ID, null, AgentState.FINISHED(), "cursor-agent-123");
+        Job job = createJob(JOB_ID, null, AgentState.finished(), "cursor-agent-123");
 
         jobDeletionService.deleteJob(job);
 
@@ -158,7 +158,7 @@ class JobDeletionServiceTest {
 
     @Test
     void shouldContinueDeletionWhenCursorAgentRemovalFails() {
-        Job job = createJob(JOB_ID, null, AgentState.FINISHED(), "cursor-agent-123");
+        Job job = createJob(JOB_ID, null, AgentState.finished(), "cursor-agent-123");
         doThrow(new RuntimeException("API error")).when(cliAgent).deleteAgent("cursor-agent-123");
 
         jobDeletionService.deleteJob(job);

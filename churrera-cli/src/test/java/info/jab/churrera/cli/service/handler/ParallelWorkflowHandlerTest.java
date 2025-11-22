@@ -56,7 +56,7 @@ class ParallelWorkflowHandlerTest {
     void setUp() {
         handler = new ParallelWorkflowHandler(jobRepository, cliAgent, agentLauncher, timeoutManager, fallbackExecutor, resultExtractor);
 
-        testJob = new Job("job-id", "/path/workflow.xml", null, "model", "repo", AgentState.CREATING(),
+        testJob = new Job("job-id", "/path/workflow.xml", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         testParallelData = mock(ParallelWorkflowData.class);
@@ -119,13 +119,13 @@ class ParallelWorkflowHandlerTest {
         // Given
         Job jobWithAgent = testJob.withCursorAgentId("agent-id");
         when(testParallelData.getTimeoutMillis()).thenReturn(null);
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.RUNNING());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
 
         // When
         handler.processWorkflow(jobWithAgent, testWorkflowData);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.RUNNING());
+        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.running());
         verify(resultExtractor, never()).extractResults(any(), any());
     }
 
@@ -134,7 +134,7 @@ class ParallelWorkflowHandlerTest {
         // Given
         Job jobWithAgent = testJob.withCursorAgentId("agent-id");
         when(testParallelData.getTimeoutMillis()).thenReturn(null);
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.finished());
         when(jobRepository.findById("job-id")).thenReturn(Optional.of(jobWithAgent));
         List<Object> resultList = List.of("item1", "item2");
         when(resultExtractor.extractResults(jobWithAgent, testParallelData)).thenReturn(resultList);
@@ -152,7 +152,7 @@ class ParallelWorkflowHandlerTest {
         // Given
         Job jobWithAgent = testJob.withCursorAgentId("agent-id");
         when(testParallelData.getTimeoutMillis()).thenReturn(null);
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.finished());
         when(jobRepository.findById("job-id")).thenReturn(Optional.of(jobWithAgent));
         when(resultExtractor.extractResults(jobWithAgent, testParallelData)).thenReturn(null);
 
@@ -160,16 +160,16 @@ class ParallelWorkflowHandlerTest {
         handler.processWorkflow(jobWithAgent, testWorkflowData);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.ERROR());
+        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.error());
         verify(jobRepository, never()).save(any(Job.class)); // No child jobs created
     }
 
     @Test
     void testProcessWorkflow_StatusTerminal() throws Exception {
         // Given
-        Job jobWithAgent = testJob.withCursorAgentId("agent-id").withStatus(AgentState.ERROR());
+        Job jobWithAgent = testJob.withCursorAgentId("agent-id").withStatus(AgentState.error());
         lenient().when(testParallelData.getTimeoutMillis()).thenReturn(null);
-        lenient().when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.ERROR());
+        lenient().when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.error());
 
         // When
         handler.processWorkflow(jobWithAgent, testWorkflowData);
@@ -181,7 +181,7 @@ class ParallelWorkflowHandlerTest {
     @Test
     void testProcessWorkflow_TerminalStatus_SkipPolling() throws Exception {
         // Given
-        Job terminalJob = testJob.withCursorAgentId("agent-id").withStatus(AgentState.FINISHED());
+        Job terminalJob = testJob.withCursorAgentId("agent-id").withStatus(AgentState.finished());
         when(testParallelData.getTimeoutMillis()).thenReturn(null);
 
         // When
@@ -202,7 +202,7 @@ class ParallelWorkflowHandlerTest {
         handler.processWorkflow(jobWithAgent, testWorkflowData);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.ERROR());
+        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.error());
     }
 
     @Test

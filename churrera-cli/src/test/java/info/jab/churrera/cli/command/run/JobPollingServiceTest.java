@@ -43,7 +43,7 @@ class JobPollingServiceTest {
 
     @BeforeEach
     void setUp() {
-        job = createJob(AgentState.RUNNING());
+        job = createJob(AgentState.running());
         lenient().when(jobRepository.findById(JOB_ID)).thenReturn(Optional.of(job));
         lenient().when(completionCheckerFactory.create(any())).thenReturn(completionChecker);
     }
@@ -51,7 +51,7 @@ class JobPollingServiceTest {
     @Test
     void shouldReturnResultWhenJobCompletesImmediately() {
         // Given
-        CompletionCheckResult completion = new CompletionCheckResult(true, AgentState.FINISHED(), List.of(job));
+        CompletionCheckResult completion = new CompletionCheckResult(true, AgentState.finished(), List.of(job));
         when(completionChecker.checkCompletion(job, JOB_ID)).thenReturn(completion);
         AtomicInteger sleeperCalls = new AtomicInteger();
         JobPollingService service = new JobPollingService(
@@ -67,7 +67,7 @@ class JobPollingServiceTest {
         ExecutionResult result = service.executePollingLoop(JOB_ID);
 
         // Then
-        assertThat(result.getFinalStatus()).isEqualTo(AgentState.FINISHED());
+        assertThat(result.getFinalStatus()).isEqualTo(AgentState.finished());
         assertThat(result.isInterrupted()).isFalse();
         assertThat(result.getChildJobs()).containsExactly(job);
         assertThat(sleeperCalls).hasValue(0);
@@ -124,12 +124,12 @@ class JobPollingServiceTest {
 
     @Test
     void shouldFallbackToSequenceCheckerWhenJobTypeIsNull() {
-        Job jobWithoutType = createJob(AgentState.RUNNING(), null);
-        Job completedJob = jobWithoutType.withStatus(AgentState.FINISHED());
+        Job jobWithoutType = createJob(AgentState.running(), null);
+        Job completedJob = jobWithoutType.withStatus(AgentState.finished());
         when(jobRepository.findById(JOB_ID)).thenReturn(Optional.of(jobWithoutType));
         when(completionCheckerFactory.create(WorkflowType.SEQUENCE)).thenReturn(completionChecker);
         when(completionChecker.checkCompletion(jobWithoutType, JOB_ID))
-            .thenReturn(new CompletionCheckResult(true, AgentState.FINISHED(), List.of(completedJob)));
+            .thenReturn(new CompletionCheckResult(true, AgentState.finished(), List.of(completedJob)));
 
         JobPollingService service = new JobPollingService(
             jobProcessor,
@@ -142,7 +142,7 @@ class JobPollingServiceTest {
 
         ExecutionResult result = service.executePollingLoop(JOB_ID);
 
-        assertThat(result.getFinalStatus()).isEqualTo(AgentState.FINISHED());
+        assertThat(result.getFinalStatus()).isEqualTo(AgentState.finished());
         assertThat(result.getChildJobs()).containsExactly(completedJob);
         verify(completionCheckerFactory).create(WorkflowType.SEQUENCE);
     }

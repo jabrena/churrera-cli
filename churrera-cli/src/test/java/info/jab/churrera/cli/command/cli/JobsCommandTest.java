@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -50,7 +49,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayNoJobsMessageWhenEmpty() throws Exception {
+    void shouldDisplayNoJobsMessageWhenEmpty() {
         // Given
         when(jobRepository.findAll()).thenReturn(Collections.emptyList());
 
@@ -63,12 +62,12 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayJobsWhenAvailable() throws Exception {
+    void shouldDisplayJobsWhenAvailable() {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
-            new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.CREATING(), now, now, null, null, null, null, null, null, null),
-            new Job("job-2", "/path/2", null, "model2", "repo2", AgentState.CREATING(), now, now, null, null, null, null, null, null, null)
+            new Job("job-1", "/path/1", null, "model1", "repo1", AgentState.creating(), now, now, null, null, null, null, null, null, null),
+            new Job("job-2", "/path/2", null, "model2", "repo2", AgentState.creating(), now, now, null, null, null, null, null, null, null)
         );
         when(jobRepository.findAll()).thenReturn(jobs);
         when(jobRepository.findPromptsByJobId("job-1")).thenReturn(Arrays.asList(
@@ -92,7 +91,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldHandleRepositoryException() throws Exception {
+    void shouldHandleRepositoryException() {
         // Given
         when(jobRepository.findAll()).thenThrow(new RuntimeException("Database error"));
 
@@ -105,7 +104,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldHandleQueryException() throws Exception {
+    void shouldHandleQueryException() {
         // Given
         when(jobRepository.findAll()).thenThrow(new RuntimeException("[basex:error] Query error"));
 
@@ -118,14 +117,14 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayFinishedJobsWithCompletionTime() throws Exception {
+    void shouldDisplayFinishedJobsWithCompletionTime() {
         // Given
         LocalDateTime createdAt = LocalDateTime.now().minusMinutes(5);
         LocalDateTime updatedAt = LocalDateTime.now().minusMinutes(2);
 
         List<Job> jobs = Arrays.asList(
             new Job("job-finished", "/path/finished", "agent-123", "model1", "repo1",
-                AgentState.FINISHED(), createdAt, updatedAt, null, null,
+                AgentState.finished(), createdAt, updatedAt, null, null,
                 WorkflowType.SEQUENCE, null, null, null, null)
         );
 
@@ -147,12 +146,12 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayJobWithParentJobId() throws Exception {
+    void shouldDisplayJobWithParentJobId() {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
             new Job("child-job-1", "/path/child", null, "model1", "repo1",
-                AgentState.RUNNING(), now, now, "parent-job-123", "item1",
+                AgentState.running(), now, now, "parent-job-123", "item1",
                 WorkflowType.SEQUENCE, null, null, null, null)
         );
 
@@ -171,7 +170,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayJobsWithDifferentTimeFormats() throws Exception {
+    void shouldDisplayJobsWithDifferentTimeFormats() {
         // Given
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneHourAgo = now.minusHours(1);
@@ -180,13 +179,13 @@ class JobsCommandTest {
 
         List<Job> jobs = Arrays.asList(
             new Job("job-1h", "/path/1", null, "model1", "repo1",
-                AgentState.RUNNING(), oneHourAgo, oneHourAgo, null, null,
+                AgentState.running(), oneHourAgo, oneHourAgo, null, null,
                 WorkflowType.SEQUENCE, null, null, null, null),
             new Job("job-2m", "/path/2", null, "model2", "repo2",
-                AgentState.RUNNING(), twoMinutesAgo, twoMinutesAgo, null, null,
+                AgentState.running(), twoMinutesAgo, twoMinutesAgo, null, null,
                 WorkflowType.SEQUENCE, null, null, null, null),
             new Job("job-30s", "/path/3", null, "model3", "repo3",
-                AgentState.RUNNING(), thirtySecondsAgo, thirtySecondsAgo, null, null,
+                AgentState.running(), thirtySecondsAgo, thirtySecondsAgo, null, null,
                 WorkflowType.SEQUENCE, null, null, null, null)
         );
 
@@ -206,12 +205,12 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayParallelWorkflowType() throws Exception {
+    void shouldDisplayParallelWorkflowType() {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
             new Job("parallel-job", "/path/parallel", null, "model1", "repo1",
-                AgentState.RUNNING(), now, now, null, null,
+                AgentState.running(), now, now, null, null,
                 WorkflowType.PARALLEL, null, null, null, null)
         );
 
@@ -228,12 +227,12 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldHandleErrorRetrievingJobDetails() throws Exception {
+    void shouldHandleErrorRetrievingJobDetails() {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
             new Job("error-job", "/path/error", null, "model1", "repo1",
-                AgentState.RUNNING(), now, now, null, null, null, null, null, null, null)
+                AgentState.running(), now, now, null, null, null, null, null, null, null)
         );
 
         when(jobRepository.findAll()).thenReturn(jobs);
@@ -249,12 +248,12 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayJobsWithMixedPromptStatuses() throws Exception {
+    void shouldDisplayJobsWithMixedPromptStatuses() {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
             new Job("job-mixed", "/path/mixed", "agent-123", "model1", "repo1",
-                AgentState.RUNNING(), now, now, null, null,
+                AgentState.running(), now, now, null, null,
                 WorkflowType.SEQUENCE, null, null, null, null)
         );
 
@@ -275,12 +274,12 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldHandleJobWithNullWorkflowType() throws Exception {
+    void shouldHandleJobWithNullWorkflowType() {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
             new Job("job-null-type", "/path/null", null, "model1", "repo1",
-                AgentState.RUNNING(), now, now, null, null, null, null, null, null, null)
+                AgentState.running(), now, now, null, null, null, null, null, null, null)
         );
 
         when(jobRepository.findAll()).thenReturn(jobs);
@@ -295,12 +294,12 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayJobsWithFailedStatus() throws Exception {
+    void shouldDisplayJobsWithFailedStatus() {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
             new Job("failed-job", "/path/failed", "agent-123", "model1", "repo1",
-                AgentState.ERROR(), now, now, null, null,
+                AgentState.error(), now, now, null, null,
                 WorkflowType.SEQUENCE, null, null, null, null)
         );
 

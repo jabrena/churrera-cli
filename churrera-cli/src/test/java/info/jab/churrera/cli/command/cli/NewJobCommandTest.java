@@ -161,7 +161,7 @@ class NewJobCommandTest {
             assertEquals("test/path", job.path());
             assertEquals("model-name", job.model());
             assertEquals("repo-url", job.repository());
-            assertEquals(AgentState.CREATING(), job.status());
+            assertEquals(AgentState.creating(), job.status());
             assertNotNull(job.jobId());
             assertNotNull(job.createdAt());
             assertNotNull(job.lastUpdate());
@@ -185,7 +185,7 @@ class NewJobCommandTest {
             assertEquals("test/path", job.path());
             assertEquals("default-model", job.model());
             assertEquals("default-repository", job.repository());
-            assertEquals(AgentState.CREATING(), job.status());
+            assertEquals(AgentState.creating(), job.status());
             return true;
         }));
     }

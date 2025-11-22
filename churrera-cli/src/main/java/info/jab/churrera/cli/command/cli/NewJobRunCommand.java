@@ -13,7 +13,6 @@ import info.jab.churrera.workflow.PmlValidator;
 import info.jab.churrera.workflow.ParallelWorkflowData;
 import info.jab.churrera.workflow.SequenceInfo;
 import info.jab.churrera.cli.model.AgentState;
-import org.basex.query.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -162,7 +161,7 @@ public class NewJobRunCommand implements Runnable {
                 null, // cursorAgentId is initially null until launched in Cursor
                 model,
                 repository,
-                AgentState.CREATING(),
+                AgentState.creating(),
                 now,
                 now,
                 null, // parentJobId is null for top-level jobs

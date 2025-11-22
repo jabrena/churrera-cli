@@ -34,11 +34,11 @@ class ParallelWorkflowCompletionCheckerTest {
     @BeforeEach
     void setUp() {
         createdAt = LocalDateTime.now().minusMinutes(5);
-        parentJob = createJob(parentJobId, null, AgentState.RUNNING());
+        parentJob = createJob(parentJobId, null, AgentState.running());
     }
 
     @Test
-    void shouldReportNotCompletedWhenParentIsStillActive() throws Exception {
+    void shouldReportNotCompletedWhenParentIsStillActive() {
         when(jobRepository.findAll()).thenReturn(List.of(parentJob));
 
         CompletionCheckResult result = checker.checkCompletion(parentJob, parentJobId);
@@ -49,22 +49,22 @@ class ParallelWorkflowCompletionCheckerTest {
     }
 
     @Test
-    void shouldReportCompletionWhenParentFinishedAndNoChildrenExist() throws Exception {
-        parentJob = createJob(parentJobId, null, AgentState.FINISHED());
+    void shouldReportCompletionWhenParentFinishedAndNoChildrenExist() {
+        parentJob = createJob(parentJobId, null, AgentState.finished());
         when(jobRepository.findAll()).thenReturn(List.of(parentJob));
 
         CompletionCheckResult result = checker.checkCompletion(parentJob, parentJobId);
 
         assertThat(result.isCompleted()).isTrue();
-        assertThat(result.getFinalStatus()).isEqualTo(AgentState.FINISHED());
+        assertThat(result.getFinalStatus()).isEqualTo(AgentState.finished());
         assertThat(result.getChildJobs()).isEmpty();
     }
 
     @Test
-    void shouldWaitWhenAnyChildIsStillActive() throws Exception {
-        parentJob = createJob(parentJobId, null, AgentState.FINISHED());
-        Job childRunning = createJob("child-1", parentJobId, AgentState.RUNNING());
-        Job childFinished = createJob("child-2", parentJobId, AgentState.FINISHED());
+    void shouldWaitWhenAnyChildIsStillActive() {
+        parentJob = createJob(parentJobId, null, AgentState.finished());
+        Job childRunning = createJob("child-1", parentJobId, AgentState.running());
+        Job childFinished = createJob("child-2", parentJobId, AgentState.finished());
         when(jobRepository.findAll()).thenReturn(List.of(parentJob, childRunning, childFinished));
 
         CompletionCheckResult result = checker.checkCompletion(parentJob, parentJobId);
@@ -75,36 +75,36 @@ class ParallelWorkflowCompletionCheckerTest {
     }
 
     @Test
-    void shouldReturnChildFailureStatusWhenAnyChildFails() throws Exception {
-        parentJob = createJob(parentJobId, null, AgentState.FINISHED());
-        Job childOk = createJob("child-1", parentJobId, AgentState.FINISHED());
-        Job childFailed = createJob("child-2", parentJobId, AgentState.ERROR());
+    void shouldReturnChildFailureStatusWhenAnyChildFails() {
+        parentJob = createJob(parentJobId, null, AgentState.finished());
+        Job childOk = createJob("child-1", parentJobId, AgentState.finished());
+        Job childFailed = createJob("child-2", parentJobId, AgentState.error());
         when(jobRepository.findAll()).thenReturn(List.of(parentJob, childOk, childFailed));
 
         CompletionCheckResult result = checker.checkCompletion(parentJob, parentJobId);
 
         assertThat(result.isCompleted()).isTrue();
-        assertThat(result.getFinalStatus()).isEqualTo(AgentState.ERROR());
+        assertThat(result.getFinalStatus()).isEqualTo(AgentState.error());
         assertThat(result.getChildJobs()).containsExactlyInAnyOrder(childOk, childFailed);
     }
 
     @Test
-    void shouldUseParentStatusWhenAllChildrenSuccessful() throws Exception {
-        parentJob = createJob(parentJobId, null, AgentState.FINISHED());
-        Job childOk1 = createJob("child-1", parentJobId, AgentState.FINISHED());
-        Job childOk2 = createJob("child-2", parentJobId, AgentState.FINISHED());
+    void shouldUseParentStatusWhenAllChildrenSuccessful() {
+        parentJob = createJob(parentJobId, null, AgentState.finished());
+        Job childOk1 = createJob("child-1", parentJobId, AgentState.finished());
+        Job childOk2 = createJob("child-2", parentJobId, AgentState.finished());
         when(jobRepository.findAll()).thenReturn(List.of(parentJob, childOk1, childOk2));
 
         CompletionCheckResult result = checker.checkCompletion(parentJob, parentJobId);
 
         assertThat(result.isCompleted()).isTrue();
-        assertThat(result.getFinalStatus()).isEqualTo(AgentState.FINISHED());
+        assertThat(result.getFinalStatus()).isEqualTo(AgentState.finished());
         assertThat(result.getChildJobs()).containsExactlyInAnyOrder(childOk1, childOk2);
     }
 
     @Test
-    void shouldPropagateRepositoryErrors() throws Exception {
-        parentJob = createJob(parentJobId, null, AgentState.FINISHED());
+    void shouldPropagateRepositoryErrors() {
+        parentJob = createJob(parentJobId, null, AgentState.finished());
         when(jobRepository.findAll()).thenThrow(new RuntimeException("boom"));
 
         assertThatThrownBy(() -> checker.checkCompletion(parentJob, parentJobId))

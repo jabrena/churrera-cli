@@ -13,6 +13,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -48,10 +49,10 @@ class AgentLauncherTest {
     private WorkflowData testWorkflowData;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() throws IOException {
         agentLauncher = new AgentLauncher(cliAgent, jobRepository, workflowFileService);
 
-        testJob = new Job("job-id", "/path/workflow.xml", null, "model", "repo", AgentState.CREATING(),
+        testJob = new Job("job-id", "/path/workflow.xml", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         Path workflowPath = tempDir.resolve("workflow.xml");
@@ -69,7 +70,7 @@ class AgentLauncherTest {
     }
 
     @Test
-    void testLaunchJobAgent_Success_SequenceWorkflow() throws Exception {
+    void testLaunchJobAgent_Success_SequenceWorkflow() {
         // Given
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenReturn("prompt content");
         when(cliAgent.launchAgentForJob(any(Job.class), anyString(), anyString(), any(), anyBoolean()))
@@ -80,12 +81,12 @@ class AgentLauncherTest {
 
         // Then
         verify(cliAgent).launchAgentForJob(eq(testJob), eq("prompt content"), eq("pml"), isNull(), eq(true));
-        verify(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("agent-id-123"), eq(AgentState.CREATING()));
+        verify(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("agent-id-123"), eq(AgentState.creating()));
         verifyNoInteractions(jobRepository); // No timeout, so no save
     }
 
     @Test
-    void testLaunchJobAgent_Success_ParallelWorkflow() throws Exception {
+    void testLaunchJobAgent_Success_ParallelWorkflow() {
         // Given
         ParallelWorkflowData parallelData = mock(ParallelWorkflowData.class);
         WorkflowData parallelWorkflowData = new WorkflowData(
@@ -107,7 +108,7 @@ class AgentLauncherTest {
     }
 
     @Test
-    void testLaunchJobAgent_WithBindValue() throws Exception {
+    void testLaunchJobAgent_WithBindValue() {
         // Given
         PromptInfo promptWithBind = new PromptInfo("prompt1.pml", "pml", "bindExp");
         WorkflowData workflowWithBind = new WorkflowData(
@@ -126,11 +127,11 @@ class AgentLauncherTest {
         agentLauncher.launchJobAgent(jobWithResult, workflowWithBind);
 
         // Then
-        verify(cliAgent).launchAgentForJob(eq(jobWithResult), eq("prompt content"), eq("pml"), eq("bound-value"), eq(true));
+        verify(cliAgent).launchAgentForJob(jobWithResult, "prompt content", "pml", "bound-value", true);
     }
 
     @Test
-    void testLaunchJobAgent_WithTimeout() throws Exception {
+    void testLaunchJobAgent_WithTimeout() throws IOException {
         // Given
         Job jobWithTimeout = testJob.withTimeoutMillis(1000L);
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenReturn("prompt content");
@@ -145,7 +146,7 @@ class AgentLauncherTest {
     }
 
     @Test
-    void testLaunchJobAgent_NoBindValue_WhenPromptHasNoBindResultExp() throws Exception {
+    void testLaunchJobAgent_NoBindValue_WhenPromptHasNoBindResultExp() {
         // Given
         Job jobWithResult = testJob.withResult("bound-value");
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenReturn("prompt content");
@@ -160,7 +161,7 @@ class AgentLauncherTest {
     }
 
     @Test
-    void testLaunchJobAgent_NoBindValue_WhenJobHasNoResult() throws Exception {
+    void testLaunchJobAgent_NoBindValue_WhenJobHasNoResult() {
         // Given
         PromptInfo promptWithBind = new PromptInfo("prompt1.pml", "pml", "bindExp");
         WorkflowData workflowWithBind = new WorkflowData(
@@ -182,7 +183,7 @@ class AgentLauncherTest {
     }
 
     @Test
-    void testLaunchJobAgent_Exception() throws Exception {
+    void testLaunchJobAgent_Exception() {
         // Given
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenThrow(new RuntimeException("File read error"));
 
@@ -190,11 +191,11 @@ class AgentLauncherTest {
         agentLauncher.launchJobAgent(testJob, testWorkflowData);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(eq(testJob), eq(AgentState.ERROR()));
+        verify(cliAgent).updateJobStatusInDatabase(testJob, AgentState.error());
     }
 
     @Test
-    void testLaunchJobAgent_Exception_UpdateStatusFails() throws Exception {
+    void testLaunchJobAgent_Exception_UpdateStatusFails() {
         // Given
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenThrow(new RuntimeException("File read error"));
         doThrow(new RuntimeException("Update failed")).when(cliAgent).updateJobStatusInDatabase(any(), any());

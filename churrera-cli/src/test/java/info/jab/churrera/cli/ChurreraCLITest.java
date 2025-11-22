@@ -145,7 +145,7 @@ class ChurreraCLITest {
                 null,
                 "gpt-4.1-mini",
                 "https://github.com/jabrena/churrera",
-                AgentState.RUNNING(),
+                AgentState.running(),
                 now,
                 now,
                 null,
@@ -219,7 +219,7 @@ class ChurreraCLITest {
 
     @ParameterizedTest(name = "Should list jobs when user types ''{0}''")
     @ValueSource(strings = {"jobs", "  jobs  ", "jobs\t", "jobs\njobs"})
-    void should_list_jobs_for_command_variations(String jobsCommand) throws Exception {
+    void should_list_jobs_for_command_variations(String jobsCommand) {
         // When
         CliTestResult result = runCliWithInput(jobsCommand + "\nquit\n");
 
@@ -267,7 +267,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsCommand() throws Exception {
+    void testRun_JobsCommand() {
         // Given
         churreraCLI = createCLI("jobs\nquit\n");
 
@@ -299,7 +299,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsStatusCommand() throws Exception {
+    void testRun_JobsStatusCommand() {
         // Given
         String jobId = "test-job-123";
         Job job = createJob(jobId);
@@ -319,7 +319,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsLogsCommand() throws Exception {
+    void testRun_JobsLogsCommand() {
         // Given
         String jobId = "test-job-123";
         Job job = createJob(jobId);
@@ -339,11 +339,11 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsPrCommand() throws Exception {
+    void testRun_JobsPrCommand() {
         // Given
         String jobId = "test-job-123";
         Job finishedJob = createJob(jobId)
-                .withStatus(AgentState.FINISHED())
+                .withStatus(AgentState.finished())
                 .withCursorAgentId("agent-42");
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(finishedJob));
         churreraCLI = createCLI("jobs pr " + jobId + "\nquit\n");
@@ -360,7 +360,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsDeleteCommand() throws Exception {
+    void testRun_JobsDeleteCommand() {
         // Given
         String jobId = "test-job-123";
         Job job = createJob(jobId);
@@ -420,7 +420,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_CommandWithException() throws Exception {
+    void testRun_CommandWithException() {
         // Given
         when(jobRepository.findAll()).thenThrow(new RuntimeException("Database error"));
         churreraCLI = createCLI("jobs\nquit\n");
@@ -498,7 +498,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsCommandPattern_WithUUID() throws Exception {
+    void testRun_JobsCommandPattern_WithUUID() {
         // Given
         String uuid = "550e8400-e29b-41d4-a716-446655440000";
         Job job = createJob(uuid);
@@ -517,7 +517,7 @@ class ChurreraCLITest {
 
 
     @Test
-    void testRun_JobsCommand_AloneWithoutArguments() throws Exception {
+    void testRun_JobsCommand_AloneWithoutArguments() {
         // Given
         churreraCLI = createCLI("jobs\nquit\n");
 
@@ -545,7 +545,7 @@ class ChurreraCLITest {
 
 
     @Test
-    void testRun_JobsCommandWithWhitespace() throws Exception {
+    void testRun_JobsCommandWithWhitespace() {
         // Given
         churreraCLI = createCLI("  jobs  \nquit\n");
 
@@ -603,7 +603,7 @@ class ChurreraCLITest {
 
 
     @Test
-    void testRun_JobsStatusCommandWithShortId() throws Exception {
+    void testRun_JobsStatusCommandWithShortId() {
         // Given
         String jobId = "abc123";
         Job job = createJob(jobId);
@@ -621,7 +621,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsLogsCommandWithLongId() throws Exception {
+    void testRun_JobsLogsCommandWithLongId() {
         // Given
         String longId = "a".repeat(100);
         Job job = createJob(longId);
@@ -639,11 +639,11 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsPrCommandWithHyphenatedId() throws Exception {
+    void testRun_JobsPrCommandWithHyphenatedId() {
         // Given
         String jobId = "test-job-id-123";
         Job finishedJob = createJob(jobId)
-                .withStatus(AgentState.FINISHED())
+                .withStatus(AgentState.finished())
                 .withCursorAgentId("agent-42");
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(finishedJob));
         churreraCLI = createCLI("jobs pr " + jobId + "\nquit\n");
@@ -658,7 +658,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsDeleteCommandWithUnderscoreId() throws Exception {
+    void testRun_JobsDeleteCommandWithUnderscoreId() {
         // Given
         String jobId = "test_job_123";
         Job job = createJob(jobId);
@@ -677,7 +677,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_MultipleCommandsInSequence() throws Exception {
+    void testRun_MultipleCommandsInSequence() {
         // Given
         churreraCLI = createCLI("help\nclear\njobs\nhelp\nquit\n");
 
@@ -689,7 +689,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsCommandMultipleTimes() throws Exception {
+    void testRun_JobsCommandMultipleTimes() {
         // Given
         churreraCLI = createCLI("jobs\njobs\njobs\nquit\n");
 
@@ -757,7 +757,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsCommandWithExceptionHandling() throws Exception {
+    void testRun_JobsCommandWithExceptionHandling() {
         // Given
         when(jobRepository.findAll()).thenThrow(new RuntimeException("Test exception"));
         churreraCLI = createCLI("jobs\nquit\n");
@@ -772,7 +772,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsStatusCommandWithExceptionHandling() throws Exception {
+    void testRun_JobsStatusCommandWithExceptionHandling() {
         // Given
         when(jobRepository.findById(anyString())).thenThrow(new RuntimeException("Database error"));
         churreraCLI = createCLI("jobs status test-id\nquit\n");
@@ -787,7 +787,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsDeleteCommandWithExceptionHandling() throws Exception {
+    void testRun_JobsDeleteCommandWithExceptionHandling() {
         // Given
         when(jobRepository.findById(anyString())).thenThrow(new RuntimeException("Delete error"));
         churreraCLI = createCLI("jobs delete test-id\nquit\n");
@@ -803,7 +803,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsLogsCommandWithExceptionHandling() throws Exception {
+    void testRun_JobsLogsCommandWithExceptionHandling() {
         // Given
         when(jobRepository.findById(anyString())).thenThrow(new RuntimeException("Logs error"));
         churreraCLI = createCLI("jobs logs test-id\nquit\n");
@@ -819,7 +819,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsPrCommandWithExceptionHandling() throws Exception {
+    void testRun_JobsPrCommandWithExceptionHandling() {
         // Given
         when(jobRepository.findById(anyString())).thenThrow(new RuntimeException("PR error"));
         churreraCLI = createCLI("jobs pr test-id\nquit\n");
@@ -835,7 +835,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testRun_JobsNewCommandWithExceptionHandling() throws Exception {
+    void testRun_JobsNewCommandWithExceptionHandling() {
         // Given
         // This will fail during workflow validation/parsing
         churreraCLI = createCLI("jobs new /nonexistent/path.xml\nquit\n");

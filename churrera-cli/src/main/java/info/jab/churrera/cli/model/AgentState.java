@@ -25,7 +25,7 @@ public final class AgentState {
      */
     public static AgentState of(AgentResponse agent) {
         if (agent == null || agent.status() == null) {
-            return CREATING();
+            return creating();
         }
         return of(agent.status());
     }
@@ -38,7 +38,7 @@ public final class AgentState {
      */
     public static AgentState of(AgentStatus status) {
         if (status == null) {
-            return CREATING();
+            return creating();
         }
         return new AgentState(status);
     }
@@ -52,18 +52,18 @@ public final class AgentState {
      */
     public static AgentState of(String statusStr) {
         if (statusStr == null || statusStr.trim().isEmpty()) {
-            return CREATING();
+            return creating();
         }
 
         String upperStatus = statusStr.toUpperCase().trim();
 
         return switch (upperStatus) {
-            case "CREATING" -> CREATING();
-            case "RUNNING" -> RUNNING();
-            case "FINISHED" -> FINISHED();
-            case "ERROR" -> ERROR();
-            case "EXPIRED" -> EXPIRED();
-            default -> CREATING();
+            case "CREATING" -> creating();
+            case "RUNNING" -> running();
+            case "FINISHED" -> finished();
+            case "ERROR" -> error();
+            case "EXPIRED" -> expired();
+            default -> creating();
         };
     }
 
@@ -72,7 +72,7 @@ public final class AgentState {
      *
      * @return AgentState with CREATING status
      */
-    public static AgentState CREATING() {
+    public static AgentState creating() {
         return new AgentState(AgentStatus.CREATING);
     }
 
@@ -81,7 +81,7 @@ public final class AgentState {
      *
      * @return AgentState with RUNNING status
      */
-    public static AgentState RUNNING() {
+    public static AgentState running() {
         return new AgentState(AgentStatus.RUNNING);
     }
 
@@ -90,7 +90,7 @@ public final class AgentState {
      *
      * @return AgentState with FINISHED status
      */
-    public static AgentState FINISHED() {
+    public static AgentState finished() {
         return new AgentState(AgentStatus.FINISHED);
     }
 
@@ -99,7 +99,7 @@ public final class AgentState {
      *
      * @return AgentState with ERROR status
      */
-    public static AgentState ERROR() {
+    public static AgentState error() {
         return new AgentState(AgentStatus.ERROR);
     }
 
@@ -108,7 +108,7 @@ public final class AgentState {
      *
      * @return AgentState with EXPIRED status
      */
-    public static AgentState EXPIRED() {
+    public static AgentState expired() {
         return new AgentState(AgentStatus.EXPIRED);
     }
 

@@ -6,8 +6,6 @@ import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.model.JobWithDetails;
 import info.jab.churrera.cli.service.CLIAgent;
 import info.jab.cursor.client.model.ConversationMessage;
-import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;

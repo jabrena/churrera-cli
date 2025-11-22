@@ -59,7 +59,7 @@ class ChildWorkflowHandlerTest {
     void setUp() {
         handler = new ChildWorkflowHandler(jobRepository, cliAgent, agentLauncher, promptProcessor, timeoutManager, fallbackExecutor);
 
-        testChildJob = new Job("child-job-id", "/path/workflow.xml", null, "model", "repo", AgentState.CREATING(),
+        testChildJob = new Job("child-job-id", "/path/workflow.xml", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value", null, null, null, null, null);
 
         testPrompts = List.of(
@@ -149,7 +149,7 @@ class ChildWorkflowHandlerTest {
         // Given
         Job jobWithAgent = testChildJob.withCursorAgentId("agent-id").withWorkflowStartTime(LocalDateTime.now().minusSeconds(2));
         when(timeoutManager.getElapsedMillis(jobWithAgent)).thenReturn(2000L);
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.RUNNING());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
         Job jobAfterFallback = jobWithAgent.withFallbackExecuted(false);
         when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(jobAfterFallback));
 
@@ -164,9 +164,9 @@ class ChildWorkflowHandlerTest {
     void testProcessWorkflow_TimeoutReached_TerminalStatus() throws Exception {
         // Given
         Job terminalJob = testChildJob.withCursorAgentId("agent-id").withWorkflowStartTime(LocalDateTime.now().minusSeconds(2))
-            .withStatus(AgentState.FINISHED());
+            .withStatus(AgentState.finished());
         lenient().when(timeoutManager.getElapsedMillis(terminalJob)).thenReturn(2000L);
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.finished());
 
         // When
         handler.processWorkflow(terminalJob, testParentWorkflowData, testPrompts);
@@ -182,7 +182,7 @@ class ChildWorkflowHandlerTest {
         Job jobWithFallback = testChildJob.withCursorAgentId("agent-id").withWorkflowStartTime(LocalDateTime.now().minusSeconds(2))
             .withFallbackExecuted(true);
         lenient().when(timeoutManager.getElapsedMillis(jobWithFallback)).thenReturn(2000L);
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.RUNNING());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
 
         // When
         handler.processWorkflow(jobWithFallback, testParentWorkflowData, testPrompts);
@@ -197,14 +197,14 @@ class ChildWorkflowHandlerTest {
         // Given
         Job jobWithAgent = testChildJob.withCursorAgentId("agent-id");
         lenient().when(timeoutManager.getElapsedMillis(jobWithAgent)).thenReturn(100L);
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.RUNNING());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
         lenient().when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(jobWithAgent));
 
         // When
         handler.processWorkflow(jobWithAgent, testParentWorkflowData, testPrompts);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.RUNNING());
+        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.running());
         verify(promptProcessor, never()).processRemainingPrompts(any(), any(), any());
     }
 
@@ -213,14 +213,14 @@ class ChildWorkflowHandlerTest {
         // Given
         Job jobWithAgent = testChildJob.withCursorAgentId("agent-id");
         lenient().when(timeoutManager.getElapsedMillis(jobWithAgent)).thenReturn(100L);
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.finished());
         lenient().when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(jobWithAgent));
 
         // When
         handler.processWorkflow(jobWithAgent, testParentWorkflowData, testPrompts);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.FINISHED());
+        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.finished());
         verify(promptProcessor).processRemainingPrompts(eq(jobWithAgent), eq(testPrompts), any(WorkflowData.class));
     }
 
@@ -229,14 +229,14 @@ class ChildWorkflowHandlerTest {
         // Given
         Job jobWithAgent = testChildJob.withCursorAgentId("agent-id");
         lenient().when(timeoutManager.getElapsedMillis(jobWithAgent)).thenReturn(100L);
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.ERROR());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.error());
         lenient().when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(jobWithAgent));
 
         // When
         handler.processWorkflow(jobWithAgent, testParentWorkflowData, testPrompts);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.ERROR());
+        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.error());
         verify(promptProcessor, never()).processRemainingPrompts(any(), any(), any());
     }
 
@@ -251,7 +251,7 @@ class ChildWorkflowHandlerTest {
         handler.processWorkflow(jobWithAgent, testParentWorkflowData, testPrompts);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.ERROR());
+        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.error());
     }
 
     @Test
@@ -261,7 +261,7 @@ class ChildWorkflowHandlerTest {
         Job jobWithAgent = jobNoTimeout.withCursorAgentId("agent-id");
         when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(jobWithAgent));
         when(timeoutManager.getElapsedMillis(jobWithAgent)).thenReturn(100L);
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.RUNNING());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
 
         // When
         handler.processWorkflow(jobWithAgent, testParentWorkflowData, testPrompts);

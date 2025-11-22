@@ -56,7 +56,7 @@ public class FallbackExecutor {
             String fallbackSrc = job.fallbackSrc();
             if (fallbackSrc == null || fallbackSrc.trim().isEmpty()) {
                 logger.warn("Job {} timed out but no fallback-src specified. Marking as failed.", job.jobId());
-                cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
+                cliAgent.updateJobStatusInDatabase(job, AgentState.error());
                 return;
             }
 
@@ -85,7 +85,7 @@ public class FallbackExecutor {
             } else {
                 logger.info("Launching job {} with fallback prompt", job.jobId());
                 String cursorAgentId = cliAgent.launchAgentForJob(job, fallbackContent, type, bindValue, true);
-                cliAgent.updateJobCursorIdInDatabase(job, cursorAgentId, AgentState.CREATING());
+                cliAgent.updateJobCursorIdInDatabase(job, cursorAgentId, AgentState.creating());
 
                 // Set workflowStartTime if timeout is configured
                 if (job.timeoutMillis() != null) {
@@ -105,7 +105,7 @@ public class FallbackExecutor {
         } catch (Exception e) {
             logger.error("Error executing fallback for job {}: {}", job.jobId(), e.getMessage(), e);
             try {
-                cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
+                cliAgent.updateJobStatusInDatabase(job, AgentState.error());
             } catch (Exception updateError) {
                 logger.error("Error updating job status to FAILED: {}", updateError.getMessage());
             }
@@ -129,7 +129,7 @@ public class FallbackExecutor {
             String fallbackSrc = parallelData.getFallbackSrc();
             if (fallbackSrc == null || fallbackSrc.trim().isEmpty()) {
                 logger.warn("Parallel workflow {} timed out but no fallback-src specified. Marking as failed.", parentJob.jobId());
-                cliAgent.updateJobStatusInDatabase(parentJob, AgentState.ERROR());
+                cliAgent.updateJobStatusInDatabase(parentJob, AgentState.error());
                 return;
             }
 
@@ -187,7 +187,7 @@ public class FallbackExecutor {
             } else {
                 logger.info("Launching child job {} with fallback prompt", childJob.jobId());
                 String cursorAgentId = cliAgent.launchAgentForJob(childJob, fallbackContent, type, bindValue, true);
-                cliAgent.updateJobCursorIdInDatabase(childJob, cursorAgentId, AgentState.CREATING());
+                cliAgent.updateJobCursorIdInDatabase(childJob, cursorAgentId, AgentState.creating());
 
                 // Set workflowStartTime if timeout is configured
                 if (childJob.timeoutMillis() != null) {

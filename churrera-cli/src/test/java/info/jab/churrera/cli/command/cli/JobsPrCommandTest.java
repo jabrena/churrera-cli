@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
@@ -35,7 +34,7 @@ class JobsPrCommandTest {
             "cursor-agent-123",
             "test-model",
             "https://github.com/user/repo.git",
-            AgentState.FINISHED(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
     }
 
     @Test
@@ -77,7 +76,7 @@ class JobsPrCommandTest {
             null, // no cursor agent
             "test-model",
             "https://github.com/user/repo.git",
-            AgentState.FINISHED(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         jobsPrCommand = new JobsPrCommand(jobRepository, jobId);
 
@@ -99,7 +98,7 @@ class JobsPrCommandTest {
             "cursor-agent-123",
             "test-model",
             "https://github.com/user/repo.git",
-            AgentState.ERROR(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.error(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         jobsPrCommand = new JobsPrCommand(jobRepository, jobId);
 
@@ -121,7 +120,7 @@ class JobsPrCommandTest {
             "cursor-agent-123",
             "test-model",
             "https://github.com/user/repo.git",
-            AgentState.CREATING(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.creating(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         jobsPrCommand = new JobsPrCommand(jobRepository, jobId);
 
@@ -143,7 +142,7 @@ class JobsPrCommandTest {
             "cursor-agent-123",
             "test-model",
             "https://github.com/user/repo.git",
-            AgentState.FINISHED(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         jobsPrCommand = new JobsPrCommand(jobRepository, jobId);
 
@@ -165,7 +164,7 @@ class JobsPrCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo", // valid repository
-            AgentState.FINISHED(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         jobsPrCommand = new JobsPrCommand(jobRepository, jobId);
 
@@ -187,7 +186,7 @@ class JobsPrCommandTest {
             "cursor-agent-123",
             "test-model",
             "", // empty repository
-            AgentState.FINISHED(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         jobsPrCommand = new JobsPrCommand(jobRepository, jobId);
 
@@ -209,7 +208,7 @@ class JobsPrCommandTest {
             "cursor-agent-123",
             "test-model",
             "https://gitlab.com/user/repo.git",
-            AgentState.FINISHED(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         jobsPrCommand = new JobsPrCommand(jobRepository, jobId);
 

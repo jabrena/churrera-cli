@@ -15,18 +15,18 @@ class SimpleWorkflowCompletionCheckerTest {
 
     @Test
     void shouldReportCompletionWhenJobIsTerminal() {
-        Job terminalJob = createJob(AgentState.FINISHED());
+        Job terminalJob = createJob(AgentState.finished());
 
         CompletionCheckResult result = checker.checkCompletion(terminalJob, terminalJob.jobId());
 
         assertThat(result.isCompleted()).isTrue();
-        assertThat(result.getFinalStatus()).isEqualTo(AgentState.FINISHED());
+        assertThat(result.getFinalStatus()).isEqualTo(AgentState.finished());
         assertThat(result.getChildJobs()).isEmpty();
     }
 
     @Test
     void shouldReportNotCompletedWhenJobIsActive() {
-        Job activeJob = createJob(AgentState.RUNNING());
+        Job activeJob = createJob(AgentState.running());
 
         CompletionCheckResult result = checker.checkCompletion(activeJob, activeJob.jobId());
 

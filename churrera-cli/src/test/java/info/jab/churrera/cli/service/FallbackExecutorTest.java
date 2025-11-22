@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -45,7 +46,7 @@ class FallbackExecutorTest {
     void setUp() {
         fallbackExecutor = new FallbackExecutor(cliAgent, jobRepository, workflowFileService);
 
-        testJob = new Job("job-id", "/path/workflow.xml", "agent-id", "model", "repo", AgentState.CREATING(),
+        testJob = new Job("job-id", "/path/workflow.xml", "agent-id", "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, null, "fallback.pml", null);
 
         testWorkflowData = new WorkflowData(
@@ -60,7 +61,7 @@ class FallbackExecutorTest {
     @Test
     void testExecuteFallback_TerminalStatus() {
         // Given
-        Job terminalJob = testJob.withStatus(AgentState.FINISHED());
+        Job terminalJob = testJob.withStatus(AgentState.finished());
 
         // When
         fallbackExecutor.executeFallback(terminalJob, testWorkflowData, 1000L, 1000L);
@@ -92,7 +93,7 @@ class FallbackExecutorTest {
         fallbackExecutor.executeFallback(jobNoFallback, testWorkflowData, 1000L, 1000L);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobNoFallback, AgentState.ERROR());
+        verify(cliAgent).updateJobStatusInDatabase(jobNoFallback, AgentState.error());
         verifyNoInteractions(workflowFileService);
     }
 
@@ -105,12 +106,12 @@ class FallbackExecutorTest {
         fallbackExecutor.executeFallback(jobEmptyFallback, testWorkflowData, 1000L, 1000L);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobEmptyFallback, AgentState.ERROR());
+        verify(cliAgent).updateJobStatusInDatabase(jobEmptyFallback, AgentState.error());
         verifyNoInteractions(workflowFileService);
     }
 
     @Test
-    void testExecuteFallback_WithAgentId_AsFollowUp() throws Exception {
+    void testExecuteFallback_WithAgentId_AsFollowUp() throws IOException {
         // Given
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenReturn("fallback content");
         when(workflowFileService.inferTypeFromExtension("fallback.pml")).thenReturn("pml");
@@ -125,7 +126,7 @@ class FallbackExecutorTest {
     }
 
     @Test
-    void testExecuteFallback_NoAgentId_Launch() throws Exception {
+    void testExecuteFallback_NoAgentId_Launch() {
         // Given
         Job jobNoAgent = testJob.withCursorAgentId(null);
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenReturn("fallback content");
@@ -138,11 +139,11 @@ class FallbackExecutorTest {
 
         // Then
         verify(cliAgent).launchAgentForJob(eq(jobNoAgent), eq("fallback content"), eq("pml"), isNull(), eq(true));
-        verify(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("new-agent-id"), eq(AgentState.CREATING()));
+        verify(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("new-agent-id"), eq(AgentState.creating()));
     }
 
     @Test
-    void testExecuteFallback_WithBindValue() throws Exception {
+    void testExecuteFallback_WithBindValue() {
         // Given
         Job jobWithResult = testJob.withResult("bound-value");
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenReturn("fallback content");
@@ -157,7 +158,7 @@ class FallbackExecutorTest {
     }
 
     @Test
-    void testExecuteFallback_WithTimeout() throws Exception {
+    void testExecuteFallback_WithTimeout() throws IOException {
         // Given
         Job jobNoAgent = testJob.withCursorAgentId(null).withTimeoutMillis(1000L);
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenReturn("fallback content");
@@ -173,7 +174,7 @@ class FallbackExecutorTest {
     }
 
     @Test
-    void testExecuteFallback_Exception() throws Exception {
+    void testExecuteFallback_Exception() {
         // Given
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenThrow(new RuntimeException("File error"));
 
@@ -181,7 +182,7 @@ class FallbackExecutorTest {
         fallbackExecutor.executeFallback(testJob, testWorkflowData, 1000L, 1000L);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(testJob, AgentState.ERROR());
+        verify(cliAgent).updateJobStatusInDatabase(testJob, AgentState.error());
     }
 
     @Test
@@ -208,19 +209,19 @@ class FallbackExecutorTest {
         fallbackExecutor.executeFallbackForParallelChildren(testJob, parallelData);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(testJob, AgentState.ERROR());
+        verify(cliAgent).updateJobStatusInDatabase(testJob, AgentState.error());
         verifyNoInteractions(workflowFileService);
     }
 
     @Test
-    void testExecuteFallbackForParallelChildren_WithUnfinishedChildren() throws Exception {
+    void testExecuteFallbackForParallelChildren_WithUnfinishedChildren() throws IOException {
         // Given
         ParallelWorkflowData parallelData = mock(ParallelWorkflowData.class);
         when(parallelData.getFallbackSrc()).thenReturn("fallback.pml");
         
-        Job child1 = new Job("child-1", "/path", "child-agent-1", "model", "repo", AgentState.CREATING(),
+        Job child1 = new Job("child-1", "/path", "child-agent-1", "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), "job-id", null, null, null, null, null, null);
-        Job child2 = new Job("child-2", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job child2 = new Job("child-2", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), "job-id", null, null, null, null, null, null);
         
         when(jobRepository.findAll()).thenReturn(List.of(testJob, child1, child2));
@@ -240,12 +241,12 @@ class FallbackExecutorTest {
     }
 
     @Test
-    void testExecuteFallbackForParallelChildren_ChildAlreadyExecuted() throws Exception {
+    void testExecuteFallbackForParallelChildren_ChildAlreadyExecuted() throws IOException {
         // Given
         ParallelWorkflowData parallelData = mock(ParallelWorkflowData.class);
         when(parallelData.getFallbackSrc()).thenReturn("fallback.pml");
         
-        Job child1 = new Job("child-1", "/path", "child-agent-1", "model", "repo", AgentState.CREATING(),
+        Job child1 = new Job("child-1", "/path", "child-agent-1", "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), "job-id", null, null, null, null, null, true);
         
         when(jobRepository.findAll()).thenReturn(List.of(testJob, child1));
@@ -261,12 +262,12 @@ class FallbackExecutorTest {
     }
 
     @Test
-    void testExecuteFallbackForParallelChildren_NoUnfinishedChildren() throws Exception {
+    void testExecuteFallbackForParallelChildren_NoUnfinishedChildren() throws IOException {
         // Given
         ParallelWorkflowData parallelData = mock(ParallelWorkflowData.class);
         when(parallelData.getFallbackSrc()).thenReturn("fallback.pml");
         
-        Job finishedChild = new Job("child-1", "/path", "child-agent-1", "model", "repo", AgentState.FINISHED(),
+        Job finishedChild = new Job("child-1", "/path", "child-agent-1", "model", "repo", AgentState.finished(),
             LocalDateTime.now(), LocalDateTime.now(), "job-id", null, null, null, null, null, null);
         
         when(jobRepository.findAll()).thenReturn(List.of(testJob, finishedChild));
@@ -283,7 +284,7 @@ class FallbackExecutorTest {
     }
 
     @Test
-    void testExecuteFallbackForParallelChildren_Exception() throws Exception {
+    void testExecuteFallbackForParallelChildren_Exception() {
         // Given
         ParallelWorkflowData parallelData = mock(ParallelWorkflowData.class);
         when(parallelData.getFallbackSrc()).thenReturn("fallback.pml");

@@ -124,7 +124,7 @@ public class CLIAgent {
      * @return the final agent state
      */
     public AgentState monitorAgent(String cursorAgentId, int delaySeconds) {
-        AgentState lastState = AgentState.CREATING();
+        AgentState lastState = AgentState.creating();
 
         while (true) {
             try {

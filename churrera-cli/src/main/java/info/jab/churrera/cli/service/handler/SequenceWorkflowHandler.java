@@ -136,7 +136,7 @@ public class SequenceWorkflowHandler {
         } catch (Exception statusError) {
             logger.error("Error getting agent status for job {}: {}", job.jobId(), statusError.getMessage());
             // Mark job as failed if we can't get status
-            cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
+            cliAgent.updateJobStatusInDatabase(job, AgentState.error());
         }
     }
 }

@@ -61,7 +61,7 @@ public class AgentLauncher {
 
             // Update job in database with cursorAgentId and CREATING status
             Job updatedJob = job.withCursorAgentId(cursorAgentId);
-            cliAgent.updateJobCursorIdInDatabase(updatedJob, cursorAgentId, AgentState.CREATING());
+            cliAgent.updateJobCursorIdInDatabase(updatedJob, cursorAgentId, AgentState.creating());
 
             // Reset workflowStartTime to now when launching (even if it already exists, to start fresh)
             if (job.timeoutMillis() != null) {
@@ -77,7 +77,7 @@ public class AgentLauncher {
             logger.error("Error launching job {}: {}", job.jobId(), e.getMessage());
             // Mark job as failed if launch fails
             try {
-                cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
+                cliAgent.updateJobStatusInDatabase(job, AgentState.error());
             } catch (Exception updateError) {
                 logger.error("Error updating job status to FAILED: {}", updateError.getMessage());
             }

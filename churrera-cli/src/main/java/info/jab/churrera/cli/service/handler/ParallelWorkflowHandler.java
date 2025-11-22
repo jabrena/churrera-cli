@@ -252,7 +252,7 @@ public class ParallelWorkflowHandler {
      */
     private void updateJobStatusToError(Job job, String errorMessage) {
         try {
-            cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
+            cliAgent.updateJobStatusInDatabase(job, AgentState.error());
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 logger.error(errorMessage);
             }
@@ -300,7 +300,7 @@ public class ParallelWorkflowHandler {
                 null, // cursorAgentId starts as null
                 sequenceInfo.getModel() != null ? sequenceInfo.getModel() : parentJob.model(),
                 sequenceInfo.getRepository() != null ? sequenceInfo.getRepository() : parentJob.repository(),
-                AgentState.CREATING(),
+                AgentState.creating(),
                 now,
                 now,
                 parentJob.jobId(), // Set parent job ID

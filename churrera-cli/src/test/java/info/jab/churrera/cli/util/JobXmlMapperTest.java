@@ -33,7 +33,7 @@ class JobXmlMapperTest {
                 "agent-123",
                 "model-1",
                 "repo-1",
-                AgentState.RUNNING(),
+                AgentState.running(),
                 FIXED_TIME,
                 FIXED_TIME,
                 "parent-1",
@@ -83,7 +83,7 @@ class JobXmlMapperTest {
         void shouldConvertJobToExactXml() {
             // Given
             Job job = new Job("job-1", "/path/to/job", "agent-123", "model-1", "repo-1",
-                    AgentState.CREATING(), FIXED_TIME, FIXED_TIME, null, null, null, null, null, null, null);
+                    AgentState.creating(), FIXED_TIME, FIXED_TIME, null, null, null, null, null, null, null);
             String expectedXml = buildBaseJobXml(FIXED_TIME);
 
             // When
@@ -97,7 +97,7 @@ class JobXmlMapperTest {
         void shouldConvertJobWithNullValuesToXml() {
             // Given
             Job job = new Job("job-1", "/path/to/job", null, "model-1", "repo-1",
-                    AgentState.CREATING(), FIXED_TIME, FIXED_TIME, null, null, null, null, null, null, null);
+                    AgentState.creating(), FIXED_TIME, FIXED_TIME, null, null, null, null, null, null, null);
 
             // When
             String xml = JobXmlMapper.toXml(job, FORMATTER);
@@ -131,7 +131,7 @@ class JobXmlMapperTest {
             LocalDateTime timestamp = now();
             Job job = new Job(
                     "<id>", "/<path>", "</agent>", "\"model\"", "'repo'",
-                    AgentState.RUNNING(), timestamp, timestamp, "<parent>", "<result>", WorkflowType.SEQUENCE,
+                    AgentState.running(), timestamp, timestamp, "<parent>", "<result>", WorkflowType.SEQUENCE,
                     null, null, "<fallback>", true
             );
 
@@ -165,7 +165,7 @@ class JobXmlMapperTest {
             assertThat(job.cursorAgentId()).isEqualTo("agent-123");
             assertThat(job.model()).isEqualTo("model-1");
             assertThat(job.repository()).isEqualTo("repo-1");
-            assertThat(job.status()).isEqualTo(AgentState.CREATING());
+            assertThat(job.status()).isEqualTo(AgentState.creating());
         }
 
         @Test
@@ -272,7 +272,7 @@ class JobXmlMapperTest {
         // Given
         LocalDateTime now = now();
         Job original = new Job("job-1", "/path/to/job", "agent-123", "model-1", "repo-1",
-                AgentState.RUNNING(), now, now, "parent-1", "result-1", WorkflowType.PARALLEL,
+                AgentState.running(), now, now, "parent-1", "result-1", WorkflowType.PARALLEL,
                 3000L, now.minusMinutes(30), "/fallback.xml", false);
 
         // When
