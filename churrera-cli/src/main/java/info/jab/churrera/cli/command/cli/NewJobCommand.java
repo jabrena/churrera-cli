@@ -6,7 +6,6 @@ import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.workflow.WorkflowParser;
 import info.jab.churrera.cli.service.CLIAgent;
-import org.basex.query.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -85,7 +84,7 @@ public class NewJobCommand implements Runnable {
             // Determine workflow type
             WorkflowType workflowType = WorkflowParser.determineWorkflowType(new File(path));
 
-            Job job = new Job(jobId, path, null, model, repository, AgentState.CREATING(), now, now, null, null, workflowType, null, null, null, null);
+            Job job = new Job(jobId, path, null, model, repository, AgentState.creating(), now, now, null, null, workflowType, null, null, null, null);
             jobRepository.save(job);
 
             logger.info("Job created with ID: {}", jobId);

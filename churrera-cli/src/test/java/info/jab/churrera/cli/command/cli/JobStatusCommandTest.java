@@ -46,7 +46,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         testPrompts = List.of(
             new Prompt(
@@ -128,7 +128,7 @@ class JobStatusCommandTest {
             null, // no cursor agent
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
 
@@ -183,7 +183,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
             WorkflowType.SEQUENCE, null, null, null, null);
 
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -229,7 +229,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -292,7 +292,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null,
             "[\"item1\", \"item2\"]", // Result already exists
             WorkflowType.PARALLEL, null, null, null, null);
 
@@ -345,7 +345,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -374,7 +374,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.SEQUENCE, null, null, null, null);
 
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -400,7 +400,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             null, null, null, null, null); // null type
 
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -444,7 +444,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), // Not successful yet
+            AgentState.running(), // Not successful yet
             LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
@@ -496,7 +496,7 @@ class JobStatusCommandTest {
             null, // No cursor agent ID
             "test-model",
             "test-repo",
-            AgentState.FINISHED(),
+            AgentState.finished(),
             LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
@@ -547,7 +547,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null,
             "[\"item1\", \"item2\"]",
             null, null, null, null, null); // null type - will be determined from file
 
@@ -597,7 +597,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null,
             "", // Empty result - will trigger extraction
             info.jab.churrera.workflow.WorkflowType.PARALLEL, null, null, null, null);
 
@@ -650,7 +650,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null,
             null, // null result - will trigger extraction
             WorkflowType.PARALLEL, null, null, null, null);
 
@@ -700,7 +700,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -747,7 +747,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             null, null, null, null, null); // null type - will be determined from file
 
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -793,7 +793,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null); // Type says PARALLEL but file is SEQUENCE
 
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -825,7 +825,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, jobId);
@@ -868,7 +868,7 @@ class JobStatusCommandTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.ERROR(), // Not successful
+            AgentState.error(), // Not successful
             LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
@@ -902,7 +902,7 @@ class JobStatusCommandTest {
             null,
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, prefix);
 
@@ -926,9 +926,9 @@ class JobStatusCommandTest {
         // Given
         String prefix = "abcdef01";
         Job job1 = new Job("abcdef01-aaaa-bbbb-cccc-111111111111",
-            "/p1", null, "m", "r", AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            "/p1", null, "m", "r", AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
         Job job2 = new Job("abcdef01-dddd-eeee-ffff-222222222222",
-            "/p2", null, "m", "r", AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            "/p2", null, "m", "r", AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         jobStatusCommand = new JobStatusCommand(jobRepository, cliAgent, prefix);
 

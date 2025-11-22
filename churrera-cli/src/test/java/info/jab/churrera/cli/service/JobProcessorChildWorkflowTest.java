@@ -1,15 +1,12 @@
 package info.jab.churrera.cli.service;
 
-import info.jab.churrera.workflow.ParallelWorkflowData;
 import info.jab.churrera.workflow.PromptInfo;
 import info.jab.churrera.workflow.SequenceInfo;
 import info.jab.churrera.workflow.WorkflowData;
-import info.jab.churrera.workflow.WorkflowParseException;
 import info.jab.churrera.workflow.WorkflowParser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -24,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class JobProcessorChildWorkflowTest {
 
     @Test
-    void testChildWorkflowGeneration_IncludesBindResultExp(@TempDir Path tempDir) throws Exception {
+    void testChildWorkflowGeneration_IncludesBindResultExp() throws Exception {
         // Given: A SequenceInfo with a prompt that has bindResultExp
         PromptInfo promptWithBind = new PromptInfo(
             "prompt2.xml",

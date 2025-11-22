@@ -186,7 +186,7 @@ public class ChildWorkflowHandler {
             return updatedJob;
         } catch (Exception statusError) {
             logger.error("Error processing child job {}: {}", job.jobId(), statusError.getMessage());
-            cliAgent.updateJobStatusInDatabase(job, AgentState.ERROR());
+            cliAgent.updateJobStatusInDatabase(job, AgentState.error());
             return job;
         }
     }

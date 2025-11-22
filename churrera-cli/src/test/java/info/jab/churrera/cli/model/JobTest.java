@@ -23,7 +23,7 @@ class JobTest {
     private static final String CURSOR_AGENT_ID = "agent-123";
     private static final String MODEL = "gpt-4";
     private static final String REPOSITORY = "test-repo";
-    private static final AgentState STATUS = AgentState.CREATING();
+    private static final AgentState STATUS = AgentState.creating();
     private static final LocalDateTime CREATED_AT = LocalDateTime.of(2024, 10, 11, 8, 0);
     private static final LocalDateTime LAST_UPDATE = CREATED_AT.plusMinutes(5);
 
@@ -106,7 +106,7 @@ class JobTest {
     @DisplayName("should update status and refresh timestamp")
     void shouldUpdateStatus() {
         Job original = jobFixture(CREATED_AT, LAST_UPDATE);
-        AgentState running = AgentState.RUNNING();
+        AgentState running = AgentState.running();
 
         Job updated = original.withStatus(running);
 
@@ -257,11 +257,11 @@ class JobTest {
 
     private static Stream<AgentState> agentStateProvider() {
         return Stream.of(
-            AgentState.CREATING(),
-            AgentState.RUNNING(),
-            AgentState.FINISHED(),
-            AgentState.ERROR(),
-            AgentState.EXPIRED()
+            AgentState.creating(),
+            AgentState.running(),
+            AgentState.finished(),
+            AgentState.error(),
+            AgentState.expired()
         );
     }
 

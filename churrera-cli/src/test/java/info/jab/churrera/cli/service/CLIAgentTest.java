@@ -88,7 +88,7 @@ class CLIAgentTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.CREATING(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.creating(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         testPrompt = new Prompt(
             "prompt-1",
@@ -238,7 +238,7 @@ class CLIAgentTest {
 
             // Then
             assertNotNull(result);
-            assertEquals(AgentState.FINISHED(), result);
+            assertEquals(AgentState.finished(), result);
             verify(cursorAgentInformation).getStatus("agent-id");
     }
 
@@ -256,7 +256,7 @@ class CLIAgentTest {
             AgentState result = cliAgent.monitorAgent("agent-id", 0);
 
             // Then
-            assertEquals(AgentState.FINISHED(), result);
+            assertEquals(AgentState.finished(), result);
             // Should be called at least once
             verify(cursorAgentInformation, atLeastOnce()).getStatus("agent-id");
     }
@@ -295,7 +295,7 @@ class CLIAgentTest {
             // When
             Thread monitorThread = new Thread(() -> {
                 AgentState result = cliAgent.monitorAgent("agent-id", 1);
-                assertEquals(AgentState.FINISHED(), result);
+                assertEquals(AgentState.finished(), result);
             });
 
             monitorThread.start();
@@ -374,7 +374,7 @@ class CLIAgentTest {
         cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter);
 
             // When
-            cliAgent.updateJobCursorIdInDatabase(testJob, "new-agent-id", AgentState.CREATING());
+            cliAgent.updateJobCursorIdInDatabase(testJob, "new-agent-id", AgentState.creating());
 
             // Then
             verify(jobRepository).save(any(Job.class));
@@ -392,7 +392,7 @@ class CLIAgentTest {
             // When & Then
             RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> {
-                    AgentState state = AgentState.CREATING();
+                    AgentState state = AgentState.creating();
                     cliAgent.updateJobCursorIdInDatabase(testJob, "new-agent-id", state);
                 });
             assertTrue(exception.getMessage().contains("Failed to update job in database"));    }
@@ -405,7 +405,7 @@ class CLIAgentTest {
         cliAgent = new CLIAgent(jobRepository, cursorAgentManagement, cursorAgentInformation, cursorAgentGeneralEndpoints, mockPmlConverter);
 
             // When
-            cliAgent.updateJobStatusInDatabase(testJob, AgentState.FINISHED());
+            cliAgent.updateJobStatusInDatabase(testJob, AgentState.finished());
 
             // Then
             verify(jobRepository).save(any(Job.class));
@@ -467,7 +467,7 @@ class CLIAgentTest {
             AgentState result = cliAgent.getAgentStatus("agent-id");
 
             // Then
-            assertEquals(AgentState.RUNNING(), result);
+            assertEquals(AgentState.running(), result);
             verify(cursorAgentInformation).getStatus("agent-id");
     }
 
@@ -678,7 +678,7 @@ class CLIAgentTest {
             // When & Then
             RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> {
-                    AgentState state = AgentState.FINISHED();
+                    AgentState state = AgentState.finished();
                     cliAgent.updateJobStatusInDatabase(testJob, state);
                 });
             assertTrue(exception.getMessage().contains("Failed to update job status in database"));    }

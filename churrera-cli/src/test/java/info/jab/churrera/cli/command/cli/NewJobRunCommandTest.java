@@ -107,7 +107,7 @@ class NewJobRunCommandTest {
                 .forEach(path -> {
                     try {
                         Files.delete(path);
-                    } catch (IOException e) {
+                    } catch (IOException _) {
                         // Ignore cleanup errors
                     }
                 });
@@ -144,7 +144,7 @@ class NewJobRunCommandTest {
     }
 
     @Test
-    void testRun_WorkflowFileDoesNotExist() throws Exception, WorkflowParseException, IOException {
+    void testRun_WorkflowFileDoesNotExist() throws IOException, WorkflowParseException {
         // Given
         String nonExistentPath = "/non/existent/path.xml";
         NewJobRunCommand commandWithNonExistentFile =
@@ -205,7 +205,7 @@ class NewJobRunCommandTest {
             assertEquals(testJobPath, job.path());
             assertEquals("test-model", job.model());
             assertEquals("test-repo", job.repository());
-            assertEquals(AgentState.CREATING(), job.status());
+            assertEquals(AgentState.creating(), job.status());
             assertNull(job.cursorAgentId());
             assertNotNull(job.jobId());
             assertNotNull(job.createdAt());
@@ -236,7 +236,7 @@ class NewJobRunCommandTest {
             assertEquals(testJobPath, job.path());
             assertEquals("default-model", job.model());
             assertEquals("default-repository", job.repository());
-            assertEquals(AgentState.CREATING(), job.status());
+            assertEquals(AgentState.creating(), job.status());
             return true;
         }));
         verify(jobRepository, atLeastOnce()).savePrompt(any(Prompt.class));

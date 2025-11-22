@@ -20,7 +20,7 @@ class CompletionCheckResultTest {
     @Test
     void shouldCreateCompletedResultWithFinalStatus() {
         // Given
-        AgentState finalStatus = AgentState.FINISHED();
+        AgentState finalStatus = AgentState.finished();
         List<Job> childJobs = new ArrayList<>();
 
         // When
@@ -49,7 +49,7 @@ class CompletionCheckResultTest {
     @Test
     void shouldCreateCompletedResultWithChildJobs() {
         // Given
-        AgentState finalStatus = AgentState.FINISHED();
+        AgentState finalStatus = AgentState.finished();
         Job childJob1 = createTestJob("child-1", "parent-1");
         Job childJob2 = createTestJob("child-2", "parent-1");
         List<Job> childJobs = Arrays.asList(childJob1, childJob2);
@@ -84,7 +84,7 @@ class CompletionCheckResultTest {
     @Test
     void shouldCreateCompletedResultWithErrorStatus() {
         // Given
-        AgentState finalStatus = AgentState.ERROR();
+        AgentState finalStatus = AgentState.error();
         List<Job> childJobs = new ArrayList<>();
 
         // When
@@ -99,7 +99,7 @@ class CompletionCheckResultTest {
     @Test
     void shouldCreateCompletedResultWithExpiredStatus() {
         // Given
-        AgentState finalStatus = AgentState.EXPIRED();
+        AgentState finalStatus = AgentState.expired();
         List<Job> childJobs = new ArrayList<>();
 
         // When
@@ -114,7 +114,7 @@ class CompletionCheckResultTest {
     @Test
     void shouldCreateCompletedResultWithRunningStatus() {
         // Given
-        AgentState finalStatus = AgentState.RUNNING();
+        AgentState finalStatus = AgentState.running();
         List<Job> childJobs = new ArrayList<>();
 
         // When
@@ -129,7 +129,7 @@ class CompletionCheckResultTest {
     @Test
     void shouldCreateCompletedResultWithCreatingStatus() {
         // Given
-        AgentState finalStatus = AgentState.CREATING();
+        AgentState finalStatus = AgentState.creating();
         List<Job> childJobs = new ArrayList<>();
 
         // When
@@ -144,7 +144,7 @@ class CompletionCheckResultTest {
     @Test
     void shouldCreateResultWithEmptyChildJobsList() {
         // Given
-        AgentState finalStatus = AgentState.FINISHED();
+        AgentState finalStatus = AgentState.finished();
         List<Job> emptyChildJobs = new ArrayList<>();
 
         // When
@@ -159,7 +159,7 @@ class CompletionCheckResultTest {
     @Test
     void shouldCreateResultWithMultipleChildJobs() {
         // Given
-        AgentState finalStatus = AgentState.FINISHED();
+        AgentState finalStatus = AgentState.finished();
         Job childJob1 = createTestJob("child-1", "parent-1");
         Job childJob2 = createTestJob("child-2", "parent-1");
         Job childJob3 = createTestJob("child-3", "parent-1");
@@ -178,8 +178,8 @@ class CompletionCheckResultTest {
     @Test
     void shouldCreateNotCompletedResultWithChildJobsForParallelWorkflow() {
         // Given
-        Job childJob1 = createTestJob("child-1", "parent-1", AgentState.RUNNING());
-        Job childJob2 = createTestJob("child-2", "parent-1", AgentState.RUNNING());
+        Job childJob1 = createTestJob("child-1", "parent-1", AgentState.running());
+        Job childJob2 = createTestJob("child-2", "parent-1", AgentState.running());
         List<Job> childJobs = Arrays.asList(childJob1, childJob2);
 
         // When
@@ -195,9 +195,9 @@ class CompletionCheckResultTest {
     @Test
     void shouldCreateCompletedResultWithSuccessfulChildJobs() {
         // Given
-        AgentState finalStatus = AgentState.FINISHED();
-        Job childJob1 = createTestJob("child-1", "parent-1", AgentState.FINISHED());
-        Job childJob2 = createTestJob("child-2", "parent-1", AgentState.FINISHED());
+        AgentState finalStatus = AgentState.finished();
+        Job childJob1 = createTestJob("child-1", "parent-1", AgentState.finished());
+        Job childJob2 = createTestJob("child-2", "parent-1", AgentState.finished());
         List<Job> childJobs = Arrays.asList(childJob1, childJob2);
 
         // When
@@ -214,9 +214,9 @@ class CompletionCheckResultTest {
     @Test
     void shouldCreateCompletedResultWithFailedChildJobs() {
         // Given
-        AgentState finalStatus = AgentState.ERROR();
-        Job childJob1 = createTestJob("child-1", "parent-1", AgentState.ERROR());
-        Job childJob2 = createTestJob("child-2", "parent-1", AgentState.EXPIRED());
+        AgentState finalStatus = AgentState.error();
+        Job childJob1 = createTestJob("child-1", "parent-1", AgentState.error());
+        Job childJob2 = createTestJob("child-2", "parent-1", AgentState.expired());
         List<Job> childJobs = Arrays.asList(childJob1, childJob2);
 
         // When
@@ -234,7 +234,7 @@ class CompletionCheckResultTest {
      * Creates a test job with default values.
      */
     private Job createTestJob(String jobId, String parentJobId) {
-        return createTestJob(jobId, parentJobId, AgentState.CREATING());
+        return createTestJob(jobId, parentJobId, AgentState.creating());
     }
 
     /**

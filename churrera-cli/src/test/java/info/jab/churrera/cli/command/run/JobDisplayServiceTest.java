@@ -40,7 +40,7 @@ class JobDisplayServiceTest {
     }
 
     @Test
-    void shouldRenderSequenceJobWithActiveTiming() throws Exception {
+    void shouldRenderSequenceJobWithActiveTiming() {
         String jobId = "1234567890";
         LocalDateTime createdAt = LocalDateTime.of(2025, 1, 1, 11, 0);
         Job job = new Job(
@@ -49,7 +49,7 @@ class JobDisplayServiceTest {
             null,
             "model",
             "repo",
-            AgentState.RUNNING(),
+            AgentState.running(),
             createdAt,
             createdAt,
             null,
@@ -77,7 +77,7 @@ class JobDisplayServiceTest {
     }
 
     @Test
-    void shouldHandleParallelJobsAndPromptErrors() throws Exception {
+    void shouldHandleParallelJobsAndPromptErrors() {
         String parentId = "parent-job";
         String childId = "child-job";
         LocalDateTime createdAt = LocalDateTime.of(2025, 1, 1, 10, 55);
@@ -87,7 +87,7 @@ class JobDisplayServiceTest {
             null,
             "model",
             "repo",
-            AgentState.FINISHED(),
+            AgentState.finished(),
             createdAt,
             createdAt.plusMinutes(5),
             null,
@@ -104,7 +104,7 @@ class JobDisplayServiceTest {
             null,
             "model",
             "repo",
-            AgentState.RUNNING(),
+            AgentState.running(),
             createdAt,
             createdAt.plusMinutes(3),
             parentId,

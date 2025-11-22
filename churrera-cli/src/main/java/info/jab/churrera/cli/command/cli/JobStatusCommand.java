@@ -11,8 +11,6 @@ import info.jab.churrera.workflow.WorkflowParser;
 import info.jab.churrera.workflow.WorkflowData;
 import info.jab.churrera.workflow.ParallelWorkflowData;
 import info.jab.churrera.util.ConversationJsonDeserializer;
-import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;

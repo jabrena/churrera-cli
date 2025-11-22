@@ -35,7 +35,7 @@ class TimeoutManagerTest {
     @Test
     void testResetWorkflowStartTimeIfNeeded_NoTimeout() {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         // When
@@ -49,7 +49,7 @@ class TimeoutManagerTest {
     @Test
     void testResetWorkflowStartTimeIfNeeded_WithTimeout() throws Exception {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, null, null, null);
         LocalDateTime newStartTime = LocalDateTime.now();
         Job updatedJob = job.withWorkflowStartTime(newStartTime);
@@ -67,7 +67,7 @@ class TimeoutManagerTest {
     @Test
     void testResetWorkflowStartTimeIfNeeded_Exception() throws Exception {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, null, null, null);
         doThrow(new RuntimeException("DB error")).when(jobRepository).save(any(Job.class));
 
@@ -81,7 +81,7 @@ class TimeoutManagerTest {
     @Test
     void testResetStaleWorkflowStartTime_NoTimeout() {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         // When
@@ -95,7 +95,7 @@ class TimeoutManagerTest {
     @Test
     void testResetStaleWorkflowStartTime_TerminalStatus() {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.FINISHED(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.finished(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, null, null, null);
 
         // When
@@ -109,7 +109,7 @@ class TimeoutManagerTest {
     @Test
     void testResetStaleWorkflowStartTime_NullStartTime() throws Exception {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, null, null, null);
         LocalDateTime newStartTime = LocalDateTime.now();
         Job updatedJob = job.withWorkflowStartTime(newStartTime);
@@ -127,7 +127,7 @@ class TimeoutManagerTest {
     void testResetStaleWorkflowStartTime_StaleStartTime() throws Exception {
         // Given
         LocalDateTime staleTime = LocalDateTime.now().minusHours(1);
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, staleTime, null, null);
         LocalDateTime newStartTime = LocalDateTime.now();
         Job updatedJob = job.withWorkflowStartTime(newStartTime);
@@ -145,7 +145,7 @@ class TimeoutManagerTest {
     void testResetStaleWorkflowStartTime_FreshStartTime() {
         // Given
         LocalDateTime freshTime = LocalDateTime.now().minusSeconds(1);
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, freshTime, null, null);
 
         // When
@@ -159,7 +159,7 @@ class TimeoutManagerTest {
     @Test
     void testResetStaleWorkflowStartTime_Exception() throws Exception {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, null, null, null);
         doThrow(new RuntimeException("DB error")).when(jobRepository).save(any(Job.class));
 
@@ -173,7 +173,7 @@ class TimeoutManagerTest {
     @Test
     void testEnsureWorkflowStartTimeSet_NoTimeout() {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         // When
@@ -188,7 +188,7 @@ class TimeoutManagerTest {
     void testEnsureWorkflowStartTimeSet_HasStartTime() {
         // Given
         LocalDateTime startTime = LocalDateTime.now();
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, startTime, null, null);
 
         // When
@@ -202,7 +202,7 @@ class TimeoutManagerTest {
     @Test
     void testEnsureWorkflowStartTimeSet_NullStartTime() throws Exception {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, null, null, null);
         LocalDateTime newStartTime = LocalDateTime.now();
         Job updatedJob = job.withWorkflowStartTime(newStartTime);
@@ -219,7 +219,7 @@ class TimeoutManagerTest {
     @Test
     void testEnsureWorkflowStartTimeSet_Exception() throws Exception {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, null, null, null);
         doThrow(new RuntimeException("DB error")).when(jobRepository).save(any(Job.class));
 
@@ -233,7 +233,7 @@ class TimeoutManagerTest {
     @Test
     void testHasReachedTimeout_NoAgentId() {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, LocalDateTime.now(), null, null);
 
         // When
@@ -246,7 +246,7 @@ class TimeoutManagerTest {
     @Test
     void testHasReachedTimeout_NoTimeout() {
         // Given
-        Job job = new Job("job-id", "/path", "agent-id", "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", "agent-id", "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, LocalDateTime.now(), null, null);
 
         // When
@@ -260,7 +260,7 @@ class TimeoutManagerTest {
     void testHasReachedTimeout_NotReached() {
         // Given
         LocalDateTime startTime = LocalDateTime.now().minusSeconds(1);
-        Job job = new Job("job-id", "/path", "agent-id", "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", "agent-id", "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 10000L, startTime, null, null);
 
         // When
@@ -274,7 +274,7 @@ class TimeoutManagerTest {
     void testHasReachedTimeout_Reached() {
         // Given
         LocalDateTime startTime = LocalDateTime.now().minusSeconds(2);
-        Job job = new Job("job-id", "/path", "agent-id", "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", "agent-id", "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, startTime, null, null);
 
         // When
@@ -287,7 +287,7 @@ class TimeoutManagerTest {
     @Test
     void testGetElapsedMillis_NoTimeout() {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, LocalDateTime.now(), null, null);
 
         // When
@@ -300,7 +300,7 @@ class TimeoutManagerTest {
     @Test
     void testGetElapsedMillis_NoStartTime() {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, null, null, null);
 
         // When
@@ -314,7 +314,7 @@ class TimeoutManagerTest {
     void testGetElapsedMillis_WithElapsedTime() {
         // Given
         LocalDateTime startTime = LocalDateTime.now().minusSeconds(5);
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, startTime, null, null);
 
         // When
@@ -327,7 +327,7 @@ class TimeoutManagerTest {
     @Test
     void testCheckTimeout_NoAgentId() {
         // Given
-        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, LocalDateTime.now(), null, null);
 
         // When
@@ -341,7 +341,7 @@ class TimeoutManagerTest {
     @Test
     void testCheckTimeout_NoTimeout() {
         // Given
-        Job job = new Job("job-id", "/path", "agent-id", "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", "agent-id", "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, LocalDateTime.now(), null, null);
 
         // When
@@ -356,7 +356,7 @@ class TimeoutManagerTest {
     void testCheckTimeout_NotReached() {
         // Given
         LocalDateTime startTime = LocalDateTime.now().minusSeconds(1);
-        Job job = new Job("job-id", "/path", "agent-id", "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", "agent-id", "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 10000L, startTime, null, null);
 
         // When
@@ -371,7 +371,7 @@ class TimeoutManagerTest {
     void testCheckTimeout_Reached() {
         // Given
         LocalDateTime startTime = LocalDateTime.now().minusSeconds(2);
-        Job job = new Job("job-id", "/path", "agent-id", "model", "repo", AgentState.CREATING(),
+        Job job = new Job("job-id", "/path", "agent-id", "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, 1000L, startTime, null, null);
 
         // When

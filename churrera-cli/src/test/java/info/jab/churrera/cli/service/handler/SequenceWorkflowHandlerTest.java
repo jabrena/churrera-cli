@@ -55,7 +55,7 @@ class SequenceWorkflowHandlerTest {
     void setUp() {
         handler = new SequenceWorkflowHandler(jobRepository, cliAgent, agentLauncher, promptProcessor, timeoutManager, fallbackExecutor);
 
-        testJob = new Job("job-id", "/path/workflow.xml", null, "model", "repo", AgentState.CREATING(),
+        testJob = new Job("job-id", "/path/workflow.xml", null, "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         testPrompts = List.of(
@@ -92,7 +92,7 @@ class SequenceWorkflowHandlerTest {
         Job jobWithAgent = testJob.withCursorAgentId("agent-id");
         when(timeoutManager.resetStaleWorkflowStartTime(jobWithAgent)).thenReturn(jobWithAgent);
         // checkTimeout is only called if timeoutMillis is not null, so no stub needed here
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.RUNNING());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
         lenient().when(jobRepository.findById("job-id")).thenReturn(Optional.of(jobWithAgent));
 
         // When
@@ -123,7 +123,7 @@ class SequenceWorkflowHandlerTest {
     @Test
     void testProcessWorkflow_TimeoutReached_TerminalStatus() throws Exception {
         // Given
-        Job terminalJob = testJob.withCursorAgentId("agent-id").withTimeoutMillis(1000L).withStatus(AgentState.FINISHED());
+        Job terminalJob = testJob.withCursorAgentId("agent-id").withTimeoutMillis(1000L).withStatus(AgentState.finished());
         when(timeoutManager.resetStaleWorkflowStartTime(terminalJob)).thenReturn(terminalJob);
         when(timeoutManager.checkTimeout(terminalJob))
             .thenReturn(new TimeoutManager.TimeoutCheckResult(true, 1500L, 1000L));
@@ -156,14 +156,14 @@ class SequenceWorkflowHandlerTest {
         Job jobWithAgent = testJob.withCursorAgentId("agent-id");
         when(timeoutManager.resetStaleWorkflowStartTime(jobWithAgent)).thenReturn(jobWithAgent);
         // checkTimeout is only called if timeoutMillis is not null, so no stub needed here
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.RUNNING());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
         lenient().when(jobRepository.findById("job-id")).thenReturn(Optional.of(jobWithAgent));
 
         // When
         handler.processWorkflow(jobWithAgent, testPrompts, testWorkflowData);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.RUNNING());
+        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.running());
         verify(promptProcessor, never()).processRemainingPrompts(any(), any(), any());
     }
 
@@ -173,14 +173,14 @@ class SequenceWorkflowHandlerTest {
         Job jobWithAgent = testJob.withCursorAgentId("agent-id");
         when(timeoutManager.resetStaleWorkflowStartTime(jobWithAgent)).thenReturn(jobWithAgent);
         // checkTimeout is only called if timeoutMillis is not null, so no stub needed here
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.finished());
         lenient().when(jobRepository.findById("job-id")).thenReturn(Optional.of(jobWithAgent));
 
         // When
         handler.processWorkflow(jobWithAgent, testPrompts, testWorkflowData);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.FINISHED());
+        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.finished());
         verify(promptProcessor).processRemainingPrompts(jobWithAgent, testPrompts, testWorkflowData);
     }
 
@@ -190,14 +190,14 @@ class SequenceWorkflowHandlerTest {
         Job jobWithAgent = testJob.withCursorAgentId("agent-id");
         when(timeoutManager.resetStaleWorkflowStartTime(jobWithAgent)).thenReturn(jobWithAgent);
         // checkTimeout is only called if timeoutMillis is not null, so no stub needed here
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.ERROR());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.error());
         lenient().when(jobRepository.findById("job-id")).thenReturn(Optional.of(jobWithAgent));
 
         // When
         handler.processWorkflow(jobWithAgent, testPrompts, testWorkflowData);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.ERROR());
+        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.error());
         verify(promptProcessor, never()).processRemainingPrompts(any(), any(), any());
     }
 
@@ -214,7 +214,7 @@ class SequenceWorkflowHandlerTest {
         handler.processWorkflow(jobWithAgent, testPrompts, testWorkflowData);
 
         // Then
-        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.ERROR());
+        verify(cliAgent).updateJobStatusInDatabase(jobWithAgent, AgentState.error());
     }
 
     @Test
@@ -236,7 +236,7 @@ class SequenceWorkflowHandlerTest {
         // Given
         Job jobWithAgent = testJob.withCursorAgentId("agent-id");
         when(timeoutManager.resetStaleWorkflowStartTime(jobWithAgent)).thenReturn(jobWithAgent);
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.RUNNING());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
 
         // When
         handler.processWorkflow(jobWithAgent, testPrompts, testWorkflowData);

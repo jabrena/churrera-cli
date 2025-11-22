@@ -141,7 +141,7 @@ class RunCommandTest {
                 .forEach(path -> {
                     try {
                         Files.delete(path);
-                    } catch (IOException e) {
+                    } catch (IOException _) {
                         // Ignore cleanup errors
                     }
                 });
@@ -173,7 +173,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testGetEffectivePollingIntervalSeconds_DefaultValue() throws Exception {
+    void testGetEffectivePollingIntervalSeconds_DefaultValue() {
         // Given - no override set
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
             workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
@@ -198,7 +198,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testGetEffectivePollingIntervalSeconds_WithOverride() throws Exception {
+    void testGetEffectivePollingIntervalSeconds_WithOverride() {
         // Given - override set via CommandLine
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
             workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
@@ -224,7 +224,7 @@ class RunCommandTest {
 
 
     @Test
-    void testRun_RetrieveModels() throws Exception {
+    void testRun_RetrieveModels() throws IOException {
         // Given
         when(cliAgent.getModels()).thenReturn(List.of("model1", "model2", "model3"));
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
@@ -242,7 +242,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testRun_RetrieveRepositories() throws Exception {
+    void testRun_RetrieveRepositories() throws IOException {
         // Given
         when(cliAgent.getRepositories()).thenReturn(List.of("repo1", "repo2"));
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
@@ -260,7 +260,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testRun_EmptyWorkflowPath() throws Exception {
+    void testRun_EmptyWorkflowPath() throws IOException {
         // Given
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
             workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
@@ -276,7 +276,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testCreateJob_WorkflowFileDoesNotExist() throws Exception {
+    void testCreateJob_WorkflowFileDoesNotExist() throws IOException {
         // Given
         String nonExistentPath = "/non/existent/path.xml";
 
@@ -289,7 +289,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testCreateJob_WorkflowValidationFails() throws Exception {
+    void testCreateJob_WorkflowValidationFails() throws IOException {
         // Given
         WorkflowValidator.ValidationResult validationResult =
             new WorkflowValidator.ValidationResult(false,
@@ -306,7 +306,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testCreateJob_TimeoutFallbackValidationFails() throws Exception {
+    void testCreateJob_TimeoutFallbackValidationFails() throws IOException {
         // Given
         when(workflowValidator.validateTimeoutAndFallback(any(File.class), any(WorkflowData.class)))
             .thenReturn(List.of("Fallback requires timeout"));
@@ -321,7 +321,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testCreateJob_PmlValidationFails() throws Exception {
+    void testCreateJob_PmlValidationFails() throws IOException {
         // Given
         PmlValidator.ValidationResult pmlResult =
             new PmlValidator.ValidationResult(false, List.of("PML validation error"));
@@ -337,7 +337,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testCreateJob_Success() throws Exception {
+    void testCreateJob_Success() throws IOException {
         // Given
         doNothing().when(jobRepository).save(any(Job.class));
         doNothing().when(jobRepository).savePrompt(any(Prompt.class));
@@ -352,7 +352,7 @@ class RunCommandTest {
             assertEquals(testJobPath, job.path());
             assertEquals("test-model", job.model());
             assertEquals("test-repo", job.repository());
-            assertEquals(AgentState.CREATING(), job.status());
+            assertEquals(AgentState.creating(), job.status());
             assertNotNull(job.jobId());
             return true;
         }));
@@ -360,7 +360,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testCreateJob_WithDefaultModelAndRepository() throws Exception {
+    void testCreateJob_WithDefaultModelAndRepository() throws IOException, WorkflowParseException {
         // Given
         WorkflowData workflowDataWithDefaults = new WorkflowData(
             new PromptInfo("prompt1.xml", "xml"),
@@ -386,7 +386,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testCreateJob_WorkflowParseException() throws Exception {
+    void testCreateJob_WorkflowParseException() throws IOException, WorkflowParseException {
         // Given
         when(workflowParser.parse(any(File.class)))
             .thenThrow(new WorkflowParseException("Parse error"));
@@ -525,11 +525,11 @@ class RunCommandTest {
         // Given
         String jobId = "parent-job";
         Job parentJob = new Job(jobId, "/path", null, "model", "repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
         Job childJob1 = new Job("child1", "/path", null, "model", "repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), jobId, null, null, null, null, null, null);
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), jobId, null, null, null, null, null, null);
         Job childJob2 = new Job("child2", "/path", null, "model", "repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), jobId, null, null, null, null, null, null);
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), jobId, null, null, null, null, null, null);
 
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(parentJob));
 
@@ -545,9 +545,9 @@ class RunCommandTest {
         // Given
         String jobId = "parent-job";
         Job parentJob = new Job(jobId, "/path", null, "model", "repo",
-            AgentState.ERROR(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.error(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
         Job childJob = new Job("child1", "/path", null, "model", "repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), jobId, null, null, null, null, null, null);
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), jobId, null, null, null, null, null, null);
 
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(parentJob));
 
@@ -563,9 +563,9 @@ class RunCommandTest {
         // Given
         String jobId = "parent-job";
         Job parentJob = new Job(jobId, "/path", null, "model", "repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
         Job childJob = new Job("child1", "/path", null, "model", "repo",
-            AgentState.ERROR(), LocalDateTime.now(), LocalDateTime.now(), jobId, null, null, null, null, null, null);
+            AgentState.error(), LocalDateTime.now(), LocalDateTime.now(), jobId, null, null, null, null, null, null);
 
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(parentJob));
 
@@ -577,10 +577,10 @@ class RunCommandTest {
     }
 
     @Test
-    void testDeleteJob_WithCursorAgent() throws Exception {
+    void testDeleteJob_WithCursorAgent() {
         // Given
         Job job = new Job("job-id", "/path", "cursor-agent-123", "model", "repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
         when(jobRepository.findPromptsByJobId("job-id")).thenReturn(List.of());
 
         // When
@@ -593,10 +593,10 @@ class RunCommandTest {
     }
 
     @Test
-    void testDeleteJob_WithoutCursorAgent() throws Exception {
+    void testDeleteJob_WithoutCursorAgent() {
         // Given
         Job job = new Job("job-id", "/path", null, "model", "repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
         when(jobRepository.findPromptsByJobId("job-id")).thenReturn(List.of());
 
         // When
@@ -609,10 +609,10 @@ class RunCommandTest {
     }
 
     @Test
-    void testDeleteJob_CursorAgentDeletionFails() throws Exception {
+    void testDeleteJob_CursorAgentDeletionFails() {
         // Given
         Job job = new Job("job-id", "/path", "cursor-agent-123", "model", "repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
         when(jobRepository.findPromptsByJobId("job-id")).thenReturn(List.of());
         doThrow(new RuntimeException("Delete failed")).when(cliAgent).deleteAgent(anyString());
 
@@ -626,7 +626,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testRetrieveAndDisplayModels_Success() throws Exception {
+    void testRetrieveAndDisplayModels_Success() {
         // Given
         when(cliAgent.getModels()).thenReturn(List.of("model1", "model2", "model3"));
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
@@ -642,7 +642,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testRetrieveAndDisplayModels_EmptyList() throws Exception {
+    void testRetrieveAndDisplayModels_EmptyList() {
         // Given
         when(cliAgent.getModels()).thenReturn(List.of());
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
@@ -658,7 +658,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testRetrieveAndDisplayModels_NullList() throws Exception {
+    void testRetrieveAndDisplayModels_NullList() {
         // Given
         when(cliAgent.getModels()).thenReturn(null);
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
@@ -674,7 +674,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testRetrieveAndDisplayRepositories_Success() throws Exception {
+    void testRetrieveAndDisplayRepositories_Success() {
         // Given
         when(cliAgent.getRepositories()).thenReturn(List.of("repo1", "repo2"));
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
@@ -690,7 +690,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testRetrieveAndDisplayRepositories_EmptyList() throws Exception {
+    void testRetrieveAndDisplayRepositories_EmptyList() {
         // Given
         when(cliAgent.getRepositories()).thenReturn(List.of());
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
@@ -706,7 +706,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testRetrieveAndDisplayRepositories_Exception() throws Exception {
+    void testRetrieveAndDisplayRepositories_Exception() {
         // Given
         when(cliAgent.getRepositories()).thenThrow(new RuntimeException("API error"));
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
@@ -726,7 +726,7 @@ class RunCommandTest {
         // Given
         String jobId = "test-job-id";
         Job job = new Job(jobId, testJobPath, null, "test-model", "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.SEQUENCE, null, null, null, null);
         List<Prompt> prompts = List.of(
             new Prompt("prompt-1", jobId, "prompt1.xml", "COMPLETED", LocalDateTime.now(), LocalDateTime.now())
@@ -752,13 +752,13 @@ class RunCommandTest {
         String childJobId2 = "child-job-id-2";
 
         Job parentJob = new Job(parentJobId, testJobPath, null, "test-model", "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
         Job childJob1 = new Job(childJobId1, testJobPath, null, "test-model", "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), parentJobId, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), parentJobId, null,
             WorkflowType.SEQUENCE, null, null, null, null);
         Job childJob2 = new Job(childJobId2, testJobPath, null, "test-model", "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), parentJobId, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), parentJobId, null,
             WorkflowType.SEQUENCE, null, null, null, null);
 
         List<Prompt> parentPrompts = List.of(
@@ -795,7 +795,7 @@ class RunCommandTest {
         LocalDateTime createdAt = LocalDateTime.now().minusMinutes(5);
         LocalDateTime lastUpdate = LocalDateTime.now().minusMinutes(1);
         Job job = new Job(jobId, testJobPath, null, "test-model", "test-repo",
-            AgentState.FINISHED(), createdAt, lastUpdate, null, null,
+            AgentState.finished(), createdAt, lastUpdate, null, null,
             WorkflowType.SEQUENCE, null, null, null, null);
         List<Prompt> prompts = List.of(
             new Prompt("prompt-1", jobId, "prompt1.xml", "COMPLETED", createdAt, lastUpdate)
@@ -828,7 +828,7 @@ class RunCommandTest {
         // Given
         String jobId = "test-job-id";
         Job job = new Job(jobId, testJobPath, null, "test-model", "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.SEQUENCE, null, null, null, null);
 
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(job));
@@ -844,7 +844,7 @@ class RunCommandTest {
         // Given
         String jobId = "test-job-id";
         Job job = new Job(jobId, testJobPath, null, "test-model", "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             null, null, null, null, null); // null type
         List<Prompt> prompts = List.of();
 
@@ -860,15 +860,15 @@ class RunCommandTest {
     }
 
     @Test
-    void testDeleteJobAndChildren_WithDeleteOnCompletion() throws Exception {
+    void testDeleteJobAndChildren_WithDeleteOnCompletion() {
         // Given
         String jobId = "parent-job-id";
         String childJobId = "child-job-id";
         Job parentJob = new Job(jobId, testJobPath, "cursor-agent-123", "test-model", "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
         Job childJob = new Job(childJobId, testJobPath, "cursor-agent-456", "test-model", "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), jobId, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), jobId, null,
             WorkflowType.SEQUENCE, null, null, null, null);
 
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(parentJob));
@@ -893,15 +893,15 @@ class RunCommandTest {
     }
 
     @Test
-    void testDeleteJobAndChildren_WithDeleteOnSuccessCompletion() throws Exception {
+    void testDeleteJobAndChildren_WithDeleteOnSuccessCompletion() {
         // Given
         String jobId = "parent-job-id";
         String childJobId = "child-job-id";
         Job parentJob = new Job(jobId, testJobPath, "cursor-agent-123", "test-model", "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
         Job childJob = new Job(childJobId, testJobPath, "cursor-agent-456", "test-model", "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), jobId, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), jobId, null,
             WorkflowType.SEQUENCE, null, null, null, null);
 
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(parentJob));
@@ -930,7 +930,7 @@ class RunCommandTest {
         // Given
         String jobId = "parent-job-id";
         Job parentJob = new Job(jobId, testJobPath, null, "test-model", "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(parentJob));
@@ -941,7 +941,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDeleteChildJobsRecursively_WithNestedChildren() throws Exception {
+    void testDeleteChildJobsRecursively_WithNestedChildren() {
         // Given
         String parentJobId = "parent-job-id";
         String childJobId1 = "child-job-id-1";
@@ -949,13 +949,13 @@ class RunCommandTest {
         String grandchildJobId = "grandchild-job-id";
 
         Job childJob1 = new Job(childJobId1, testJobPath, "cursor-agent-1", "test-model", "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), parentJobId, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), parentJobId, null,
             WorkflowType.SEQUENCE, null, null, null, null);
         Job childJob2 = new Job(childJobId2, testJobPath, "cursor-agent-2", "test-model", "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), parentJobId, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), parentJobId, null,
             WorkflowType.SEQUENCE, null, null, null, null);
         Job grandchildJob = new Job(grandchildJobId, testJobPath, "cursor-agent-3", "test-model", "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), childJobId1, null,
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), childJobId1, null,
             WorkflowType.SEQUENCE, null, null, null, null);
 
         when(jobRepository.findJobsByParentId(parentJobId)).thenReturn(List.of(childJob1, childJob2));

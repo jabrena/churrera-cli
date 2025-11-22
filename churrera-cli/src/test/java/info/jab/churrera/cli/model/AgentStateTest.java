@@ -36,7 +36,7 @@ class AgentStateTest {
     @Test
     @DisplayName("should default to CREATING when AgentStatus is null")
     void shouldDefaultToCreatingForNullStatus() {
-        assertThat(AgentState.of((AgentStatus) null)).isEqualTo(AgentState.CREATING());
+        assertThat(AgentState.of((AgentStatus) null)).isEqualTo(AgentState.creating());
     }
 
     @ParameterizedTest(name = "AgentResponse with status {0} should map correctly")
@@ -56,7 +56,7 @@ class AgentStateTest {
     @Test
     @DisplayName("should default to CREATING when AgentResponse is null")
     void shouldDefaultToCreatingWhenAgentResponseIsNull() {
-        assertThat(AgentState.of((AgentResponse) null)).isEqualTo(AgentState.CREATING());
+        assertThat(AgentState.of((AgentResponse) null)).isEqualTo(AgentState.creating());
     }
 
     @Test
@@ -64,7 +64,7 @@ class AgentStateTest {
     void shouldDefaultToCreatingWhenAgentResponseStatusIsNull() {
         AgentResponse response = agentResponse(null);
 
-        assertThat(AgentState.of(response)).isEqualTo(AgentState.CREATING());
+        assertThat(AgentState.of(response)).isEqualTo(AgentState.creating());
     }
 
     @ParameterizedTest(name = "\"{0}\" should be parsed as {1}")
@@ -103,7 +103,7 @@ class AgentStateTest {
     @ValueSource(strings = {"", " ", "\t", "unknown", "RUNNING!", "CREATING_EXTRA"})
     @DisplayName("should default to CREATING for invalid textual statuses")
     void shouldDefaultToCreatingForInvalidStatusStrings(String invalidValue) {
-        assertThat(AgentState.of(invalidValue)).isEqualTo(AgentState.CREATING());
+        assertThat(AgentState.of(invalidValue)).isEqualTo(AgentState.creating());
     }
 
     @ParameterizedTest(name = "{0} -> terminal={1}, successful={2}, failed={3}")
@@ -134,9 +134,9 @@ class AgentStateTest {
     @DisplayName("should implement equality and hashCode based on status")
     void shouldImplementEqualityContract() {
         // Given
-        AgentState creating = AgentState.CREATING();
+        AgentState creating = AgentState.creating();
         AgentState sameCreating = AgentState.of(AgentStatus.CREATING);
-        AgentState running = AgentState.RUNNING();
+        AgentState running = AgentState.running();
 
         // Then
         assertThat(creating)

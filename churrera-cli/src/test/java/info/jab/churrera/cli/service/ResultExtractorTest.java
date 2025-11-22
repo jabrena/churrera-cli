@@ -37,7 +37,7 @@ class ResultExtractorTest {
     void setUp() {
         resultExtractor = new ResultExtractor(cliAgent, jobRepository);
 
-        testJob = new Job("job-id", "/path/workflow.xml", "agent-id", "model", "repo", AgentState.CREATING(),
+        testJob = new Job("job-id", "/path/workflow.xml", "agent-id", "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         testParallelData = mock(ParallelWorkflowData.class);

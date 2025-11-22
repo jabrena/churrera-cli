@@ -3,7 +3,6 @@ package info.jab.churrera.cli.command.cli;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.service.CLIAgent;
 import info.jab.churrera.cli.model.Job;
-import org.basex.core.BaseXException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;

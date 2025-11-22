@@ -39,7 +39,7 @@ class PromptProcessorTest {
     void setUp() {
         promptProcessor = new PromptProcessor(cliAgent, workflowFileService);
 
-        testJob = new Job("job-id", "/path/workflow.xml", "agent-id", "model", "repo", AgentState.CREATING(),
+        testJob = new Job("job-id", "/path/workflow.xml", "agent-id", "model", "repo", AgentState.creating(),
             LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         testPrompt = new Prompt("prompt-1", "job-id", "prompt1.pml", "UNKNOWN",
@@ -68,7 +68,7 @@ class PromptProcessorTest {
     }
 
     @Test
-    void testProcessRemainingPrompts_WithUnknownPrompt() throws Exception {
+    void testProcessRemainingPrompts_WithUnknownPrompt() {
         // Given
         List<Prompt> prompts = List.of(testPrompt);
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenReturn("prompt content");
@@ -84,7 +84,7 @@ class PromptProcessorTest {
     }
 
     @Test
-    void testProcessRemainingPrompts_WithSentPrompt() throws Exception {
+    void testProcessRemainingPrompts_WithSentPrompt() {
         // Given
         Prompt sentPrompt = testPrompt.withStatus("SENT");
         List<Prompt> prompts = List.of(sentPrompt);
@@ -100,7 +100,7 @@ class PromptProcessorTest {
 
 
     @Test
-    void testProcessRemainingPrompts_Exception() throws Exception {
+    void testProcessRemainingPrompts_Exception() {
         // Given
         List<Prompt> prompts = List.of(testPrompt);
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenThrow(new RuntimeException("File error"));
@@ -113,7 +113,7 @@ class PromptProcessorTest {
     }
 
     @Test
-    void testProcessPrompt_UnknownStatus() throws Exception {
+    void testProcessPrompt_UnknownStatus() {
         // Given
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenReturn("prompt content");
         when(cliAgent.followUpForPrompt(anyString(), anyString(), anyString(), any())).thenReturn("follow-up-id");
@@ -127,7 +127,7 @@ class PromptProcessorTest {
     }
 
     @Test
-    void testProcessPrompt_WithBindValue() throws Exception {
+    void testProcessPrompt_WithBindValue() {
         // Given
         PromptInfo promptWithBind = new PromptInfo("prompt1.pml", "pml", "bindExp");
         Job jobWithResult = testJob.withResult("bound-value");
@@ -142,7 +142,7 @@ class PromptProcessorTest {
     }
 
     @Test
-    void testProcessPrompt_NoBindValue_WhenPromptHasNoBindResultExp() throws Exception {
+    void testProcessPrompt_NoBindValue_WhenPromptHasNoBindResultExp() {
         // Given
         Job jobWithResult = testJob.withResult("bound-value");
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenReturn("prompt content");
@@ -156,10 +156,10 @@ class PromptProcessorTest {
     }
 
     @Test
-    void testProcessPrompt_SentStatus_Terminal() throws Exception {
+    void testProcessPrompt_SentStatus_Terminal() {
         // Given
         Prompt sentPrompt = testPrompt.withStatus("SENT");
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.finished());
 
         // When
         promptProcessor.processPrompt(testJob, sentPrompt, new PromptInfo("prompt1.pml", "pml"));
@@ -170,10 +170,10 @@ class PromptProcessorTest {
     }
 
     @Test
-    void testProcessPrompt_SentStatus_Failed() throws Exception {
+    void testProcessPrompt_SentStatus_Failed() {
         // Given
         Prompt sentPrompt = testPrompt.withStatus("SENT");
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.ERROR());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.error());
 
         // When
         promptProcessor.processPrompt(testJob, sentPrompt, new PromptInfo("prompt1.pml", "pml"));
@@ -184,10 +184,10 @@ class PromptProcessorTest {
     }
 
     @Test
-    void testProcessPrompt_SentStatus_StillActive() throws Exception {
+    void testProcessPrompt_SentStatus_StillActive() {
         // Given
         Prompt sentPrompt = testPrompt.withStatus("SENT");
-        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.RUNNING());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
 
         // When
         promptProcessor.processPrompt(testJob, sentPrompt, new PromptInfo("prompt1.pml", "pml"));
@@ -198,7 +198,7 @@ class PromptProcessorTest {
     }
 
     @Test
-    void testProcessPrompt_Exception_UpdateFails() throws Exception {
+    void testProcessPrompt_Exception_UpdateFails() {
         // Given
         when(workflowFileService.readPromptFile(anyString(), anyString())).thenThrow(new RuntimeException("File error"));
         doThrow(new RuntimeException("Update failed")).when(cliAgent).updatePromptInDatabase(any(), anyString());

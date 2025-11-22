@@ -60,14 +60,14 @@ class JobProcessorTest {
             null, // no cursor agent initially
             "test-model",
             "test-repo",
-            AgentState.CREATING(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.creating(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         testJobWithAgent = new Job("test-job-id",
             "/test/path/workflow.xml",
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.CREATING(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.creating(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         testPrompts = List.of(
             new Prompt(
@@ -212,7 +212,7 @@ class JobProcessorTest {
         when(jobRepository.findJobWithDetails("test-job-id"))
             .thenReturn(Optional.of(new JobWithDetails(testJobWithAgent, testPrompts)));
         when(workflowParser.parse(any(Path.class))).thenReturn(testWorkflowData);
-        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.finished());
 
         // When - Process jobs directly
         jobProcessor.processJobs();
@@ -220,7 +220,7 @@ class JobProcessorTest {
         // Then
         verify(jobRepository).findJobWithDetails("test-job-id");
         verify(cliAgent).getAgentStatus("cursor-agent-123");
-        verify(cliAgent).updateJobStatusInDatabase(eq(testJobWithAgent), eq(AgentState.FINISHED()));
+        verify(cliAgent).updateJobStatusInDatabase(eq(testJobWithAgent), eq(AgentState.finished()));
     }
 
     @Test
@@ -232,7 +232,7 @@ class JobProcessorTest {
         when(jobRepository.findJobWithDetails("test-job-id"))
             .thenReturn(Optional.of(new JobWithDetails(testJobWithAgent, testPrompts)));
         when(workflowParser.parse(any(Path.class))).thenReturn(testWorkflowData);
-        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.ERROR());
+        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.error());
 
         // When - Process jobs directly
         jobProcessor.processJobs();
@@ -240,7 +240,7 @@ class JobProcessorTest {
         // Then
         verify(jobRepository).findJobWithDetails("test-job-id");
         verify(cliAgent).getAgentStatus("cursor-agent-123");
-        verify(cliAgent).updateJobStatusInDatabase(eq(testJobWithAgent), eq(AgentState.ERROR()));
+        verify(cliAgent).updateJobStatusInDatabase(eq(testJobWithAgent), eq(AgentState.error()));
     }
 
     @Test
@@ -261,7 +261,7 @@ class JobProcessorTest {
         // Then
         verify(jobRepository).findJobWithDetails("test-job-id");
         verify(cliAgent).getAgentStatus("cursor-agent-123");
-        verify(cliAgent).updateJobStatusInDatabase(eq(testJobWithAgent), eq(AgentState.ERROR()));
+        verify(cliAgent).updateJobStatusInDatabase(eq(testJobWithAgent), eq(AgentState.error()));
     }
 
     @Test
@@ -273,7 +273,7 @@ class JobProcessorTest {
         when(jobRepository.findJobWithDetails("test-job-id"))
             .thenReturn(Optional.of(new JobWithDetails(testJobWithAgent, testPrompts)));
         when(workflowParser.parse(any(Path.class))).thenReturn(testWorkflowData);
-        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.RUNNING());
+        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.running());
 
         // When - Process jobs directly
         jobProcessor.processJobs();
@@ -296,7 +296,7 @@ class JobProcessorTest {
             .thenReturn(Optional.of(new JobWithDetails(testJobWithAgent, testPrompts)));
         when(workflowParser.parse(any(Path.class))).thenReturn(testWorkflowData);
         when(cliAgent.getAgentStatus("cursor-agent-123"))
-            .thenReturn(AgentState.CREATING());
+            .thenReturn(AgentState.creating());
 
         // When - Process jobs directly
         jobProcessor.processJobs();
@@ -316,7 +316,7 @@ class JobProcessorTest {
             null,
             "test-model",
             "test-repo",
-            AgentState.CREATING(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.creating(),LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         CountDownLatch bothJobsProcessedLatch = new CountDownLatch(2);
         when(jobRepository.findUnfinishedJobs())
@@ -380,7 +380,7 @@ class JobProcessorTest {
             null,
             "test-model",
             "test-repo",
-            AgentState.CREATING(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.creating(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         when(jobRepository.findUnfinishedJobs())
             .thenReturn(List.of(jobWithRealPath))
@@ -394,14 +394,14 @@ class JobProcessorTest {
         doAnswer(invocation -> {
             agentLaunchedLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("new-agent-123"), eq(AgentState.CREATING()));
+        }).when(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("new-agent-123"), eq(AgentState.creating()));
 
         // When - Process jobs directly
         jobProcessor.processJobs();
 
         // Then
         verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), eq("pml"), any(), anyBoolean());
-        verify(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("new-agent-123"), eq(AgentState.CREATING()));
+        verify(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("new-agent-123"), eq(AgentState.creating()));
 
         // Cleanup
         Files.deleteIfExists(promptFile);
@@ -423,7 +423,7 @@ class JobProcessorTest {
             null,
             "test-model",
             "test-repo",
-            AgentState.CREATING(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.creating(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         when(jobRepository.findUnfinishedJobs())
             .thenReturn(List.of(jobWithRealPath))
@@ -439,14 +439,14 @@ class JobProcessorTest {
         doAnswer(invocation -> {
             failedLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.ERROR()));
+        }).when(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.error()));
 
         // When - Process jobs directly
         jobProcessor.processJobs();
 
         // Then
         verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), anyString(), any(), anyBoolean());
-        verify(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.ERROR()));
+        verify(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.error()));
 
         // Cleanup
         Files.deleteIfExists(promptFile);
@@ -470,7 +470,7 @@ class JobProcessorTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         when(jobRepository.findUnfinishedJobs())
             .thenReturn(List.of(jobWithRealPath))
@@ -478,7 +478,7 @@ class JobProcessorTest {
         when(jobRepository.findJobWithDetails("test-job-id"))
             .thenReturn(Optional.of(new JobWithDetails(jobWithRealPath, testPrompts)));
         when(workflowParser.parse(any(Path.class))).thenReturn(testWorkflowData);
-        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.finished());
         CountDownLatch followUpLatch = new CountDownLatch(1);
         when(cliAgent.followUpForPrompt(anyString(), anyString(), anyString(), any()))
             .thenAnswer(invocation -> {
@@ -492,7 +492,7 @@ class JobProcessorTest {
 
         // Then
         verify(cliAgent).getAgentStatus("cursor-agent-123");
-        verify(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.FINISHED()));
+        verify(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.finished()));
         verify(cliAgent).followUpForPrompt(eq("cursor-agent-123"), anyString(), eq("pml"), any());
 
         // Cleanup
@@ -518,7 +518,7 @@ class JobProcessorTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         Prompt sentPrompt = new Prompt("prompt-1", "test-job-id", "prompt2.pml", "SENT",
             LocalDateTime.now(), LocalDateTime.now());
@@ -533,7 +533,7 @@ class JobProcessorTest {
         when(cliAgent.getAgentStatus("cursor-agent-123"))
             .thenAnswer(invocation -> {
                 statusCheckedLatch.countDown();
-                return AgentState.RUNNING(); // Still running, not finished yet
+                return AgentState.running(); // Still running, not finished yet
             });
 
         // When
@@ -568,7 +568,7 @@ class JobProcessorTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, "test-bound-value", null, null, null, null, null);
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, "test-bound-value", null, null, null, null, null);
 
         PromptInfo launchPrompt = new PromptInfo("prompt1.pml", "pml", "item");
         PromptInfo updatePromptWithBind = new PromptInfo("prompt2.pml", "pml", "item");
@@ -582,7 +582,7 @@ class JobProcessorTest {
         when(jobRepository.findJobWithDetails("test-job-id"))
             .thenReturn(Optional.of(new JobWithDetails(jobWithRealPath, testPrompts)));
         when(workflowParser.parse(any(Path.class))).thenReturn(workflowDataWithBind);
-        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.finished());
         CountDownLatch followUpWithBindLatch = new CountDownLatch(1);
         when(cliAgent.followUpForPrompt(anyString(), anyString(), anyString(), any()))
             .thenAnswer(invocation -> {
@@ -620,7 +620,7 @@ class JobProcessorTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         when(jobRepository.findUnfinishedJobs())
             .thenReturn(List.of(jobWithRealPath))
@@ -628,7 +628,7 @@ class JobProcessorTest {
         when(jobRepository.findJobWithDetails("test-job-id"))
             .thenReturn(Optional.of(new JobWithDetails(jobWithRealPath, testPrompts)));
         when(workflowParser.parse(any(Path.class))).thenReturn(testWorkflowData);
-        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.finished());
         CountDownLatch errorUpdatedLatch = new CountDownLatch(1);
         when(cliAgent.followUpForPrompt(anyString(), anyString(), anyString(), any()))
             .thenThrow(new RuntimeException("Follow-up failed"));
@@ -660,7 +660,7 @@ class JobProcessorTest {
             null,
             "test-model",
             "test-repo",
-            AgentState.CREATING(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.creating(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         when(jobRepository.findUnfinishedJobs())
             .thenReturn(List.of(jobWithBadPath))
@@ -700,7 +700,7 @@ class JobProcessorTest {
             null,
             "test-model",
             "test-repo",
-            AgentState.CREATING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.creating(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
         // Create parallel workflow data
@@ -721,7 +721,7 @@ class JobProcessorTest {
         when(workflowParser.parse(any(Path.class))).thenReturn(parallelWorkflowData);
         when(cliAgent.launchAgentForJob(any(Job.class), anyString(), anyString(), any(), anyBoolean())).thenReturn("parallel-agent-123");
 
-        Job updatedJob = parallelJob.withCursorAgentId("parallel-agent-123").withStatus(AgentState.CREATING());
+        Job updatedJob = parallelJob.withCursorAgentId("parallel-agent-123").withStatus(AgentState.creating());
         when(jobRepository.findById("parallel-job-id")).thenReturn(Optional.of(updatedJob));
 
         // When
@@ -729,7 +729,7 @@ class JobProcessorTest {
         doAnswer(invocation -> {
             agentLaunchedLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("parallel-agent-123"), eq(AgentState.CREATING()));
+        }).when(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("parallel-agent-123"), eq(AgentState.creating()));
 
         // When - Process jobs directly
         jobProcessor.processJobs();
@@ -759,7 +759,7 @@ class JobProcessorTest {
             "parallel-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
         PromptInfo parallelPrompt = new PromptInfo("prompt1.pml", "pml");
@@ -777,12 +777,12 @@ class JobProcessorTest {
         when(workflowParser.parse(any(Path.class))).thenReturn(parallelWorkflowData);
         when(jobRepository.findById("parallel-job-id")).thenReturn(Optional.of(parallelJob));
         CountDownLatch statusUpdatedLatch = new CountDownLatch(1);
-        when(cliAgent.getAgentStatus("parallel-agent-123")).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus("parallel-agent-123")).thenReturn(AgentState.finished());
         when(cliAgent.getConversationContent("parallel-agent-123")).thenReturn("[\"value1\"]");
         doAnswer(invocation -> {
             statusUpdatedLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.FINISHED()));
+        }).when(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.finished()));
 
         // When - Process jobs directly
         jobProcessor.processJobs();
@@ -790,7 +790,7 @@ class JobProcessorTest {
         // Then
         verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any(), anyBoolean());
         verify(cliAgent).getAgentStatus(eq("parallel-agent-123"));
-        verify(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.FINISHED()));
+        verify(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.finished()));
 
         // Cleanup
         Files.deleteIfExists(prompt1File);
@@ -812,7 +812,7 @@ class JobProcessorTest {
             "parallel-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
         PromptInfo parallelPrompt = new PromptInfo("prompt1.pml", "pml");
@@ -830,11 +830,11 @@ class JobProcessorTest {
         when(workflowParser.parse(any(Path.class))).thenReturn(parallelWorkflowData);
         when(jobRepository.findById("parallel-job-id")).thenReturn(Optional.of(parallelJob));
         CountDownLatch failedLatch = new CountDownLatch(1);
-        when(cliAgent.getAgentStatus(eq("parallel-agent-123"))).thenReturn(AgentState.ERROR());
+        when(cliAgent.getAgentStatus(eq("parallel-agent-123"))).thenReturn(AgentState.error());
         doAnswer(invocation -> {
             failedLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.ERROR()));
+        }).when(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.error()));
 
         // When
         // When - Process jobs directly
@@ -842,7 +842,7 @@ class JobProcessorTest {
 
         // Then
         verify(cliAgent).getAgentStatus(eq("parallel-agent-123"));
-        verify(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.ERROR()));
+        verify(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.error()));
         verify(jobRepository, never()).save(argThat(job -> job.parentJobId() != null));
 
         // Cleanup
@@ -865,7 +865,7 @@ class JobProcessorTest {
             null,
             "test-model",
             "test-repo",
-            AgentState.CREATING(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
+            AgentState.creating(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
             WorkflowType.SEQUENCE, null, null, null, null);
 
         // Regular sequence workflow data (not parallel)
@@ -915,7 +915,7 @@ class JobProcessorTest {
             null,
             "test-model",
             "test-repo",
-            AgentState.CREATING(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
+            AgentState.creating(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
             WorkflowType.SEQUENCE, null, null, null, null);
 
         // Parallel workflow with no sequences
@@ -959,7 +959,7 @@ class JobProcessorTest {
             null,
             "test-model",
             "test-repo",
-            AgentState.CREATING(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
+            AgentState.creating(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
             WorkflowType.SEQUENCE, null, null, null, null);
 
         // Parallel workflow with sequence but no prompts
@@ -1013,7 +1013,7 @@ class JobProcessorTest {
             null,
             "test-model",
             "test-repo",
-            AgentState.CREATING(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
+            AgentState.creating(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
             WorkflowType.SEQUENCE, null, null, null, null);
 
         // Parallel workflow with proper sequence and prompts
@@ -1043,14 +1043,14 @@ class JobProcessorTest {
         doAnswer(invocation -> {
             childLaunchedLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("child-agent-123"), eq(AgentState.CREATING()));
+        }).when(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("child-agent-123"), eq(AgentState.creating()));
 
         // When - Process jobs directly
         jobProcessor.processJobs();
 
         // Then
         verify(cliAgent).launchAgentForJob(any(Job.class), anyString(), eq("pml"), eq("bound-value"), anyBoolean());
-        verify(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("child-agent-123"), eq(AgentState.CREATING()));
+        verify(cliAgent).updateJobCursorIdInDatabase(any(Job.class), eq("child-agent-123"), eq(AgentState.creating()));
 
         // Cleanup
         java.nio.file.Files.deleteIfExists(prompt2File);
@@ -1073,7 +1073,7 @@ class JobProcessorTest {
             "child-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
             WorkflowType.SEQUENCE, null, null, null, null);
 
         PromptInfo parallelPrompt = new PromptInfo("prompt1.pml", "pml");
@@ -1092,11 +1092,11 @@ class JobProcessorTest {
         when(workflowParser.parse(any(Path.class))).thenReturn(parallelWorkflowData);
         when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(childJob));
         CountDownLatch childStatusUpdatedLatch = new CountDownLatch(1);
-        when(cliAgent.getAgentStatus(eq("child-agent-123"))).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus(eq("child-agent-123"))).thenReturn(AgentState.finished());
         doAnswer(invocation -> {
             childStatusUpdatedLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobStatusInDatabase(eq(childJob), eq(AgentState.FINISHED()));
+        }).when(cliAgent).updateJobStatusInDatabase(eq(childJob), eq(AgentState.finished()));
 
         // When
         // When - Process jobs directly
@@ -1105,7 +1105,7 @@ class JobProcessorTest {
         // Then
         verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any(), anyBoolean());
         verify(cliAgent).getAgentStatus(eq("child-agent-123"));
-        verify(cliAgent).updateJobStatusInDatabase(eq(childJob), eq(AgentState.FINISHED()));
+        verify(cliAgent).updateJobStatusInDatabase(eq(childJob), eq(AgentState.finished()));
 
         // Cleanup
         Files.deleteIfExists(prompt1File);
@@ -1132,7 +1132,7 @@ class JobProcessorTest {
             "parallel-agent-123",  // Already has agent
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
         PromptInfo parallelPrompt = new PromptInfo("prompt1.pml", "pml");
@@ -1154,7 +1154,7 @@ class JobProcessorTest {
         when(jobRepository.findById("parallel-job-id"))
             .thenReturn(Optional.of(parallelJob))
             .thenReturn(Optional.of(parallelJob));
-        when(cliAgent.getAgentStatus(eq("parallel-agent-123"))).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus(eq("parallel-agent-123"))).thenReturn(AgentState.finished());
         CountDownLatch conversationReadLatch = new CountDownLatch(1);
         when(cliAgent.getConversationContent(eq("parallel-agent-123")))
             .thenAnswer(invocation -> {
@@ -1169,7 +1169,7 @@ class JobProcessorTest {
         // Then - Verify the parallel workflow processing was executed
         verify(cliAgent).getAgentStatus(eq("parallel-agent-123"));
         verify(cliAgent).getConversationContent(eq("parallel-agent-123"));
-        verify(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.FINISHED()));
+        verify(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.finished()));
 
         // Cleanup
         Files.deleteIfExists(prompt2File);
@@ -1192,7 +1192,7 @@ class JobProcessorTest {
             "parallel-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
         PromptInfo parallelPrompt = new PromptInfo("prompt1.pml", "pml");
@@ -1211,7 +1211,7 @@ class JobProcessorTest {
         when(jobRepository.findById("parallel-job-id"))
             .thenReturn(Optional.of(parallelJob))
             .thenReturn(Optional.of(parallelJob));
-        when(cliAgent.getAgentStatus(eq("parallel-agent-123"))).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus(eq("parallel-agent-123"))).thenReturn(AgentState.finished());
         CountDownLatch conversationReadLatch2 = new CountDownLatch(1);
         when(cliAgent.getConversationContent(eq("parallel-agent-123")))
             .thenAnswer(invocation -> {
@@ -1250,7 +1250,7 @@ class JobProcessorTest {
             "parallel-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
         PromptInfo parallelPrompt = new PromptInfo("prompt1.pml", "pml");
@@ -1268,11 +1268,11 @@ class JobProcessorTest {
         when(workflowParser.parse(any(Path.class))).thenReturn(parallelWorkflowData);
         when(jobRepository.findById("parallel-job-id")).thenReturn(Optional.of(parallelJob));
         CountDownLatch failedStatusLatch = new CountDownLatch(1);
-        when(cliAgent.getAgentStatus(eq("parallel-agent-123"))).thenReturn(AgentState.ERROR());
+        when(cliAgent.getAgentStatus(eq("parallel-agent-123"))).thenReturn(AgentState.error());
         doAnswer(invocation -> {
             failedStatusLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.ERROR()));
+        }).when(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.error()));
 
         // When
         // When - Process jobs directly
@@ -1280,7 +1280,7 @@ class JobProcessorTest {
 
         // Then - No child jobs should be created for failed jobs
         verify(cliAgent).getAgentStatus(eq("parallel-agent-123"));
-        verify(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.ERROR()));
+        verify(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.error()));
         verify(jobRepository, never()).save(argThat(job ->
             job.parentJobId() != null && job.parentJobId().equals("parallel-job-id")
         ));
@@ -1305,7 +1305,7 @@ class JobProcessorTest {
             "parallel-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null,
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null,
             WorkflowType.PARALLEL, null, null, null, null);
 
         PromptInfo parallelPrompt = new PromptInfo("prompt1.pml", "pml");
@@ -1327,14 +1327,14 @@ class JobProcessorTest {
         doAnswer(invocation -> {
             errorLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.ERROR()));
+        }).when(cliAgent).updateJobStatusInDatabase(any(Job.class), eq(AgentState.error()));
 
         // When
         // When - Process jobs directly
         jobProcessor.processJobs();
 
         // Then - Error should be caught and logged
-        verify(cliAgent, atLeastOnce()).updateJobStatusInDatabase(any(Job.class), eq(AgentState.ERROR()));
+        verify(cliAgent, atLeastOnce()).updateJobStatusInDatabase(any(Job.class), eq(AgentState.error()));
 
         // Cleanup
         Files.deleteIfExists(prompt1File);
@@ -1359,7 +1359,7 @@ class JobProcessorTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         Prompt testPrompt = new Prompt("prompt-1", "test-job-id", "prompt2.pml", "UNKNOWN",
             LocalDateTime.now(), LocalDateTime.now());
@@ -1370,7 +1370,7 @@ class JobProcessorTest {
         when(jobRepository.findJobWithDetails("test-job-id"))
             .thenReturn(Optional.of(new JobWithDetails(jobWithAgent, List.of(testPrompt))));
         when(workflowParser.parse(any(Path.class))).thenReturn(testWorkflowData);
-        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.FINISHED());
+        when(cliAgent.getAgentStatus("cursor-agent-123")).thenReturn(AgentState.finished());
         CountDownLatch followUpCalledLatch = new CountDownLatch(1);
         when(cliAgent.followUpForPrompt(anyString(), anyString(), anyString(), any()))
             .thenAnswer(invocation -> {
@@ -1410,7 +1410,7 @@ class JobProcessorTest {
             "cursor-agent-123",
             "test-model",
             "test-repo",
-            AgentState.FINISHED(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
+            AgentState.finished(), LocalDateTime.now(), LocalDateTime.now(), null, null, null, null, null, null, null);
 
         Prompt testPrompt = new Prompt("prompt-1", "test-job-id", "prompt2.pml", "UNKNOWN",
             LocalDateTime.now(), LocalDateTime.now());
@@ -1460,9 +1460,9 @@ class JobProcessorTest {
             null,
             "test-model",
             "test-repo",
-            AgentState.CREATING(), LocalDateTime.now(), LocalDateTime.now(), null, "some-result", null, null, null, null, null);
+            AgentState.creating(), LocalDateTime.now(), LocalDateTime.now(), null, "some-result", null, null, null, null, null);
 
-        Job updatedJob = jobWithResult.withCursorAgentId("new-agent-123").withStatus(AgentState.CREATING());
+        Job updatedJob = jobWithResult.withCursorAgentId("new-agent-123").withStatus(AgentState.creating());
 
         when(jobRepository.findUnfinishedJobs())
             .thenReturn(List.of(jobWithResult))
@@ -1505,7 +1505,7 @@ class JobProcessorTest {
             "child-agent-123",
             "test-model",
             "test-repo",
-            AgentState.RUNNING(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
+            AgentState.running(), LocalDateTime.now(), LocalDateTime.now(), "parent-job-id", "bound-value",
             WorkflowType.SEQUENCE, null, null, null, null);
 
         PromptInfo parallelPrompt = new PromptInfo("prompt1.pml", "pml");
@@ -1530,7 +1530,7 @@ class JobProcessorTest {
         doAnswer(invocation -> {
             monitorErrorLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobStatusInDatabase(eq(childJob), eq(AgentState.ERROR()));
+        }).when(cliAgent).updateJobStatusInDatabase(eq(childJob), eq(AgentState.error()));
 
         // When
         // When - Process jobs directly
@@ -1538,7 +1538,7 @@ class JobProcessorTest {
 
         // Then - Error should be caught and logged
         verify(cliAgent).getAgentStatus(eq("child-agent-123"));
-        verify(cliAgent).updateJobStatusInDatabase(eq(childJob), eq(AgentState.ERROR()));
+        verify(cliAgent).updateJobStatusInDatabase(eq(childJob), eq(AgentState.error()));
 
         // Cleanup
         Files.deleteIfExists(prompt1File);
