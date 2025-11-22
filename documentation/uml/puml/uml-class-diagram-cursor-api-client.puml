@@ -1,5 +1,6 @@
 @startuml
 !theme plain
+scale 0.6
 title Cursor API Client Module - Class Diagram
 
 package "info.jab.cursor.client" {
@@ -8,13 +9,13 @@ package "info.jab.cursor.client" {
     + followUp(String, String) : FollowUpResponse
     + delete(String) : DeleteAgentResponse
   }
-
+  
   interface CursorAgentInformation {
     + getAgents(Integer, String) : AgentsList
     + getStatus(String) : AgentResponse
     + getAgentConversation(String) : ConversationResponse
   }
-
+  
   interface CursorAgentGeneralEndpoints {
     + getApiKeyInfo() : ApiKeyInfo
     + getModels() : List<String>
@@ -23,93 +24,97 @@ package "info.jab.cursor.client" {
 }
 
 package "info.jab.cursor.client.impl" {
-  class CursorAgentManagementImpl implements CursorAgentManagement {
+  class CursorAgentManagementImpl {
     - String apiKey
     - DefaultApi defaultApi
-    + CursorAgentManagementImpl(String, DefaultApi)
+    - Logger logger
     + launch(String, String, String, Boolean) : AgentResponse
     + followUp(String, String) : FollowUpResponse
     + delete(String) : DeleteAgentResponse
+    - getAuthHeaders() : Map<String, String>
+    - createLaunchAgentRequest(String, String, String, boolean) : CreateAgentRequest
   }
-
-  class CursorAgentInformationImpl implements CursorAgentInformation {
+  
+  class CursorAgentInformationImpl {
     - String apiKey
     - DefaultApi defaultApi
-    + CursorAgentInformationImpl(String, DefaultApi)
+    - Logger logger
     + getAgents(Integer, String) : AgentsList
     + getStatus(String) : AgentResponse
     + getAgentConversation(String) : ConversationResponse
+    - getAuthHeaders() : Map<String, String>
   }
-
-  class CursorAgentGeneralEndpointsImpl implements CursorAgentGeneralEndpoints {
+  
+  class CursorAgentGeneralEndpointsImpl {
     - String apiKey
     - DefaultApi defaultApi
-    + CursorAgentGeneralEndpointsImpl(String, DefaultApi)
+    - Logger logger
     + getApiKeyInfo() : ApiKeyInfo
     + getModels() : List<String>
     + getRepositories() : List<String>
+    - getAuthHeaders() : Map<String, String>
   }
 }
 
 package "info.jab.cursor.client.model" {
-  record AgentResponse {
+  class AgentResponse {
     + String id
-    + String name
     + AgentStatus status
-    + Source source
-    + Target target
-    + OffsetDateTime createdAt
-    + {static} from(CreateAgent201Response) : AgentResponse
-    + {static} from(ListAgents200ResponseAgentsInner) : AgentResponse
+    + String model
+    + String repository
+    + LocalDateTime createdAt
+    + from(CreateAgentResponse) : AgentResponse
   }
-
-  record FollowUpResponse {
+  
+  class FollowUpResponse {
     + String id
-    + String message
+    + AgentStatus status
+    + from(AddFollowupResponse) : FollowUpResponse
   }
-
-  record DeleteAgentResponse {
-    + String message
+  
+  class DeleteAgentResponse {
+    + String id
+    + from(DeleteAgentResponse) : DeleteAgentResponse
   }
-
-  record ConversationResponse {
+  
+  class ConversationResponse {
+    + String agentId
     + List<ConversationMessage> messages
+    + from(GetAgentConversationResponse) : ConversationResponse
   }
-
-  record ConversationMessage {
+  
+  class ConversationMessage {
     + String text
     + String role
-    + OffsetDateTime timestamp
+    + LocalDateTime timestamp
   }
-
-  record AgentsList {
+  
+  class AgentsList {
     + List<AgentResponse> agents
     + String cursor
+    + boolean hasMore
+    + from(GetAgentsResponse) : AgentsList
   }
-
-  record ApiKeyInfo {
+  
+  class ApiKeyInfo {
     + String apiKey
+    + from(GetApiKeyInfoResponse) : ApiKeyInfo
   }
-
-  record Source {
-    + String type
-    + String content
-    + {static} from(ListAgents200ResponseAgentsInnerSource) : Source
-  }
-
-  record Target {
-    + String type
+  
+  class Source {
     + String repository
-    + String model
-    + {static} from(ListAgents200ResponseAgentsInnerTarget) : Target
+    + String ref
   }
-
+  
+  class Target {
+    + Boolean autoCreatePr
+  }
+  
   enum AgentStatus {
     CREATING
     RUNNING
-    FINISHED
-    ERROR
-    EXPIRED
+    COMPLETED
+    FAILED
   }
 }
 
@@ -118,41 +123,22 @@ CursorAgentManagementImpl ..|> CursorAgentManagement
 CursorAgentInformationImpl ..|> CursorAgentInformation
 CursorAgentGeneralEndpointsImpl ..|> CursorAgentGeneralEndpoints
 
-CursorAgentManagementImpl --> AgentResponse
-CursorAgentManagementImpl --> FollowUpResponse
-CursorAgentManagementImpl --> DeleteAgentResponse
 CursorAgentManagementImpl --> DefaultApi
-
-CursorAgentInformationImpl --> AgentResponse
-CursorAgentInformationImpl --> AgentsList
-CursorAgentInformationImpl --> ConversationResponse
 CursorAgentInformationImpl --> DefaultApi
-
-CursorAgentGeneralEndpointsImpl --> ApiKeyInfo
 CursorAgentGeneralEndpointsImpl --> DefaultApi
 
+CursorAgentManagement --> AgentResponse
+CursorAgentManagement --> FollowUpResponse
+CursorAgentManagement --> DeleteAgentResponse
+
+CursorAgentInformation --> AgentResponse
+CursorAgentInformation --> AgentsList
+CursorAgentInformation --> ConversationResponse
+
+CursorAgentGeneralEndpoints --> ApiKeyInfo
+
 AgentResponse --> AgentStatus
-AgentResponse --> Source
-AgentResponse --> Target
-
+FollowUpResponse --> AgentStatus
 ConversationResponse --> ConversationMessage
-AgentsList --> AgentResponse
-
-note right of CursorAgentManagement
-  Interface for launching and managing agents
-end note
-
-note right of CursorAgentInformation
-  Interface for querying agent information
-end note
-
-note right of CursorAgentGeneralEndpoints
-  Interface for general API endpoints
-end note
-
-note right of AgentResponse
-  Domain model for agent responses
-  Maps from OpenAPI generated models
-end note
 
 @enduml
