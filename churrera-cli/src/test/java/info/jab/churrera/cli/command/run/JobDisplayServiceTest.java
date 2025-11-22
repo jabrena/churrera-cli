@@ -5,7 +5,6 @@ import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.workflow.WorkflowType;
-import org.basex.core.BaseXException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -121,7 +120,7 @@ class JobDisplayServiceTest {
         when(jobRepository.findAll()).thenReturn(List.of(parentJob, childJob));
         when(jobRepository.findPromptsByJobId(parentId))
             .thenReturn(List.of(new Prompt("prompt-1", parentId, "prompt1.xml", "COMPLETED", createdAt, createdAt)));
-        doThrow(new BaseXException("boom")).when(jobRepository).findPromptsByJobId(childId);
+        doThrow(new RuntimeException("boom")).when(jobRepository).findPromptsByJobId(childId);
 
         String output = captureStdout(() -> jobDisplayService.displayFilteredJobsTable(parentId));
 
@@ -143,4 +142,3 @@ class JobDisplayServiceTest {
         return buffer.toString();
     }
 }
-

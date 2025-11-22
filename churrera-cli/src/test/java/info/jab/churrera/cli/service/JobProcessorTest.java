@@ -1,31 +1,30 @@
 package info.jab.churrera.cli.service;
 
+import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.model.Job;
+import info.jab.churrera.cli.model.JobWithDetails;
 import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.cli.repository.JobRepository;
-import info.jab.churrera.cli.model.JobWithDetails;
-import info.jab.churrera.workflow.WorkflowParser;
-import info.jab.churrera.workflow.WorkflowData;
-import info.jab.churrera.workflow.PromptInfo;
 import info.jab.churrera.workflow.ParallelWorkflowData;
+import info.jab.churrera.workflow.PromptInfo;
 import info.jab.churrera.workflow.SequenceInfo;
+import info.jab.churrera.workflow.WorkflowType;
+import info.jab.churrera.workflow.WorkflowData;
 import info.jab.churrera.workflow.WorkflowParseException;
-import info.jab.churrera.cli.model.AgentState;
+import info.jab.churrera.workflow.WorkflowParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.nio.file.Path;
-import java.nio.file.Files;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import info.jab.churrera.workflow.WorkflowType;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;

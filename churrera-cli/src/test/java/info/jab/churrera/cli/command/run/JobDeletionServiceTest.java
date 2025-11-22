@@ -5,8 +5,6 @@ import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.service.CLIAgent;
 import info.jab.churrera.workflow.WorkflowType;
-import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -89,7 +87,7 @@ class JobDeletionServiceTest {
     }
 
     @Test
-    void shouldReturnTrueWhenParentAndChildrenSuccessful() throws BaseXException, QueryException {
+    void shouldReturnTrueWhenParentAndChildrenSuccessful() {
         Job parentJob = createJob(JOB_ID, null, AgentState.FINISHED(), null);
         Job childJob = createJob("child", JOB_ID, AgentState.FINISHED(), null);
 
@@ -101,7 +99,7 @@ class JobDeletionServiceTest {
     }
 
     @Test
-    void shouldReturnFalseWhenParentNotSuccessful() throws BaseXException, QueryException {
+    void shouldReturnFalseWhenParentNotSuccessful() {
         Job parentJob = createJob(JOB_ID, null, AgentState.ERROR(), null);
         when(jobRepository.findById(JOB_ID)).thenReturn(Optional.of(parentJob));
 
@@ -111,7 +109,7 @@ class JobDeletionServiceTest {
     }
 
     @Test
-    void shouldDeleteJobAndChildrenInOrder() throws BaseXException, QueryException {
+    void shouldDeleteJobAndChildrenInOrder() {
         JobDeletionService serviceSpy = spy(jobDeletionService);
         Job parentJob = createJob(JOB_ID, null, AgentState.FINISHED(), null);
         when(jobRepository.findById(JOB_ID)).thenReturn(Optional.of(parentJob));
@@ -126,7 +124,7 @@ class JobDeletionServiceTest {
     }
 
     @Test
-    void shouldDeleteChildJobsRecursivelyDepthFirst() throws BaseXException, QueryException {
+    void shouldDeleteChildJobsRecursivelyDepthFirst() {
         JobDeletionService serviceSpy = spy(jobDeletionService);
         Job child1 = createJob("child-1", JOB_ID, AgentState.FINISHED(), null);
         Job child2 = createJob("child-2", JOB_ID, AgentState.FINISHED(), null);
@@ -148,7 +146,7 @@ class JobDeletionServiceTest {
     }
 
     @Test
-    void shouldDeleteCursorAgentAndDatabaseEntries() throws BaseXException, QueryException {
+    void shouldDeleteCursorAgentAndDatabaseEntries() {
         Job job = createJob(JOB_ID, null, AgentState.FINISHED(), "cursor-agent-123");
 
         jobDeletionService.deleteJob(job);
@@ -159,7 +157,7 @@ class JobDeletionServiceTest {
     }
 
     @Test
-    void shouldContinueDeletionWhenCursorAgentRemovalFails() throws BaseXException, QueryException {
+    void shouldContinueDeletionWhenCursorAgentRemovalFails() {
         Job job = createJob(JOB_ID, null, AgentState.FINISHED(), "cursor-agent-123");
         doThrow(new RuntimeException("API error")).when(cliAgent).deleteAgent("cursor-agent-123");
 
@@ -171,7 +169,7 @@ class JobDeletionServiceTest {
     }
 
     @Test
-    void shouldContinueWhenExceptionOccursDuringDeleteJobAndChildren() throws BaseXException, QueryException {
+    void shouldContinueWhenExceptionOccursDuringDeleteJobAndChildren() {
         JobDeletionService serviceSpy = spy(jobDeletionService);
         doThrow(new RuntimeException("boom")).when(serviceSpy).deleteChildJobsRecursively(JOB_ID);
 
@@ -200,4 +198,3 @@ class JobDeletionServiceTest {
         );
     }
 }
-

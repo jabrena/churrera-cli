@@ -1,15 +1,13 @@
 package info.jab.churrera.cli.command.cli;
 
+import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.model.Job;
+import info.jab.churrera.cli.model.JobWithDetails;
 import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.cli.repository.JobRepository;
-import info.jab.churrera.cli.model.JobWithDetails;
 import info.jab.churrera.cli.service.CLIAgent;
 import info.jab.cursor.client.model.ConversationMessage;
 import info.jab.cursor.client.model.ConversationResponse;
-import info.jab.churrera.cli.model.AgentState;
-import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,7 +68,7 @@ class JobLogsCommandTest {
     }
 
     @Test
-    void testRun_JobNotFound() throws BaseXException, QueryException {
+    void testRun_JobNotFound() {
         // Given
         String jobId = "non-existent-job";
         jobLogsCommand = new JobLogsCommand(jobRepository, cliAgent, jobId);
@@ -87,7 +85,7 @@ class JobLogsCommandTest {
     }
 
     @Test
-    void testRun_JobFoundWithoutCursorAgent() throws BaseXException, QueryException {
+    void testRun_JobFoundWithoutCursorAgent() {
         // Given
         String jobId = "test-job-id";
         Job jobWithoutAgent = new Job(jobId,
@@ -113,7 +111,7 @@ class JobLogsCommandTest {
     }
 
     @Test
-    void testRun_JobFoundWithCursorAgent_Success() throws BaseXException, QueryException {
+    void testRun_JobFoundWithCursorAgent_Success() {
         // Given
         String jobId = "test-job-id";
         jobLogsCommand = new JobLogsCommand(jobRepository, cliAgent, jobId);
@@ -138,7 +136,7 @@ class JobLogsCommandTest {
     }
 
     @Test
-    void testRun_JobFoundWithCursorAgent_ConversationFails() throws BaseXException, QueryException {
+    void testRun_JobFoundWithCursorAgent_ConversationFails() {
         // Given
         String jobId = "test-job-id";
         jobLogsCommand = new JobLogsCommand(jobRepository, cliAgent, jobId);
@@ -163,7 +161,7 @@ class JobLogsCommandTest {
     }
 
     @Test
-    void testRun_JobFoundWithCursorAgent_NullConversation() throws BaseXException, QueryException {
+    void testRun_JobFoundWithCursorAgent_NullConversation() {
         // Given
         String jobId = "test-job-id";
         jobLogsCommand = new JobLogsCommand(jobRepository, cliAgent, jobId);
@@ -183,7 +181,7 @@ class JobLogsCommandTest {
     }
 
     @Test
-    void testRun_JobFoundWithCursorAgent_EmptyMessages() throws BaseXException, QueryException {
+    void testRun_JobFoundWithCursorAgent_EmptyMessages() {
         // Given
         String jobId = "test-job-id";
         jobLogsCommand = new JobLogsCommand(jobRepository, cliAgent, jobId);
@@ -205,13 +203,13 @@ class JobLogsCommandTest {
     }
 
     @Test
-    void testRun_DatabaseException() throws BaseXException, QueryException {
+    void testRun_DatabaseException() {
         // Given
         String jobId = "test-job-id";
         jobLogsCommand = new JobLogsCommand(jobRepository, cliAgent, jobId);
 
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.findJobWithDetails(jobId)).thenThrow(new BaseXException("Database error"));
+        when(jobRepository.findJobWithDetails(jobId)).thenThrow(new RuntimeException("Database error"));
 
         // When & Then
         assertDoesNotThrow(() -> jobLogsCommand.run());
@@ -221,13 +219,13 @@ class JobLogsCommandTest {
     }
 
     @Test
-    void testRun_QueryException() throws BaseXException, QueryException {
+    void testRun_QueryException() {
         // Given
         String jobId = "test-job-id";
         jobLogsCommand = new JobLogsCommand(jobRepository, cliAgent, jobId);
 
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(testJob));
-        when(jobRepository.findJobWithDetails(jobId)).thenThrow(new QueryException("Query error"));
+        when(jobRepository.findJobWithDetails(jobId)).thenThrow(new RuntimeException("Query error"));
 
         // When & Then
         assertDoesNotThrow(() -> jobLogsCommand.run());
@@ -237,7 +235,7 @@ class JobLogsCommandTest {
     }
 
     @Test
-    void testRun_Resolves8CharPrefixUnique() throws BaseXException, QueryException {
+    void testRun_Resolves8CharPrefixUnique() {
         // Given
         String fullJobId = "test-job-id";
         String prefix = fullJobId.substring(0, 8); // 8-char prefix

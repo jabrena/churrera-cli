@@ -1,21 +1,21 @@
 package info.jab.churrera.cli.service;
 
+import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.cli.repository.JobRepository;
-import info.jab.cursor.client.CursorAgentManagement;
-import info.jab.cursor.client.CursorAgentInformation;
+import info.jab.churrera.util.PmlConverter;
+import info.jab.churrera.util.PropertyResolver;
 import info.jab.cursor.client.CursorAgentGeneralEndpoints;
+import info.jab.cursor.client.CursorAgentInformation;
+import info.jab.cursor.client.CursorAgentManagement;
 import info.jab.cursor.client.model.AgentResponse;
 import info.jab.cursor.client.model.AgentStatus;
+import info.jab.cursor.client.model.ConversationMessage;
 import info.jab.cursor.client.model.ConversationResponse;
 import info.jab.cursor.client.model.FollowUpResponse;
 import info.jab.cursor.client.model.Source;
 import info.jab.cursor.client.model.Target;
-import info.jab.cursor.client.model.ConversationMessage;
-import info.jab.churrera.cli.model.AgentState;
-import info.jab.churrera.util.PmlConverter;
-import info.jab.churrera.util.PropertyResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +26,6 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;

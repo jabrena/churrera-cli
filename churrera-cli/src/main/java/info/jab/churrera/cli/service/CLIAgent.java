@@ -4,8 +4,6 @@ import info.jab.cursor.client.model.AgentResponse;
 import info.jab.cursor.client.CursorAgentManagement;
 import info.jab.cursor.client.CursorAgentInformation;
 import info.jab.cursor.client.CursorAgentGeneralEndpoints;
-import info.jab.cursor.client.impl.CursorAgentManagementImpl;
-import info.jab.cursor.client.impl.CursorAgentInformationImpl;
 import info.jab.cursor.client.model.FollowUpResponse;
 import info.jab.cursor.client.model.ConversationResponse;
 import info.jab.cursor.client.model.ConversationMessage;
@@ -15,7 +13,6 @@ import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.AgentState;
-import info.jab.churrera.util.PropertyResolver;
 import info.jab.churrera.util.PmlConverter;
 import info.jab.churrera.workflow.ExpressionEvaluator;
 import org.slf4j.Logger;
@@ -127,12 +124,10 @@ public class CLIAgent {
      * @return the final agent state
      */
     public AgentState monitorAgent(String cursorAgentId, int delaySeconds) {
-        int checkCount = 0;
         AgentState lastState = AgentState.CREATING();
 
         while (true) {
             try {
-                checkCount++;
                 AgentResponse currentAgent = cursorAgentInformation.getStatus(cursorAgentId);
                 AgentState agentState = AgentState.of(currentAgent);
                 lastState = agentState;

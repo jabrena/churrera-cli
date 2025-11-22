@@ -1,8 +1,8 @@
 package info.jab.churrera.cli.service;
 
-import info.jab.churrera.workflow.WorkflowParser;
-import info.jab.churrera.workflow.WorkflowData;
 import info.jab.churrera.workflow.PromptInfo;
+import info.jab.churrera.workflow.WorkflowData;
+import info.jab.churrera.workflow.WorkflowParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

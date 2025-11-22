@@ -58,7 +58,6 @@ public class ResultExtractor {
                     // Use raw type to handle generics, passing bindResultType as preferred key
                     @SuppressWarnings({"unchecked", "rawtypes"})
                     Optional<List<Object>> resultList =
-                        (Optional<List<Object>>) (Optional)
                         ConversationJsonDeserializer.deserializeList(conversationContent, (Class) elementType, bindResultType);
 
                     if (resultList.isPresent()) {

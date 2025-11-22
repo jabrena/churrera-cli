@@ -14,10 +14,8 @@ import info.jab.churrera.util.PropertyResolver;
 import info.jab.churrera.workflow.PmlValidator;
 import info.jab.churrera.workflow.WorkflowParser;
 import info.jab.churrera.workflow.WorkflowValidator;
-import info.jab.churrera.workflow.WorkflowType;
 import info.jab.cursor.generated.client.ApiClient;
 import info.jab.cursor.generated.client.api.DefaultApi;
-import org.basex.core.BaseXException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -29,15 +27,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import java.util.List;
+import java.util.Optional;
+import java.time.LocalDateTime;
+import info.jab.churrera.workflow.WorkflowType;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -430,8 +429,9 @@ class ChurreraCLITest {
         churreraCLI.run();
 
         // Then
-        String errorOutput = errorStream.toString();
-        assertThat(errorOutput).contains("Error executing command");
+        String output = outputStream.toString();
+        assertThat(output).contains("Error listing jobs: Database error");
+        assertThat(errorStream.toString()).isEmpty();
     }
 
     @Test
@@ -766,8 +766,9 @@ class ChurreraCLITest {
         churreraCLI.run();
 
         // Then
-        String errorOutput = errorStream.toString();
-        assertThat(errorOutput).contains("Error executing command");
+        String output = outputStream.toString();
+        assertThat(output).contains("Error listing jobs: Test exception");
+        assertThat(errorStream.toString()).isEmpty();
     }
 
     @Test
@@ -782,11 +783,7 @@ class ChurreraCLITest {
         // Then
         // Exception should be handled gracefully
         String errorOutput = errorStream.toString();
-        assertThat(errorOutput).satisfies(message ->
-            assertThat(message.isEmpty() || message.contains("Error executing command"))
-                .as("status command should either log an error or be silent")
-                .isTrue()
-        );
+        assertThat(errorOutput).contains("Error retrieving job status: Database error");
     }
 
     @Test
@@ -800,7 +797,7 @@ class ChurreraCLITest {
 
         // Then
         String errorOutput = errorStream.toString();
-        assertThat(errorOutput).contains("Error executing command");
+        assertThat(errorOutput).contains("Error deleting job: Delete error");
         String output = outputStream.toString();
         assertThat(output).contains("Goodbye!");
     }
@@ -816,7 +813,7 @@ class ChurreraCLITest {
 
         // Then
         String errorOutput = errorStream.toString();
-        assertThat(errorOutput).contains("Error executing command");
+        assertThat(errorOutput).contains("Error retrieving job logs: Logs error");
         String output = outputStream.toString();
         assertThat(output).contains("Goodbye!");
     }
@@ -831,10 +828,10 @@ class ChurreraCLITest {
         churreraCLI.run();
 
         // Then
-        String errorOutput = errorStream.toString();
-        assertThat(errorOutput).contains("Error executing command");
         String output = outputStream.toString();
+        assertThat(output).contains("Error retrieving job PR info: PR error");
         assertThat(output).contains("Goodbye!");
+        assertThat(errorStream.toString()).isEmpty();
     }
 
     @Test
@@ -1089,7 +1086,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testCreateCLICommand_WithMocks() throws IOException, BaseXException {
+    void testCreateCLICommand_WithMocks() throws IOException {
         // Given
         String testApiKey = "test-api-key";
         InputStream testInputStream = new ByteArrayInputStream("test".getBytes());
@@ -1146,7 +1143,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testCreateRunCommand_WithMocks() throws IOException, BaseXException {
+    void testCreateRunCommand_WithMocks() throws IOException {
         // Given
         String testApiKey = "test-api-key";
         when(propertyResolver.getProperty(anyString(), anyString()))
@@ -1174,7 +1171,7 @@ class ChurreraCLITest {
     }
 
     @Test
-    void testCreateRunCommand_ThrowsExceptionWhenPropertyMissing() throws IOException, BaseXException {
+    void testCreateRunCommand_ThrowsExceptionWhenPropertyMissing() throws IOException {
         // Given
         String testApiKey = "test-api-key";
         when(propertyResolver.getProperty(anyString(), anyString()))

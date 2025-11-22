@@ -1,28 +1,25 @@
 package info.jab.churrera.cli.command.run;
+import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
-import info.jab.churrera.workflow.WorkflowType;
 import info.jab.churrera.cli.repository.JobRepository;
-import info.jab.churrera.workflow.WorkflowValidator;
-import info.jab.churrera.workflow.WorkflowParser;
-import info.jab.churrera.workflow.WorkflowData;
-import info.jab.churrera.workflow.PromptInfo;
-import info.jab.churrera.workflow.WorkflowParseException;
-import info.jab.churrera.workflow.PmlValidator;
-import info.jab.churrera.workflow.ParallelWorkflowData;
-import info.jab.churrera.workflow.SequenceInfo;
-import info.jab.churrera.cli.model.AgentState;
-import info.jab.churrera.cli.service.JobProcessor;
 import info.jab.churrera.cli.service.CLIAgent;
-import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
+import info.jab.churrera.cli.service.JobProcessor;
+import info.jab.churrera.workflow.ParallelWorkflowData;
+import info.jab.churrera.workflow.PmlValidator;
+import info.jab.churrera.workflow.PromptInfo;
+import info.jab.churrera.workflow.SequenceInfo;
+import info.jab.churrera.workflow.WorkflowData;
+import info.jab.churrera.workflow.WorkflowParseException;
+import info.jab.churrera.workflow.WorkflowParser;
+import info.jab.churrera.workflow.WorkflowType;
+import info.jab.churrera.workflow.WorkflowValidator;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-
 import picocli.CommandLine;
 
 import java.io.File;
@@ -227,7 +224,7 @@ class RunCommandTest {
 
 
     @Test
-    void testRun_RetrieveModels() throws BaseXException, QueryException, IOException {
+    void testRun_RetrieveModels() throws Exception {
         // Given
         when(cliAgent.getModels()).thenReturn(List.of("model1", "model2", "model3"));
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
@@ -245,7 +242,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testRun_RetrieveRepositories() throws BaseXException, QueryException, IOException {
+    void testRun_RetrieveRepositories() throws Exception {
         // Given
         when(cliAgent.getRepositories()).thenReturn(List.of("repo1", "repo2"));
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
@@ -263,7 +260,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testRun_EmptyWorkflowPath() throws BaseXException, QueryException, IOException {
+    void testRun_EmptyWorkflowPath() throws Exception {
         // Given
         runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
             workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
@@ -524,7 +521,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testIsJobAndChildrenSuccessful_AllSuccessful() throws BaseXException, QueryException {
+    void testIsJobAndChildrenSuccessful_AllSuccessful() {
         // Given
         String jobId = "parent-job";
         Job parentJob = new Job(jobId, "/path", null, "model", "repo",
@@ -544,7 +541,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testIsJobAndChildrenSuccessful_ParentNotSuccessful() throws BaseXException, QueryException {
+    void testIsJobAndChildrenSuccessful_ParentNotSuccessful() {
         // Given
         String jobId = "parent-job";
         Job parentJob = new Job(jobId, "/path", null, "model", "repo",
@@ -562,7 +559,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testIsJobAndChildrenSuccessful_ChildNotSuccessful() throws BaseXException, QueryException {
+    void testIsJobAndChildrenSuccessful_ChildNotSuccessful() {
         // Given
         String jobId = "parent-job";
         Job parentJob = new Job(jobId, "/path", null, "model", "repo",
@@ -725,7 +722,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDisplayFilteredJobsTable_SequenceWorkflow() throws BaseXException, QueryException {
+    void testDisplayFilteredJobsTable_SequenceWorkflow() {
         // Given
         String jobId = "test-job-id";
         Job job = new Job(jobId, testJobPath, null, "test-model", "test-repo",
@@ -748,7 +745,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDisplayFilteredJobsTable_ParallelWorkflowWithChildren() throws BaseXException, QueryException {
+    void testDisplayFilteredJobsTable_ParallelWorkflowWithChildren() {
         // Given
         String parentJobId = "parent-job-id";
         String childJobId1 = "child-job-id-1";
@@ -792,7 +789,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDisplayFilteredJobsTable_TerminalJob() throws BaseXException, QueryException {
+    void testDisplayFilteredJobsTable_TerminalJob() {
         // Given
         String jobId = "test-job-id";
         LocalDateTime createdAt = LocalDateTime.now().minusMinutes(5);
@@ -817,7 +814,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDisplayFilteredJobsTable_JobNotFound() throws BaseXException, QueryException {
+    void testDisplayFilteredJobsTable_JobNotFound() {
         // Given
         String jobId = "non-existent-job";
         when(jobRepository.findById(jobId)).thenReturn(Optional.empty());
@@ -827,7 +824,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDisplayFilteredJobsTable_ExceptionRetrievingPrompts() throws BaseXException, QueryException {
+    void testDisplayFilteredJobsTable_ExceptionRetrievingPrompts() {
         // Given
         String jobId = "test-job-id";
         Job job = new Job(jobId, testJobPath, null, "test-model", "test-repo",
@@ -836,14 +833,14 @@ class RunCommandTest {
 
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(job));
         when(jobRepository.findAll()).thenReturn(List.of(job));
-        when(jobRepository.findPromptsByJobId(jobId)).thenThrow(new BaseXException("Database error"));
+        when(jobRepository.findPromptsByJobId(jobId)).thenThrow(new RuntimeException("Database error"));
 
         // When & Then - should handle exception gracefully
         assertDoesNotThrow(() -> jobDisplayService.displayFilteredJobsTable(jobId));
     }
 
     @Test
-    void testDisplayFilteredJobsTable_JobWithNullType() throws BaseXException, QueryException {
+    void testDisplayFilteredJobsTable_JobWithNullType() {
         // Given
         String jobId = "test-job-id";
         Job job = new Job(jobId, testJobPath, null, "test-model", "test-repo",
@@ -929,7 +926,7 @@ class RunCommandTest {
     }
 
     @Test
-    void testDeleteJobAndChildren_ExceptionHandling() throws BaseXException, QueryException {
+    void testDeleteJobAndChildren_ExceptionHandling() {
         // Given
         String jobId = "parent-job-id";
         Job parentJob = new Job(jobId, testJobPath, null, "test-model", "test-repo",
@@ -937,7 +934,7 @@ class RunCommandTest {
             WorkflowType.PARALLEL, null, null, null, null);
 
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(parentJob));
-        when(jobRepository.findJobsByParentId(jobId)).thenThrow(new BaseXException("Database error"));
+        when(jobRepository.findJobsByParentId(jobId)).thenThrow(new RuntimeException("Database error"));
 
         // When & Then - should handle exception gracefully
         assertDoesNotThrow(() -> jobDeletionService.deleteJobAndChildren(jobId, "--delete-on-completion"));
@@ -1058,4 +1055,3 @@ class RunCommandTest {
     }
 
 }
-

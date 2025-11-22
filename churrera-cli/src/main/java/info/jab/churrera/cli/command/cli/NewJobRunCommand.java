@@ -204,7 +204,7 @@ public class NewJobRunCommand implements Runnable {
         } catch (WorkflowParseException e) {
             logger.error("Error parsing workflow: {}", jobPath, e);
             System.err.println("Error parsing workflow: " + e.getMessage());
-        } catch (QueryException | IOException e) {
+        } catch (IOException e) {
             logger.error("Error creating job: {}", jobPath, e);
             System.err.println("Error creating job: " + e.getMessage());
         }

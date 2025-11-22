@@ -71,14 +71,14 @@ public class JobsCommand implements Runnable {
                 System.out.println(tableOutput);
                 logger.info("Jobs table displayed:\n{}", tableOutput);
             }
-        } catch (BaseXException | QueryException e) {
+        } catch (Exception e) {
             String errorMessage = "Error listing jobs: " + e.getMessage();
             System.out.println(errorMessage);
             logger.error("Error listing jobs: {}", e.getMessage());
         }
     }
 
-    private String[] formatJobRow(Job job) throws BaseXException, QueryException {
+    private String[] formatJobRow(Job job) {
         List<Prompt> prompts = jobRepository.findPromptsByJobId(job.jobId());
         int totalPrompts = prompts.size();
         int completedPrompts = countCompletedPrompts(prompts);

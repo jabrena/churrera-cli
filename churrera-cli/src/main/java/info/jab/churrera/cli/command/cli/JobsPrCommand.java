@@ -72,7 +72,7 @@ public class JobsPrCommand implements Runnable {
                 System.out.println("   Please wait for the job to complete to view the PR link.");
             }
 
-        } catch (BaseXException | QueryException e) {
+        } catch (Exception e) {
             String errorMessage = "Error retrieving job PR info: " + e.getMessage();
             System.out.println(errorMessage);
             logger.error("Error retrieving job PR info: {}", e.getMessage());
@@ -86,7 +86,7 @@ public class JobsPrCommand implements Runnable {
      *
      * Prints helpful messages for not found or ambiguous prefix cases.
      */
-    private String resolveJobId(String provided) throws BaseXException, QueryException {
+    private String resolveJobId(String provided) {
         // Try exact match first
         var exact = jobRepository.findById(provided);
         if (exact.isPresent()) {
@@ -103,7 +103,7 @@ public class JobsPrCommand implements Runnable {
         return null;
     }
 
-    private String resolveByPrefix(String provided) throws BaseXException, QueryException {
+    private String resolveByPrefix(String provided) {
         var all = jobRepository.findAll();
         var matches = new ArrayList<Job>();
         for (Job j : all) {

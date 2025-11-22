@@ -1,18 +1,15 @@
 package info.jab.churrera.cli.command.cli;
 
+import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
-import info.jab.churrera.workflow.WorkflowType;
 import info.jab.churrera.cli.repository.JobRepository;
-import info.jab.churrera.workflow.WorkflowValidator;
-import info.jab.churrera.workflow.WorkflowParser;
-import info.jab.churrera.workflow.WorkflowData;
-import info.jab.churrera.workflow.PromptInfo;
-import info.jab.churrera.workflow.WorkflowParseException;
 import info.jab.churrera.workflow.PmlValidator;
-import info.jab.churrera.cli.model.AgentState;
-import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
+import info.jab.churrera.workflow.PromptInfo;
+import info.jab.churrera.workflow.WorkflowData;
+import info.jab.churrera.workflow.WorkflowParseException;
+import info.jab.churrera.workflow.WorkflowParser;
+import info.jab.churrera.workflow.WorkflowValidator;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -28,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -146,7 +144,7 @@ class NewJobRunCommandTest {
     }
 
     @Test
-    void testRun_WorkflowFileDoesNotExist() throws BaseXException, QueryException, WorkflowParseException, IOException {
+    void testRun_WorkflowFileDoesNotExist() throws Exception, WorkflowParseException, IOException {
         // Given
         String nonExistentPath = "/non/existent/path.xml";
         NewJobRunCommand commandWithNonExistentFile =
@@ -246,18 +244,22 @@ class NewJobRunCommandTest {
 
     @Test
     void testRun_JobRepositoryExceptions() throws Exception {
-        // Test BaseXException
-        doThrow(new BaseXException("Database error"))
+        // Test BaseXException equivalent
+        doThrow(new RuntimeException("Database error"))
             .when(jobRepository).save(any(Job.class));
-        assertDoesNotThrow(() -> newJobRunCommand.run());
+        assertThatThrownBy(() -> newJobRunCommand.run())
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Database error");
         verify(jobRepository).save(any(Job.class));
         reset(jobRepository);
         doReturn(createDefaultWorkflowData()).when(workflowParser).parse(any(File.class));
 
-        // Test QueryException
-        doThrow(new QueryException("Query error"))
+        // Test QueryException equivalent
+        doThrow(new RuntimeException("Query error"))
             .when(jobRepository).save(any(Job.class));
-        assertDoesNotThrow(() -> newJobRunCommand.run());
+        assertThatThrownBy(() -> newJobRunCommand.run())
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Query error");
         verify(jobRepository).save(any(Job.class));
         reset(jobRepository);
         doReturn(createDefaultWorkflowData()).when(workflowParser).parse(any(File.class));

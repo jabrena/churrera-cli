@@ -50,45 +50,38 @@ public class JobDisplayService {
      * @param jobId the job ID to display
      */
     public void displayFilteredJobsTable(String jobId) {
-        try {
-            // Get the job
-            Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found: " + jobId));
+        // Get the job
+        Job job = jobRepository.findById(jobId)
+            .orElseThrow(() -> new RuntimeException("Job not found: " + jobId));
 
-            // Collect jobs to display
-            List<Job> jobsToDisplay = collectJobsToDisplay(jobId, job);
+        // Collect jobs to display
+        List<Job> jobsToDisplay = collectJobsToDisplay(jobId, job);
 
-            // Display table
-            if (jobsToDisplay.isEmpty()) {
-                System.out.println("No jobs found.");
-                return;
-            }
-
-            // Prepare table data
-            String[] headers = {"Job ID", "Parent Job", "Type", "Prompts", "Status", "Last update", "Completed"};
-            List<String[]> rows = new ArrayList<>();
-
-            for (Job j : jobsToDisplay) {
-                String[] row = formatJobRowOrError(j);
-                rows.add(row);
-            }
-
-            // Display table to console
-            String tableOutput = TableFormatter.formatTable(headers, rows);
-            System.out.println(tableOutput);
-            logger.debug("Filtered jobs table displayed:\n{}", tableOutput);
-
-        } catch (BaseXException | QueryException e) {
-            String errorMessage = "Error displaying jobs: " + e.getMessage();
-            System.out.println(errorMessage);
-            logger.error("Error displaying jobs: {}", e.getMessage());
+        // Display table
+        if (jobsToDisplay.isEmpty()) {
+            System.out.println("No jobs found.");
+            return;
         }
+
+        // Prepare table data
+        String[] headers = {"Job ID", "Parent Job", "Type", "Prompts", "Status", "Last update", "Completed"};
+        List<String[]> rows = new ArrayList<>();
+
+        for (Job j : jobsToDisplay) {
+            String[] row = formatJobRowOrError(j);
+            rows.add(row);
+        }
+
+        // Display table to console
+        String tableOutput = TableFormatter.formatTable(headers, rows);
+        System.out.println(tableOutput);
+        logger.debug("Filtered jobs table displayed:\n{}", tableOutput);
     }
 
     /**
      * Collects jobs to display (parent and children if parallel).
      */
-    private List<Job> collectJobsToDisplay(String jobId, Job job) throws BaseXException, QueryException {
+    private List<Job> collectJobsToDisplay(String jobId, Job job) {
         List<Job> jobsToDisplay = new ArrayList<>();
         jobsToDisplay.add(job);
 
@@ -131,7 +124,7 @@ public class JobDisplayService {
     /**
      * Formats a job row for table display.
      */
-    private String[] formatJobRow(Job job) throws BaseXException, QueryException {
+    private String[] formatJobRow(Job job) {
         List<Prompt> prompts = jobRepository.findPromptsByJobId(job.jobId());
         int totalPrompts = prompts.size();
         int completedPrompts = countCompletedPrompts(prompts);

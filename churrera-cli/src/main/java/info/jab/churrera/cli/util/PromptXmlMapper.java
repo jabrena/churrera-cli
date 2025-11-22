@@ -77,27 +77,28 @@ public final class PromptXmlMapper {
         String promptEndTag = "</prompt>";
 
         int startIndex = 0;
-        while (true) {
+        boolean continueParsing = true;
+        while (continueParsing) {
             int promptStart = documentXml.indexOf(promptStartTag, startIndex);
             if (promptStart == -1) {
-                break;
+                continueParsing = false;
+            } else {
+                int promptEnd = documentXml.indexOf(promptEndTag, promptStart);
+                if (promptEnd == -1) {
+                    continueParsing = false;
+                } else {
+                    String promptXml = documentXml.substring(promptStart, promptEnd + promptEndTag.length());
+
+                    try {
+                        prompts.add(fromXml(promptXml, formatter));
+                    } catch (Exception e) {
+                        logger.error("Error parsing individual prompt", e);
+                        logger.debug("Prompt XML: {}", promptXml);
+                    }
+
+                    startIndex = promptEnd + promptEndTag.length();
+                }
             }
-
-            int promptEnd = documentXml.indexOf(promptEndTag, promptStart);
-            if (promptEnd == -1) {
-                break;
-            }
-
-            String promptXml = documentXml.substring(promptStart, promptEnd + promptEndTag.length());
-
-            try {
-                prompts.add(fromXml(promptXml, formatter));
-            } catch (Exception e) {
-                logger.error("Error parsing individual prompt", e);
-                logger.debug("Prompt XML: {}", promptXml);
-            }
-
-            startIndex = promptEnd + promptEndTag.length();
         }
 
         return prompts;

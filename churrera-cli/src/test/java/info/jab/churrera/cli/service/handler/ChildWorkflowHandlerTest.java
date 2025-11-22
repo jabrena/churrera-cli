@@ -1,14 +1,14 @@
 package info.jab.churrera.cli.service.handler;
 
-import info.jab.churrera.cli.repository.JobRepository;
+import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
-import info.jab.churrera.cli.model.AgentState;
+import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.service.*;
-import info.jab.churrera.workflow.WorkflowData;
 import info.jab.churrera.workflow.ParallelWorkflowData;
 import info.jab.churrera.workflow.PromptInfo;
 import info.jab.churrera.workflow.SequenceInfo;
+import info.jab.churrera.workflow.WorkflowData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

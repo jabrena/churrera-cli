@@ -1,11 +1,10 @@
 package info.jab.churrera.cli.command.cli;
 
+import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
-import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.repository.JobRepository;
-import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
+import info.jab.churrera.workflow.WorkflowType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import info.jab.churrera.workflow.WorkflowType;
 
 /**
  * Unit tests for JobsCommand.
@@ -52,7 +50,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayNoJobsMessageWhenEmpty() throws BaseXException, QueryException, IOException {
+    void shouldDisplayNoJobsMessageWhenEmpty() throws Exception {
         // Given
         when(jobRepository.findAll()).thenReturn(Collections.emptyList());
 
@@ -65,7 +63,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayJobsWhenAvailable() throws BaseXException, QueryException, IOException {
+    void shouldDisplayJobsWhenAvailable() throws Exception {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
@@ -94,9 +92,9 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldHandleRepositoryException() throws BaseXException, QueryException, IOException {
+    void shouldHandleRepositoryException() throws Exception {
         // Given
-        when(jobRepository.findAll()).thenThrow(new BaseXException("Database error"));
+        when(jobRepository.findAll()).thenThrow(new RuntimeException("Database error"));
 
         // When
         jobsCommand.run();
@@ -107,9 +105,9 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldHandleQueryException() throws BaseXException, QueryException, IOException {
+    void shouldHandleQueryException() throws Exception {
         // Given
-        when(jobRepository.findAll()).thenThrow(new QueryException("[basex:error] Query error"));
+        when(jobRepository.findAll()).thenThrow(new RuntimeException("[basex:error] Query error"));
 
         // When
         jobsCommand.run();
@@ -120,7 +118,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayFinishedJobsWithCompletionTime() throws BaseXException, QueryException, IOException {
+    void shouldDisplayFinishedJobsWithCompletionTime() throws Exception {
         // Given
         LocalDateTime createdAt = LocalDateTime.now().minusMinutes(5);
         LocalDateTime updatedAt = LocalDateTime.now().minusMinutes(2);
@@ -149,7 +147,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayJobWithParentJobId() throws BaseXException, QueryException, IOException {
+    void shouldDisplayJobWithParentJobId() throws Exception {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
@@ -173,7 +171,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayJobsWithDifferentTimeFormats() throws BaseXException, QueryException, IOException {
+    void shouldDisplayJobsWithDifferentTimeFormats() throws Exception {
         // Given
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneHourAgo = now.minusHours(1);
@@ -208,7 +206,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayParallelWorkflowType() throws BaseXException, QueryException, IOException {
+    void shouldDisplayParallelWorkflowType() throws Exception {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
@@ -230,7 +228,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldHandleErrorRetrievingJobDetails() throws BaseXException, QueryException, IOException {
+    void shouldHandleErrorRetrievingJobDetails() throws Exception {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
@@ -239,7 +237,7 @@ class JobsCommandTest {
         );
 
         when(jobRepository.findAll()).thenReturn(jobs);
-        when(jobRepository.findPromptsByJobId("error-job")).thenThrow(new BaseXException("Database error"));
+        when(jobRepository.findPromptsByJobId("error-job")).thenThrow(new RuntimeException("Database error"));
 
         // When
         jobsCommand.run();
@@ -251,7 +249,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayJobsWithMixedPromptStatuses() throws BaseXException, QueryException, IOException {
+    void shouldDisplayJobsWithMixedPromptStatuses() throws Exception {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
@@ -277,7 +275,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldHandleJobWithNullWorkflowType() throws BaseXException, QueryException, IOException {
+    void shouldHandleJobWithNullWorkflowType() throws Exception {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(
@@ -297,7 +295,7 @@ class JobsCommandTest {
     }
 
     @Test
-    void shouldDisplayJobsWithFailedStatus() throws BaseXException, QueryException, IOException {
+    void shouldDisplayJobsWithFailedStatus() throws Exception {
         // Given
         LocalDateTime now = LocalDateTime.now();
         List<Job> jobs = Arrays.asList(

@@ -4,7 +4,6 @@ import info.jab.churrera.cli.model.AgentState;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.workflow.WorkflowType;
-import org.basex.core.BaseXException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -106,7 +105,7 @@ class ParallelWorkflowCompletionCheckerTest {
     @Test
     void shouldPropagateRepositoryErrors() throws Exception {
         parentJob = createJob(parentJobId, null, AgentState.FINISHED());
-        when(jobRepository.findAll()).thenThrow(new BaseXException("boom"));
+        when(jobRepository.findAll()).thenThrow(new RuntimeException("boom"));
 
         assertThatThrownBy(() -> checker.checkCompletion(parentJob, parentJobId))
             .isInstanceOf(RuntimeException.class)
@@ -133,4 +132,3 @@ class ParallelWorkflowCompletionCheckerTest {
         );
     }
 }
-

@@ -114,28 +114,29 @@ public final class JobXmlMapper {
         String jobEndTag = "</job>";
 
         int startIndex = 0;
-        while (true) {
+        boolean continueParsing = true;
+        while (continueParsing) {
             int jobStart = documentXml.indexOf(jobStartTag, startIndex);
             if (jobStart == -1) {
-                break; // No more jobs found
+                continueParsing = false;
+            } else {
+                int jobEnd = documentXml.indexOf(jobEndTag, jobStart);
+                if (jobEnd == -1) {
+                    continueParsing = false;
+                } else {
+                    // Extract the job XML
+                    String jobXml = documentXml.substring(jobStart, jobEnd + jobEndTag.length());
+
+                    try {
+                        jobs.add(fromXml(jobXml, formatter));
+                    } catch (Exception e) {
+                        logger.error("Error parsing individual job", e);
+                        logger.debug("Job XML: {}", jobXml);
+                    }
+
+                    startIndex = jobEnd + jobEndTag.length();
+                }
             }
-
-            int jobEnd = documentXml.indexOf(jobEndTag, jobStart);
-            if (jobEnd == -1) {
-                break; // Malformed XML
-            }
-
-            // Extract the job XML
-            String jobXml = documentXml.substring(jobStart, jobEnd + jobEndTag.length());
-
-            try {
-                jobs.add(fromXml(jobXml, formatter));
-            } catch (Exception e) {
-                logger.error("Error parsing individual job", e);
-                logger.debug("Job XML: {}", jobXml);
-            }
-
-            startIndex = jobEnd + jobEndTag.length();
         }
 
         return jobs;

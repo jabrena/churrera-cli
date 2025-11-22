@@ -5,8 +5,6 @@ import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.service.JobProcessor;
 import info.jab.churrera.workflow.WorkflowType;
-import org.basex.core.BaseXException;
-import org.basex.query.QueryException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +42,7 @@ class JobPollingServiceTest {
     private Job job;
 
     @BeforeEach
-    void setUp() throws BaseXException, QueryException {
+    void setUp() {
         job = createJob(AgentState.RUNNING());
         lenient().when(jobRepository.findById(JOB_ID)).thenReturn(Optional.of(job));
         lenient().when(completionCheckerFactory.create(any())).thenReturn(completionChecker);
@@ -103,9 +101,9 @@ class JobPollingServiceTest {
     }
 
     @Test
-    void shouldPropagateRepositoryErrorsAsRuntimeException() throws BaseXException, QueryException {
+    void shouldPropagateRepositoryErrorsAsRuntimeException() {
         // Given
-        when(jobRepository.findById(JOB_ID)).thenThrow(new BaseXException("boom"));
+        when(jobRepository.findById(JOB_ID)).thenThrow(new RuntimeException("boom"));
         JobPollingService service = new JobPollingService(
             jobProcessor,
             jobRepository,
@@ -125,7 +123,7 @@ class JobPollingServiceTest {
     }
 
     @Test
-    void shouldFallbackToSequenceCheckerWhenJobTypeIsNull() throws BaseXException, QueryException {
+    void shouldFallbackToSequenceCheckerWhenJobTypeIsNull() {
         Job jobWithoutType = createJob(AgentState.RUNNING(), null);
         Job completedJob = jobWithoutType.withStatus(AgentState.FINISHED());
         when(jobRepository.findById(JOB_ID)).thenReturn(Optional.of(jobWithoutType));
@@ -175,4 +173,3 @@ class JobPollingServiceTest {
     }
 
 }
-

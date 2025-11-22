@@ -60,13 +60,13 @@ public class JobStatusCommand implements Runnable {
             } else {
                 displayJobStatus(jobDetailsOpt.get());
             }
-        } catch (BaseXException | QueryException e) {
+        } catch (Exception e) {
             logger.error("Error retrieving job status: {}", e.getMessage());
             System.err.println("Error retrieving job status: " + e.getMessage());
         }
     }
 
-    private String resolveJobId(String provided) throws BaseXException, QueryException {
+    private String resolveJobId(String provided) {
         var exact = jobRepository.findById(provided);
         if (exact.isPresent()) {
             return provided;
@@ -80,7 +80,7 @@ public class JobStatusCommand implements Runnable {
         return null;
     }
 
-    private String resolveByPrefix(String provided) throws BaseXException, QueryException {
+    private String resolveByPrefix(String provided) {
         List<Job> all = jobRepository.findAll();
         List<Job> matches = new ArrayList<>();
         for (Job j : all) {
@@ -236,7 +236,7 @@ public class JobStatusCommand implements Runnable {
             Job updatedJob = job.withResult(resultToDisplay);
             jobRepository.save(updatedJob);
             logger.info("Successfully extracted and stored result for job: {}", job.jobId());
-        } catch (QueryException | IOException e) {
+        } catch (IOException e) {
             logger.error("Error storing result for job {}: {}", job.jobId(), e.getMessage(), e);
         }
     }
