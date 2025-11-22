@@ -4,6 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -105,38 +108,16 @@ class PmlConverterTest {
                 .hasMessageContaining("PML content cannot be null or empty");
         }
 
-        @Test
-        @DisplayName("Should throw exception for null XSLT file")
-        void shouldThrowExceptionForNullXsltFile() {
+        @ParameterizedTest
+        @ValueSource(strings = {"", "   "})
+        @NullSource
+        @DisplayName("Should throw exception for invalid XSLT file path")
+        void shouldThrowExceptionForInvalidXsltFilePath(String xsltFilePath) {
             // Given
             String pmlContent = "<prompt><role>Test</role></prompt>";
 
             // When & Then
-            assertThatThrownBy(() -> converter.toMarkdownFromContent(pmlContent, null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("XSLT file path cannot be null or empty");
-        }
-
-        @Test
-        @DisplayName("Should throw exception for empty XSLT file path")
-        void shouldThrowExceptionForEmptyXsltFilePath() {
-            // Given
-            String pmlContent = "<prompt><role>Test</role></prompt>";
-
-            // When & Then
-            assertThatThrownBy(() -> converter.toMarkdownFromContent(pmlContent, ""))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("XSLT file path cannot be null or empty");
-        }
-
-        @Test
-        @DisplayName("Should throw exception for whitespace-only XSLT file path")
-        void shouldThrowExceptionForWhitespaceOnlyXsltFilePath() {
-            // Given
-            String pmlContent = "<prompt><role>Test</role></prompt>";
-
-            // When & Then
-            assertThatThrownBy(() -> converter.toMarkdownFromContent(pmlContent, "   "))
+            assertThatThrownBy(() -> converter.toMarkdownFromContent(pmlContent, xsltFilePath))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("XSLT file path cannot be null or empty");
         }

@@ -2,6 +2,12 @@ package info.jab.churrera.util;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -14,11 +20,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("ClasspathResolver Tests")
 class ClasspathResolverTest {
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("validResourceFiles")
     @DisplayName("Should retrieve existing resource from classpath")
-    void shouldRetrieveExistingResource() {
+    void shouldRetrieveExistingResource(String fileName, String expectedContent) {
         // Given
-        String fileName = "examples/hello-world/prompt1.xml";
         ClasspathResolver resolver = new ClasspathResolver();
 
         // When
@@ -28,101 +34,29 @@ class ClasspathResolverTest {
         assertThat(content)
             .isNotNull()
             .isNotEmpty()
-            .contains("<?xml");
+            .contains(expectedContent);
     }
 
-    @Test
-    @DisplayName("Should retrieve XSL file from classpath")
-    void shouldRetrieveXslFileFromClasspath() {
-        // Given
-        String fileName = "pml/pml-to-md.xsl";
-        ClasspathResolver resolver = new ClasspathResolver();
-
-        // When
-        String content = resolver.retrieve(fileName);
-
-        // Then
-        assertThat(content)
-            .isNotNull()
-            .isNotEmpty()
-            .contains("xsl:stylesheet");
-    }
-
-    @Test
-    @DisplayName("Should retrieve properties file from classpath")
-    void shouldRetrievePropertiesFileFromClasspath() {
-        // Given
-        String fileName = "application.properties";
-        ClasspathResolver resolver = new ClasspathResolver();
-
-        // When
-        String content = resolver.retrieve(fileName);
-
-        // Then
-        assertThat(content)
-            .isNotNull()
-            .isNotEmpty()
-            .contains("=");
+    static Stream<org.junit.jupiter.params.provider.Arguments> validResourceFiles() {
+        return Stream.of(
+            org.junit.jupiter.params.provider.Arguments.of("examples/hello-world/prompt1.xml", "<?xml"),
+            org.junit.jupiter.params.provider.Arguments.of("pml/pml-to-md.xsl", "xsl:stylesheet"),
+            org.junit.jupiter.params.provider.Arguments.of("application.properties", "=")
+        );
     }
 
     // Precondition Tests - Null and Empty Inputs
 
-    @Test
-    @DisplayName("Should throw IllegalArgumentException when filename is null")
-    void shouldThrowExceptionWhenFilenameIsNull() {
+    @ParameterizedTest
+    @ValueSource(strings = {"", "   ", "\t\t", "\n\n"})
+    @NullSource
+    @DisplayName("Should throw IllegalArgumentException for invalid filename")
+    void shouldThrowExceptionForInvalidFilename(String fileName) {
         // Given
         ClasspathResolver resolver = new ClasspathResolver();
 
         // When & Then
-        assertThatThrownBy(() -> resolver.retrieve(null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("cannot be null or empty");
-    }
-
-    @Test
-    @DisplayName("Should throw IllegalArgumentException when filename is empty string")
-    void shouldThrowExceptionWhenFilenameIsEmpty() {
-        // Given
-        ClasspathResolver resolver = new ClasspathResolver();
-
-        // When & Then
-        assertThatThrownBy(() -> resolver.retrieve(""))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("cannot be null or empty");
-    }
-
-    @Test
-    @DisplayName("Should throw IllegalArgumentException when filename is whitespace only")
-    void shouldThrowExceptionWhenFilenameIsWhitespaceOnly() {
-        // Given
-        ClasspathResolver resolver = new ClasspathResolver();
-
-        // When & Then
-        assertThatThrownBy(() -> resolver.retrieve("   "))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("cannot be null or empty");
-    }
-
-    @Test
-    @DisplayName("Should throw IllegalArgumentException when filename is tab characters")
-    void shouldThrowExceptionWhenFilenameIsTabCharacters() {
-        // Given
-        ClasspathResolver resolver = new ClasspathResolver();
-
-        // When & Then
-        assertThatThrownBy(() -> resolver.retrieve("\t\t"))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("cannot be null or empty");
-    }
-
-    @Test
-    @DisplayName("Should throw IllegalArgumentException when filename is newline characters")
-    void shouldThrowExceptionWhenFilenameIsNewlineCharacters() {
-        // Given
-        ClasspathResolver resolver = new ClasspathResolver();
-
-        // When & Then
-        assertThatThrownBy(() -> resolver.retrieve("\n\n"))
+        assertThatThrownBy(() -> resolver.retrieve(fileName))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("cannot be null or empty");
     }

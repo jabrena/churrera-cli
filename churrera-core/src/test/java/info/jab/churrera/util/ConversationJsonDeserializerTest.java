@@ -2,6 +2,8 @@ package info.jab.churrera.util;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.util.List;
@@ -119,38 +121,14 @@ class ConversationJsonDeserializerTest {
             });
     }
 
-    @Test
-    @DisplayName("Should return empty when no result tag found")
-    void shouldReturnEmptyWhenNoResultTagFound() {
-        // Given
-        String conversationContent = "Just some conversation text without result tags";
-
-        // When
-        Optional<List<Integer>> result = ConversationJsonDeserializer.deserializeList(conversationContent, Integer.class);
-
-        // Then
-        assertThat(result).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Should return empty when result tag is empty")
-    void shouldReturnEmptyWhenResultTagIsEmpty() {
-        // Given
-        String conversationContent = "<result></result>";
-
-        // When
-        Optional<List<Integer>> result = ConversationJsonDeserializer.deserializeList(conversationContent, Integer.class);
-
-        // Then
-        assertThat(result).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Should return empty when JSON is invalid")
-    void shouldReturnEmptyWhenJsonIsInvalid() {
-        // Given
-        String conversationContent = "<result>{invalid json}</result>";
-
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "Just some conversation text without result tags",
+        "<result></result>",
+        "<result>{invalid json}</result>"
+    })
+    @DisplayName("Should return empty for invalid or missing content")
+    void shouldReturnEmptyForInvalidOrMissingContent(String conversationContent) {
         // When
         Optional<List<Integer>> result = ConversationJsonDeserializer.deserializeList(conversationContent, Integer.class);
 

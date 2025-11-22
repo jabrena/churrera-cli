@@ -6,10 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,44 +72,19 @@ class ExpressionEvaluatorTest {
             assertThat(result).isEqualTo("123");
         }
 
-        @Test
-        @DisplayName("Should return null for null expression")
-        void shouldReturnNullForNullExpression() {
+        @ParameterizedTest
+        @MethodSource("nullReturningExpressions")
+        @DisplayName("Should return null for invalid or unsupported expressions")
+        void shouldReturnNullForInvalidOrUnsupportedExpressions(String expression) {
             // When
-            String result = ExpressionEvaluator.evaluate(null, 42);
+            String result = ExpressionEvaluator.evaluate(expression, 42);
 
             // Then
             assertThat(result).isNull();
         }
 
-        @Test
-        @DisplayName("Should return null for empty expression")
-        void shouldReturnNullForEmptyExpression() {
-            // When
-            String result = ExpressionEvaluator.evaluate("", 42);
-
-            // Then
-            assertThat(result).isNull();
-        }
-
-        @Test
-        @DisplayName("Should return null for whitespace expression")
-        void shouldReturnNullForWhitespaceExpression() {
-            // When
-            String result = ExpressionEvaluator.evaluate("   ", 42);
-
-            // Then
-            assertThat(result).isNull();
-        }
-
-        @Test
-        @DisplayName("Should return null for unsupported expression")
-        void shouldReturnNullForUnsupportedExpression() {
-            // When
-            String result = ExpressionEvaluator.evaluate("$other()", 42);
-
-            // Then
-            assertThat(result).isNull();
+        static Stream<String> nullReturningExpressions() {
+            return Stream.of(null, "", "   ", "$other()");
         }
     }
 

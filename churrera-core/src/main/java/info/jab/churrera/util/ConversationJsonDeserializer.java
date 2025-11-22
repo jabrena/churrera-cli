@@ -182,7 +182,6 @@ public final class ConversationJsonDeserializer {
                 logger.info("Detected direct array format");
                 return deserializeDirectArray(rootNode, targetType);
             } else if (rootNode.isObject()) {
-                // Object with array property case: {"key": [1, 2, 3]}
                 logger.info("Detected object wrapper format, searching for array");
                 return deserializeObjectWithArray(rootNode, targetType, preferredKey);
             }
