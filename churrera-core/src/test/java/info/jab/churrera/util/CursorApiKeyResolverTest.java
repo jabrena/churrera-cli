@@ -4,7 +4,6 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -21,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Test class for CursorApiKeyResolver utility.
  */
 @DisplayName("CursorApiKeyResolver Tests")
-@Disabled("Temporarily disabled per request")
 class CursorApiKeyResolverTest {
 
     private String originalApiKey;
@@ -65,7 +63,7 @@ class CursorApiKeyResolverTest {
 
         // Test that exception is thrown when no API key is found
         CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-        
+
         // When & Then
         assertThatThrownBy(resolver::resolveApiKey)
             .isInstanceOf(IllegalArgumentException.class)
@@ -87,10 +85,10 @@ class CursorApiKeyResolverTest {
 
             // Test resolution
             CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-            
+
             // When
             String result = resolver.resolveApiKey();
-            
+
             // Then
             assertThat(result).isEqualTo("env-file-key-789");
         } finally {
@@ -116,10 +114,10 @@ class CursorApiKeyResolverTest {
 
             // Test resolution - should trim whitespace
             CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-            
+
             // When
             String result = resolver.resolveApiKey();
-            
+
             // Then
             assertThat(result).isEqualTo("env-file-key-whitespace");
         } finally {
@@ -149,10 +147,10 @@ class CursorApiKeyResolverTest {
 
             // Test resolution - .env file should be used
             CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-            
+
             // When
             String result = resolver.resolveApiKey();
-            
+
             // Then
             assertThat(result).isEqualTo("env-file-key");
         } finally {
@@ -171,7 +169,7 @@ class CursorApiKeyResolverTest {
 
         // Test that exception is thrown
         CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-        
+
         // When & Then
         assertThatThrownBy(resolver::resolveApiKey)
             .isInstanceOf(IllegalArgumentException.class)
@@ -196,7 +194,7 @@ class CursorApiKeyResolverTest {
 
             // Test that exception is thrown
             CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-            
+
             // When & Then
             assertThatThrownBy(resolver::resolveApiKey)
                 .isInstanceOf(IllegalArgumentException.class)
@@ -224,7 +222,7 @@ class CursorApiKeyResolverTest {
 
             // Test that exception is thrown
             CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-            
+
             // When & Then
             assertThatThrownBy(resolver::resolveApiKey)
                 .isInstanceOf(IllegalArgumentException.class)
@@ -252,7 +250,7 @@ class CursorApiKeyResolverTest {
 
             // Test resolution - should throw exception since no valid API key is found
             CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-            
+
             // When & Then
             assertThatThrownBy(resolver::resolveApiKey)
                 .isInstanceOf(IllegalArgumentException.class)
@@ -270,7 +268,7 @@ class CursorApiKeyResolverTest {
     void shouldThrowExceptionWhenEnvFileIsMissing() {
         // Test resolution when no .env file exists - should throw exception since no API key is found
         CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-        
+
         // When & Then
         assertThatThrownBy(resolver::resolveApiKey)
             .isInstanceOf(IllegalArgumentException.class)
@@ -292,7 +290,7 @@ class CursorApiKeyResolverTest {
 
             // Test resolution - should throw exception since no API key is found
             CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-            
+
             // When & Then
             assertThatThrownBy(resolver::resolveApiKey)
                 .isInstanceOf(IllegalArgumentException.class)
@@ -317,7 +315,7 @@ class CursorApiKeyResolverTest {
     void shouldBeAbleToInstantiateCursorApiKeyResolver() {
         // When
         CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-        
+
         // Then
         assertThat(resolver).isNotNull();
     }
@@ -338,10 +336,10 @@ class CursorApiKeyResolverTest {
             }
 
             CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-            
+
             // When
             String result = resolver.resolveApiKey();
-            
+
             // Then
             assertThat(result).isEqualTo(testApiKey);
         } finally {
@@ -367,10 +365,10 @@ class CursorApiKeyResolverTest {
             }
 
             CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-            
+
             // When
             String result = resolver.resolveApiKey();
-            
+
             // Then
             assertThat(result).isEqualTo(testApiKey);
         } finally {
@@ -396,10 +394,10 @@ class CursorApiKeyResolverTest {
             }
 
             CursorApiKeyResolver resolver = new CursorApiKeyResolver();
-            
+
             // When
             String result = resolver.resolveApiKey();
-            
+
             // Then
             assertThat(result).isEqualTo(testApiKey);
         } finally {
