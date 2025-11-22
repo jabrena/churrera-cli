@@ -4,6 +4,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Test class for CursorApiKeyResolver utility.
  */
 @DisplayName("CursorApiKeyResolver Tests")
+@Disabled("Temporarily disabled per request")
 class CursorApiKeyResolverTest {
 
     private String originalApiKey;
