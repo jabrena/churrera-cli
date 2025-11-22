@@ -1,27 +1,89 @@
 @startuml
 !theme plain
+scale 0.6
 title Cursor Cloud Agents OpenAPI Module - Class Diagram
 
 package "cursor-cloud-agents-openapi" {
   class OpenAPISpecification {
-    + String title = "Cursor Cloud Agents API"
-    + String version = "0.1.0"
-    + String description
-    + String baseUrl = "https://api.cursor.com"
+    + String version : "3.0.3"
+    + String title : "Cursor Cloud Agents API"
+    + Info info
+    + Servers servers
+    + Paths paths
+    + Components components
+    + Security security
   }
-
+  
   note right of OpenAPISpecification
-    OpenAPI 3.0.3 specification file
-    Located at: src/main/resources/cloud-agents-openapi.yaml
-    
-    Defines:
+    This module contains the OpenAPI 3.0.3 specification
+    file (cloud-agents-openapi.yaml) that defines:
     - API endpoints for agent management
     - Request/response schemas
-    - Security schemes (bearerAuth)
-    - Server configurations
-    
-    Used to generate Java client code
+    - Security schemes
+    - Used to generate Java client code
   end note
 }
+
+package "Generated Client Code" {
+  class DefaultApi {
+    + createAgent(CreateAgentRequest, Map<String, String>) : CreateAgentResponse
+    + addFollowup(String, AddFollowupRequest, Map<String, String>) : AddFollowupResponse
+    + deleteAgent(String, Map<String, String>) : DeleteAgentResponse
+    + getAgents(Integer, String, Map<String, String>) : GetAgentsResponse
+    + getAgentStatus(String, Map<String, String>) : GetAgentStatusResponse
+    + getAgentConversation(String, Map<String, String>) : GetAgentConversationResponse
+    + getApiKeyInfo(Map<String, String>) : GetApiKeyInfoResponse
+    + getModels(Map<String, String>) : GetModelsResponse
+    + getRepositories(Map<String, String>) : GetRepositoriesResponse
+  }
+  
+  class ApiClient {
+    + updateBaseUri(String)
+    + setApiKey(String)
+  }
+  
+  class CreateAgentRequest {
+    + CreateAgentRequestPrompt prompt
+    + CreateAgentRequestSource source
+    + String model
+    + CreateAgentRequestTarget target
+  }
+  
+  class CreateAgentRequestPrompt {
+    + String text
+  }
+  
+  class CreateAgentRequestSource {
+    + String repository
+    + String ref
+  }
+  
+  class CreateAgentRequestTarget {
+    + Boolean autoCreatePr
+  }
+  
+  class AddFollowupRequest {
+    + AddFollowupRequestPrompt prompt
+  }
+  
+  class AddFollowupRequestPrompt {
+    + String text
+  }
+}
+
+' Relationships
+OpenAPISpecification --> DefaultApi
+OpenAPISpecification --> ApiClient
+OpenAPISpecification --> CreateAgentRequest
+
+DefaultApi --> ApiClient
+DefaultApi --> CreateAgentRequest
+DefaultApi --> AddFollowupRequest
+
+CreateAgentRequest --> CreateAgentRequestPrompt
+CreateAgentRequest --> CreateAgentRequestSource
+CreateAgentRequest --> CreateAgentRequestTarget
+
+AddFollowupRequest --> AddFollowupRequestPrompt
 
 @enduml

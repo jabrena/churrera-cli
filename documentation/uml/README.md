@@ -41,11 +41,11 @@ The core module provides workflow parsing, validation, and utility functions use
 - **Utilities**: `PmlConverter`, `PropertyResolver`, `CursorApiKeyResolver`
 - **Data Models**: `PromptInfo`, `SequenceInfo`, `ParallelWorkflowData` for workflow representation
 
-### Cursor API Client Module
+### Cursor Cloud Agents Client Module
 
 The client module provides interfaces and implementations for interacting with the Cursor API.
 
-![Cursor API Client Class Diagram](uml-class-diagram-cursor-api-client.png)
+![Cursor Cloud Agents Client Class Diagram](uml-class-diagram-cursor-api-client.png)
 
 **Key Components:**
 - **Interfaces**: `CursorAgentManagement`, `CursorAgentInformation`, `CursorAgentGeneralEndpoints`

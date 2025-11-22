@@ -1,18 +1,20 @@
 @startuml
 !theme plain
+scale 0.6
 title Churrera Core Module - Class Diagram
 
 package "info.jab.churrera.workflow" {
   class WorkflowParser {
+    - Logger logger
     + parse(File) : WorkflowData
     + parse(Path) : WorkflowData
-    + {static} determineWorkflowType(File) : WorkflowType
+    + determineWorkflowType(File) : WorkflowType
     - parseV2Workflow(Node) : WorkflowData
     - parseParallelWorkflow(Element) : WorkflowData
     - parseSequenceInfo(Element) : SequenceInfo
-    - {static} inferTypeFromExtension(String) : String
+    - inferTypeFromExtension(String) : String
   }
-
+  
   class WorkflowData {
     - PromptInfo launchPrompt
     - String model
@@ -21,169 +23,146 @@ package "info.jab.churrera.workflow" {
     - ParallelWorkflowData parallelWorkflowData
     - Long timeoutMillis
     - String fallbackSrc
-    + WorkflowData(...)
     + getLaunchPrompt() : PromptInfo
     + getModel() : String
     + getRepository() : String
     + getUpdatePrompts() : List<PromptInfo>
     + getParallelWorkflowData() : ParallelWorkflowData
     + isParallelWorkflow() : boolean
-    + getUpdateAgentCount() : int
-    + hasUpdateAgents() : boolean
     + getTimeoutMillis() : Long
     + getFallbackSrc() : String
   }
-
-  class WorkflowValidator {
-    + validate(File) : void
-    + validate(Path) : void
-    - validateStructure(Document) : void
-    - validateSequence(Element) : void
-    - validateParallel(Element) : void
-  }
-
-  class PmlValidator {
-    + validate(File) : void
-    + validate(Path) : void
-    - validateStructure(Document) : void
-    - validatePromptElements(Element) : void
-  }
-
-  class WorkflowParseException extends Exception {
-    + WorkflowParseException(String)
-    + WorkflowParseException(String, Throwable)
-  }
-
-  enum WorkflowType {
-    SEQUENCE
-    PARALLEL
-  }
-
+  
   class PromptInfo {
     - String srcFile
     - String type
     - String bindResultExp
-    + PromptInfo(String, String)
-    + PromptInfo(String, String, String)
     + getSrcFile() : String
     + getType() : String
     + getBindResultExp() : String
-    + hasBindResultExp() : boolean
-    + isPml() : boolean
   }
-
+  
   class SequenceInfo {
     - String model
     - String repository
     - List<PromptInfo> prompts
     - Long timeoutMillis
     - String fallbackSrc
-    + SequenceInfo(...)
     + getModel() : String
     + getRepository() : String
     + getPrompts() : List<PromptInfo>
     + getTimeoutMillis() : Long
     + getFallbackSrc() : String
   }
-
+  
   class ParallelWorkflowData {
     - PromptInfo parallelPrompt
     - String bindResultType
     - List<SequenceInfo> sequences
     - Long timeoutMillis
     - String fallbackSrc
-    + ParallelWorkflowData(...)
     + getParallelPrompt() : PromptInfo
     + getBindResultType() : String
     + getSequences() : List<SequenceInfo>
     + getTimeoutMillis() : Long
     + getFallbackSrc() : String
   }
-
+  
+  class WorkflowValidator {
+    - Logger logger
+    + validate(WorkflowData) : boolean
+    + validateSequence(SequenceInfo) : boolean
+    + validateParallel(ParallelWorkflowData) : boolean
+    - ValidationErrorHandler errorHandler
+  }
+  
+  class PmlValidator {
+    - Logger logger
+    + validate(File) : boolean
+    + validateSchema(File) : boolean
+    - ValidationErrorHandler errorHandler
+  }
+  
+  class WorkflowParseException {
+    + String message
+    + Throwable cause
+  }
+  
   class TimeoutParser {
-    + {static} parseToMillis(String) : Long
-    - {static} parseDuration(String) : long
+    + parseToMillis(String) : Long
   }
-
+  
   class ExpressionEvaluator {
-    + {static} replaceInputPlaceholder(String, String) : String
-    + {static} evaluateBindResultExp(String, String) : String
+    + replaceInputPlaceholder(String, String) : String
+    + evaluateExpression(String, Map<String, String>) : String
   }
-
+  
   class BindResultTypeMapper {
-    + {static} map(String) : String
+    + mapBindResultType(String) : String
+  }
+  
+  enum WorkflowType {
+    SEQUENCE
+    PARALLEL
   }
 }
 
 package "info.jab.churrera.util" {
   class PropertyResolver {
+    - Logger logger
     + getProperty(String, String) : Optional<String>
-    - loadProperties(String) : Properties
+    + getPropertyAsInt(String, String) : Optional<Integer>
   }
-
+  
   class CursorApiKeyResolver {
+    - Logger logger
     + resolveApiKey() : String
-    - getApiKeyFromEnv() : Optional<String>
-    - getApiKeyFromFile() : Optional<String>
+    - resolveFromEnvironment() : Optional<String>
+    - resolveFromFile() : Optional<String>
   }
-
+  
   class PmlConverter {
+    - Logger logger
+    + toMarkdown(File) : String
     + toMarkdownFromContent(String) : String
     + toMarkdownFromContent(String, String) : String
-    - transform(String, String) : String
   }
-
+  
   class ConversationJsonDeserializer {
-    + deserialize methods
+    + deserialize(JsonParser, DeserializationContext) : ConversationResponse
   }
-
+  
   class ClasspathResolver {
-    + {static} resolve(String) : InputStream
+    + resolve(String) : InputStream
   }
 }
 
 ' Relationships
 WorkflowParser --> WorkflowData
-WorkflowParser --> WorkflowType
-WorkflowParser --> SequenceInfo
 WorkflowParser --> PromptInfo
+WorkflowParser --> SequenceInfo
 WorkflowParser --> ParallelWorkflowData
+WorkflowParser --> WorkflowType
 WorkflowParser --> TimeoutParser
-WorkflowParser --> WorkflowParseException
+WorkflowParser ..> WorkflowParseException
 
 WorkflowData --> PromptInfo
 WorkflowData --> ParallelWorkflowData
 WorkflowData --> SequenceInfo
-
-WorkflowValidator --> WorkflowParseException
-PmlValidator --> WorkflowParseException
 
 ParallelWorkflowData --> PromptInfo
 ParallelWorkflowData --> SequenceInfo
 
 SequenceInfo --> PromptInfo
 
-ExpressionEvaluator --> BindResultTypeMapper
+WorkflowValidator --> WorkflowData
+WorkflowValidator --> SequenceInfo
+WorkflowValidator --> ParallelWorkflowData
 
-PropertyResolver --> ClasspathResolver
-PmlConverter --> ClasspathResolver
+PmlValidator ..> WorkflowParseException
 
-note right of WorkflowParser
-  Parses workflow XML files
-  Supports v2 (sequence) and v3 (parallel) schemas
-end note
+WorkflowParseException --|> Exception
 
-note right of WorkflowData
-  Contains parsed workflow information
-  Supports both sequence and parallel workflows
-end note
-
-note right of WorkflowValidator
-  Validates workflow XML structure
-end note
-
-note right of PmlValidator
-  Validates PML prompt files
-end note
+WorkflowData ..> WorkflowType
 
 @enduml
