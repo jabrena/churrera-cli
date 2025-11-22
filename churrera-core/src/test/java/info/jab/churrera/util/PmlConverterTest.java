@@ -156,9 +156,10 @@ class PmlConverterTest {
             String result = converter.toMarkdownFromContent(pmlContent);
 
             // Then
-            assertThat(result).isNotNull();
-            assertThat(result).contains("## Role");
-            assertThat(result).contains("Test role");
+            assertThat(result)
+                .isNotNull()
+                .contains("## Role")
+                .contains("Test role");
         }
 
         @Test
@@ -200,9 +201,10 @@ class PmlConverterTest {
             String result = converter.toMarkdown(pmlFile);
 
             // Then
-            assertThat(result).isNotNull();
-            assertThat(result).contains("## Role");
-            assertThat(result).contains("## Goal");
+            assertThat(result)
+                .isNotNull()
+                .contains("## Role")
+                .contains("## Goal");
         }
 
         @Test

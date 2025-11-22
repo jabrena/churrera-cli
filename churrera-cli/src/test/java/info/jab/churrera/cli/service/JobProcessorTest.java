@@ -778,7 +778,7 @@ class JobProcessorTest {
         doAnswer(invocation -> {
             statusUpdatedLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.finished()));
+        }).when(cliAgent).updateJobStatusInDatabase(parallelJob, AgentState.finished());
 
         // When - Process jobs directly
         jobProcessor.processJobs();
@@ -786,7 +786,7 @@ class JobProcessorTest {
         // Then
         verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any(), anyBoolean());
         verify(cliAgent).getAgentStatus("parallel-agent-123");
-        verify(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.finished()));
+        verify(cliAgent).updateJobStatusInDatabase(parallelJob, AgentState.finished());
 
         // Cleanup
         Files.deleteIfExists(prompt1File);
@@ -826,7 +826,7 @@ class JobProcessorTest {
         when(workflowParser.parse(any(Path.class))).thenReturn(parallelWorkflowData);
         when(jobRepository.findById("parallel-job-id")).thenReturn(Optional.of(parallelJob));
         CountDownLatch failedLatch = new CountDownLatch(1);
-        when(cliAgent.getAgentStatus(eq("parallel-agent-123"))).thenReturn(AgentState.error());
+        when(cliAgent.getAgentStatus("parallel-agent-123")).thenReturn(AgentState.error());
         doAnswer(invocation -> {
             failedLatch.countDown();
             return null;
@@ -1092,7 +1092,7 @@ class JobProcessorTest {
         doAnswer(invocation -> {
             childStatusUpdatedLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobStatusInDatabase(eq(childJob), eq(AgentState.finished()));
+        }).when(cliAgent).updateJobStatusInDatabase(childJob, AgentState.finished());
 
         // When
         // When - Process jobs directly
@@ -1100,7 +1100,7 @@ class JobProcessorTest {
 
         // Then
         verify(cliAgent, never()).launchAgentForJob(any(), anyString(), anyString(), any(), anyBoolean());
-        verify(cliAgent).getAgentStatus(eq("child-agent-123"));
+        verify(cliAgent).getAgentStatus("child-agent-123");
         verify(cliAgent).updateJobStatusInDatabase(childJob, AgentState.finished());
 
         // Cleanup
@@ -1165,7 +1165,7 @@ class JobProcessorTest {
         // Then - Verify the parallel workflow processing was executed
         verify(cliAgent).getAgentStatus("parallel-agent-123");
         verify(cliAgent).getConversationContent("parallel-agent-123");
-        verify(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.finished()));
+        verify(cliAgent).updateJobStatusInDatabase(parallelJob, AgentState.finished());
 
         // Cleanup
         Files.deleteIfExists(prompt2File);
@@ -1264,11 +1264,11 @@ class JobProcessorTest {
         when(workflowParser.parse(any(Path.class))).thenReturn(parallelWorkflowData);
         when(jobRepository.findById("parallel-job-id")).thenReturn(Optional.of(parallelJob));
         CountDownLatch failedStatusLatch = new CountDownLatch(1);
-        when(cliAgent.getAgentStatus(eq("parallel-agent-123"))).thenReturn(AgentState.error());
+        when(cliAgent.getAgentStatus("parallel-agent-123")).thenReturn(AgentState.error());
         doAnswer(invocation -> {
             failedStatusLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobStatusInDatabase(eq(parallelJob), eq(AgentState.error()));
+        }).when(cliAgent).updateJobStatusInDatabase(parallelJob, AgentState.error());
 
         // When
         // When - Process jobs directly
@@ -1521,19 +1521,19 @@ class JobProcessorTest {
         lenient().when(workflowParser.parse(any(Path.class))).thenReturn(parallelWorkflowData);
         lenient().when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(childJob));
         CountDownLatch monitorErrorLatch = new CountDownLatch(1);
-        when(cliAgent.getAgentStatus(eq("child-agent-123")))
+        when(cliAgent.getAgentStatus("child-agent-123"))
             .thenThrow(new RuntimeException("Monitor error"));
         doAnswer(invocation -> {
             monitorErrorLatch.countDown();
             return null;
-        }).when(cliAgent).updateJobStatusInDatabase(eq(childJob), eq(AgentState.error()));
+        }).when(cliAgent).updateJobStatusInDatabase(childJob, AgentState.error());
 
         // When
         // When - Process jobs directly
         jobProcessor.processJobs();
 
         // Then - Error should be caught and logged
-        verify(cliAgent).getAgentStatus(eq("child-agent-123"));
+        verify(cliAgent).getAgentStatus("child-agent-123");
         verify(cliAgent).updateJobStatusInDatabase(childJob, AgentState.error());
 
         // Cleanup
