@@ -286,9 +286,7 @@ class TableFormatterTest {
         String result = TableFormatter.truncateText(text, 0);
 
         // Then
-        assertThat(result)
-            .hasSize(0)
-            .isEmpty();
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -314,8 +312,9 @@ class TableFormatterTest {
         String result = TableFormatter.truncateText(text, 4);
 
         // Then
-        assertThat(result).hasSize(4);
-        assertThat(result).isEqualTo("H...");
+        assertThat(result)
+            .hasSize(4)
+            .isEqualTo("H...");
     }
 
     @Test
