@@ -252,5 +252,66 @@ class SequenceWorkflowHandlerTest {
         // When - Should not throw, exception is caught internally
         assertDoesNotThrow(() -> handler.processWorkflow(jobWithAgent, testPrompts, testWorkflowData));
     }
+
+    @Test
+    void testProcessWorkflow_TimeoutReached_AfterLaunch() {
+        // Given
+        Job jobWithStartTime = testJob.withWorkflowStartTime(LocalDateTime.now().minusSeconds(2))
+            .withTimeoutMillis(1000L);
+        when(timeoutManager.resetWorkflowStartTimeIfNeeded(any(Job.class))).thenReturn(jobWithStartTime);
+        Job jobWithAgent = jobWithStartTime.withCursorAgentId("agent-id");
+        // First findById returns job with agent (after launch)
+        when(jobRepository.findById("job-id")).thenReturn(Optional.of(jobWithAgent));
+        when(timeoutManager.checkTimeout(jobWithAgent))
+            .thenReturn(new TimeoutManager.TimeoutCheckResult(true, 1500L, 1000L));
+        // Second findById returns job after fallback
+        Job jobAfterFallback = jobWithAgent.withFallbackExecuted(false);
+        when(jobRepository.findById("job-id")).thenReturn(Optional.of(jobWithAgent), Optional.of(jobAfterFallback));
+
+        // When
+        handler.processWorkflow(testJob, testPrompts, testWorkflowData);
+
+        // Then
+        verify(fallbackExecutor).executeFallback(eq(jobWithAgent), eq(testWorkflowData), eq(1500L), eq(1000L));
+    }
+
+    @Test
+    void testProcessWorkflow_TimeoutNotReached() {
+        // Given
+        Job jobWithAgent = testJob.withCursorAgentId("agent-id")
+            .withTimeoutMillis(1000L)
+            .withWorkflowStartTime(LocalDateTime.now().minusSeconds(1));
+        when(timeoutManager.resetStaleWorkflowStartTime(jobWithAgent)).thenReturn(jobWithAgent);
+        when(timeoutManager.checkTimeout(jobWithAgent))
+            .thenReturn(new TimeoutManager.TimeoutCheckResult(false, 500L, 1000L));
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
+        lenient().when(jobRepository.findById("job-id")).thenReturn(Optional.of(jobWithAgent));
+
+        // When
+        handler.processWorkflow(jobWithAgent, testPrompts, testWorkflowData);
+
+        // Then
+        verify(fallbackExecutor, never()).executeFallback(any(), any(), anyLong(), anyLong());
+        verify(cliAgent).getAgentStatus("agent-id");
+    }
+
+    @Test
+    void testProcessWorkflow_TimeoutWithNullWorkflowStartTime() {
+        // Given
+        Job jobWithAgent = testJob.withCursorAgentId("agent-id").withTimeoutMillis(1000L).withWorkflowStartTime(null);
+        when(timeoutManager.resetStaleWorkflowStartTime(jobWithAgent)).thenReturn(jobWithAgent);
+        // checkTimeout is called even if workflowStartTime is null, but it handles it internally
+        when(timeoutManager.checkTimeout(jobWithAgent))
+            .thenReturn(new TimeoutManager.TimeoutCheckResult(false, 0L, 1000L));
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
+        lenient().when(jobRepository.findById("job-id")).thenReturn(Optional.of(jobWithAgent));
+
+        // When
+        handler.processWorkflow(jobWithAgent, testPrompts, testWorkflowData);
+
+        // Then - timeout check is called, but fallback should not be executed
+        verify(timeoutManager).checkTimeout(jobWithAgent);
+        verify(fallbackExecutor, never()).executeFallback(any(), any(), anyLong(), anyLong());
+    }
 }
 

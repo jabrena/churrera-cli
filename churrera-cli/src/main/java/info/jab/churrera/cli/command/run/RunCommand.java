@@ -59,6 +59,12 @@ public class RunCommand implements Callable<Integer> {
     private boolean retrieveRepositories;
 
     @CommandLine.Option(
+        names = "--show-logs",
+        description = "Display agent conversation logs before deletion"
+    )
+    private boolean showLogs;
+
+    @CommandLine.Option(
         names = "--polling-interval",
         description = "Polling interval in seconds (overrides value from application.properties)"
     )
@@ -73,6 +79,7 @@ public class RunCommand implements Callable<Integer> {
     private final JobCreationService jobCreationService;
     private final JobDisplayService jobDisplayService;
     private final JobDeletionService jobDeletionService;
+    private final JobLogDisplayService jobLogDisplayService;
     private final CompletionCheckerFactory completionCheckerFactory;
 
     /**
@@ -91,6 +98,7 @@ public class RunCommand implements Callable<Integer> {
             workflowParser, pmlValidator, cliAgent);
         this.jobDisplayService = new JobDisplayService(jobRepository);
         this.jobDeletionService = new JobDeletionService(jobRepository, cliAgent);
+        this.jobLogDisplayService = new JobLogDisplayService(jobRepository, cliAgent);
         this.completionCheckerFactory = new CompletionCheckerFactory(jobRepository);
     }
 
@@ -141,6 +149,20 @@ public class RunCommand implements Callable<Integer> {
 
             // Execute blocking polling loop
             ExecutionResult execResult = pollingService.executePollingLoop(jobId);
+
+            // Display logs before deletion if requested
+            if (showLogs && execResult.getFinalStatus() != null) {
+                Job job = jobRepository.findById(jobId)
+                    .orElseThrow(() -> new RuntimeException("Job not found: " + jobId));
+
+                // Display logs for main job
+                jobLogDisplayService.displayLogsForJob(job);
+
+                // Display logs for child jobs if any
+                for (Job childJob : execResult.getChildJobs()) {
+                    jobLogDisplayService.displayLogsForJob(childJob);
+                }
+            }
 
             // Handle job deletion if needed
             if (execResult.getFinalStatus() != null) {

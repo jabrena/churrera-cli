@@ -291,5 +291,104 @@ class ChildWorkflowHandlerTest {
         // When - Should not throw, exception is caught internally
         assertDoesNotThrow(() -> handler.processWorkflow(testChildJob, mockWorkflowData, testPrompts));
     }
+
+    @Test
+    void testProcessWorkflow_TimeoutNotReached() {
+        // Given
+        Job jobWithAgent = testChildJob.withCursorAgentId("agent-id").withWorkflowStartTime(LocalDateTime.now().minusSeconds(1));
+        when(timeoutManager.getElapsedMillis(jobWithAgent)).thenReturn(500L);
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
+        lenient().when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(jobWithAgent));
+
+        // When
+        handler.processWorkflow(jobWithAgent, testParentWorkflowData, testPrompts);
+
+        // Then
+        verify(fallbackExecutor, never()).executeFallback(any(), any(), anyLong(), anyLong());
+        verify(cliAgent).getAgentStatus("agent-id");
+    }
+
+    @Test
+    void testProcessWorkflow_TimeoutWithNullWorkflowStartTime() {
+        // Given
+        Job jobWithAgent = testChildJob.withCursorAgentId("agent-id").withWorkflowStartTime(null);
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
+        lenient().when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(jobWithAgent));
+
+        // When
+        handler.processWorkflow(jobWithAgent, testParentWorkflowData, testPrompts);
+
+        // Then - timeout check should not be called if workflowStartTime is null
+        verify(timeoutManager, never()).getElapsedMillis(any());
+        verify(cliAgent).getAgentStatus("agent-id");
+    }
+
+    @Test
+    void testProcessWorkflow_TimeoutWithNullTimeoutMillis() {
+        // Given
+        Job jobNoTimeout = testChildJob.withTimeoutMillis(null).withCursorAgentId("agent-id");
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
+        lenient().when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(jobNoTimeout));
+
+        // When
+        handler.processWorkflow(jobNoTimeout, testParentWorkflowData, testPrompts);
+
+        // Then - timeout check should not be called if timeoutMillis is null
+        verify(timeoutManager, never()).getElapsedMillis(any());
+        verify(cliAgent).getAgentStatus("agent-id");
+    }
+
+    @Test
+    void testProcessWorkflow_TimeoutReached_NoFallbackSrc() {
+        // Given
+        Job jobWithAgent = testChildJob.withCursorAgentId("agent-id")
+            .withWorkflowStartTime(LocalDateTime.now().minusSeconds(2))
+            .withFallbackSrc(null);
+        when(timeoutManager.getElapsedMillis(jobWithAgent)).thenReturn(2000L);
+        when(testParallelData.getFallbackSrc()).thenReturn(null);
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
+        lenient().when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(jobWithAgent));
+
+        // When
+        handler.processWorkflow(jobWithAgent, testParentWorkflowData, testPrompts);
+
+        // Then - fallback should not be executed if no fallbackSrc
+        verify(fallbackExecutor, never()).executeFallback(any(), any(), anyLong(), anyLong());
+        verify(cliAgent).getAgentStatus("agent-id");
+    }
+
+    @Test
+    void testProcessWorkflow_TimeoutReached_FallbackSrcFromParent() {
+        // Given
+        Job jobWithAgent = testChildJob.withCursorAgentId("agent-id")
+            .withWorkflowStartTime(LocalDateTime.now().minusSeconds(2))
+            .withFallbackSrc(null);
+        when(timeoutManager.getElapsedMillis(jobWithAgent)).thenReturn(2000L);
+        when(testParallelData.getFallbackSrc()).thenReturn("parent-fallback.pml");
+        Job jobAfterFallback = jobWithAgent.withFallbackExecuted(false);
+        when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(jobAfterFallback));
+
+        // When
+        handler.processWorkflow(jobWithAgent, testParentWorkflowData, testPrompts);
+
+        // Then - fallback should be executed with parent fallbackSrc
+        verify(fallbackExecutor).executeFallback(any(Job.class), any(WorkflowData.class), eq(2000L), eq(1000L));
+    }
+
+    @Test
+    void testProcessWorkflow_SequenceWithSinglePrompt() {
+        // Given
+        when(testSequenceInfo.getPrompts()).thenReturn(List.of(
+            new PromptInfo("single.pml", "pml")
+        ));
+        Job jobWithAgent = testChildJob.withCursorAgentId("agent-id");
+        when(jobRepository.findById("child-job-id")).thenReturn(Optional.of(jobWithAgent));
+
+        // When
+        handler.processWorkflow(testChildJob, testParentWorkflowData, testPrompts);
+
+        // Then
+        verify(agentLauncher).launchJobAgent(eq(testChildJob), any(WorkflowData.class));
+    }
 }
 

@@ -229,5 +229,70 @@ class ParallelWorkflowHandlerTest {
         verify(fallbackExecutor).executeFallbackForParallelChildren(jobWithAgent, testParallelData);
         verify(cliAgent, never()).getAgentStatus(anyString());
     }
+
+    @Test
+    void testProcessWorkflow_NoTimeout() {
+        // Given
+        Job jobWithAgent = testJob.withCursorAgentId("agent-id");
+        when(testParallelData.getTimeoutMillis()).thenReturn(null);
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
+
+        // When
+        handler.processWorkflow(jobWithAgent, testWorkflowData);
+
+        // Then
+        verify(cliAgent).getAgentStatus("agent-id");
+        verify(fallbackExecutor, never()).executeFallbackForParallelChildren(any(), any());
+    }
+
+    @Test
+    void testProcessWorkflow_TimeoutNotReached() {
+        // Given
+        Job jobWithAgent = testJob.withCursorAgentId("agent-id").withWorkflowStartTime(LocalDateTime.now().minusSeconds(1));
+        when(testParallelData.getTimeoutMillis()).thenReturn(10000L);
+        when(timeoutManager.getElapsedMillis(jobWithAgent)).thenReturn(5000L);
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
+
+        // When
+        handler.processWorkflow(jobWithAgent, testWorkflowData);
+
+        // Then
+        verify(fallbackExecutor, never()).executeFallbackForParallelChildren(any(), any());
+        verify(cliAgent).getAgentStatus("agent-id");
+    }
+
+    @Test
+    void testProcessWorkflow_TimeoutWithNullWorkflowStartTime() {
+        // Given
+        Job jobWithAgent = testJob.withCursorAgentId("agent-id").withWorkflowStartTime(null);
+        when(testParallelData.getTimeoutMillis()).thenReturn(1000L);
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.running());
+
+        // When
+        handler.processWorkflow(jobWithAgent, testWorkflowData);
+
+        // Then - timeout check should not be called if workflowStartTime is null
+        verify(timeoutManager, never()).getElapsedMillis(any());
+        verify(cliAgent).getAgentStatus("agent-id");
+    }
+
+    @Test
+    void testProcessWorkflow_CreateChildJobs_EmptySequences() throws IOException {
+        // Given
+        Job jobWithAgent = testJob.withCursorAgentId("agent-id");
+        when(testParallelData.getTimeoutMillis()).thenReturn(null);
+        when(testParallelData.getSequences()).thenReturn(List.of());
+        when(cliAgent.getAgentStatus("agent-id")).thenReturn(AgentState.finished());
+        when(jobRepository.findById("job-id")).thenReturn(Optional.of(jobWithAgent));
+        List<Object> resultList = List.of("item1", "item2");
+        when(resultExtractor.extractResults(jobWithAgent, testParallelData)).thenReturn(resultList);
+
+        // When
+        handler.processWorkflow(jobWithAgent, testWorkflowData);
+
+        // Then - should handle empty sequences gracefully
+        verify(resultExtractor).extractResults(jobWithAgent, testParallelData);
+        verify(jobRepository, never()).save(any(Job.class)); // No child jobs created due to empty sequences
+    }
 }
 
