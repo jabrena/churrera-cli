@@ -69,6 +69,9 @@ public class JobDisplayService {
             rows.add(row);
         }
 
+        // Print the table
+        String table = TableFormatter.formatTable(headers, rows);
+        System.out.println(table);
     }
 
     /**

@@ -36,8 +36,14 @@ public class GitInfo {
             prop.load(input);
 
             //Print info
-            logger.debug("Version: {}", prop.getProperty("git.build.version"));
-            logger.debug("Commit: {}", prop.getProperty("git.commit.id.abbrev"));
+            String version = prop.getProperty("git.build.version");
+            String commit = prop.getProperty("git.commit.id.abbrev");
+            if (version != null) {
+                System.out.println("Version: " + version);
+            }
+            if (commit != null) {
+                System.out.println("Commit: " + commit);
+            }
         } catch (IOException ex) {
             logger.error("Error printing git info: {}", ex.getMessage(), ex);
         }
