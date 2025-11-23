@@ -102,12 +102,8 @@ class ChurreraCLITest {
     private ChurreraCLI createChurreraCLIWithMocks() {
         String testApiKey = "test-api-key";
         return new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
             propertyResolver,
             jobRepository,
-            apiClient,
-            defaultApi,
             cliAgent,
             workflowParser,
             jobProcessor,
@@ -246,12 +242,8 @@ class ChurreraCLITest {
                 .thenReturn(Optional.of("5"));
 
         ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
             propertyResolver,
             jobRepository,
-            apiClient,
-            defaultApi,
             cliAgent,
             workflowParser,
             jobProcessor,
@@ -274,12 +266,8 @@ class ChurreraCLITest {
                 .thenReturn(Optional.empty());
 
         ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
             propertyResolver,
             jobRepository,
-            apiClient,
-            defaultApi,
             cliAgent,
             workflowParser,
             jobProcessor,
@@ -302,12 +290,8 @@ class ChurreraCLITest {
                 .thenReturn(Optional.of("5"));
 
         ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
             propertyResolver,
             jobRepository,
-            apiClient,
-            defaultApi,
             cliAgent,
             workflowParser,
             jobProcessor,
@@ -341,12 +325,8 @@ class ChurreraCLITest {
 
         // When
         ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
             propertyResolver,
             jobRepository,
-            apiClient,
-            defaultApi,
             cliAgent,
             workflowParser,
             jobProcessor,
@@ -366,12 +346,8 @@ class ChurreraCLITest {
                 .thenReturn(Optional.of("10"));
 
         ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
             propertyResolver,
             jobRepository,
-            apiClient,
-            defaultApi,
             cliAgent,
             workflowParser,
             jobProcessor,
@@ -395,12 +371,8 @@ class ChurreraCLITest {
                 .thenReturn(Optional.of("invalid"));
 
         ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
             propertyResolver,
             jobRepository,
-            apiClient,
-            defaultApi,
             cliAgent,
             workflowParser,
             jobProcessor,
