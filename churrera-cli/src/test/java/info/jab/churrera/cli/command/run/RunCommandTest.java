@@ -63,13 +63,25 @@ class RunCommandTest {
     @Mock
     private CLIAgent cliAgent;
 
+    @Mock
+    private JobCreationService jobCreationService;
+
+    @Mock
+    private JobDisplayService jobDisplayService;
+
+    @Mock
+    private JobDeletionService jobDeletionService;
+
+    @Mock
+    private JobLogDisplayService jobLogDisplayService;
+
+    @Mock
+    private CompletionCheckerFactory completionCheckerFactory;
+
     private Path tempDir;
     private Path testWorkflowFile;
     private String testJobPath;
     private RunCommand runCommand;
-    private JobCreationService jobCreationService;
-    private JobDisplayService jobDisplayService;
-    private JobDeletionService jobDeletionService;
     private static final int DEFAULT_POLLING_INTERVAL = 5;
 
     @BeforeAll
@@ -118,19 +130,15 @@ class RunCommandTest {
         // It will use the real implementation which should work with our test file
 
         // Reset mocks before each test (but keep cliAgent stubbing)
-        reset(jobRepository, jobProcessor);
+        reset(jobRepository, jobProcessor, jobCreationService, jobDisplayService, 
+            jobDeletionService, jobLogDisplayService, completionCheckerFactory);
         // Re-setup cliAgent mock after reset
         lenient().when(cliAgent.getModels())
             .thenReturn(List.of("default", "test-model", "default-model", "gpt-4", "claude-3"));
 
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
-
-        // Initialize services for direct testing
-        jobCreationService = new JobCreationService(jobRepository, workflowValidator,
-            workflowParser, pmlValidator, cliAgent);
-        jobDisplayService = new JobDisplayService(jobRepository);
-        jobDeletionService = new JobDeletionService(jobRepository, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
     }
 
     @AfterAll
@@ -176,8 +184,9 @@ class RunCommandTest {
     @Test
     void testGetEffectivePollingIntervalSeconds_DefaultValue() {
         // Given - no override set
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
 
         // When - parse empty args (no polling interval override)
@@ -187,8 +196,9 @@ class RunCommandTest {
         // The polling interval is used internally, so we verify it indirectly
         // by ensuring the command works with default value
         when(cliAgent.getModels()).thenReturn(List.of("model1"));
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--retrieve-models");
         Integer exitCode = runCommand.call();
@@ -201,8 +211,9 @@ class RunCommandTest {
     @Test
     void testGetEffectivePollingIntervalSeconds_WithOverride() {
         // Given - override set via CommandLine
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
 
         // When - parse args with polling interval override
@@ -212,8 +223,9 @@ class RunCommandTest {
         // The polling interval is used internally when creating JobPollingService
         // We verify it indirectly by ensuring the command works with override value
         when(cliAgent.getModels()).thenReturn(List.of("model1"));
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--polling-interval", "10", "--retrieve-models");
         Integer exitCode = runCommand.call();
@@ -228,8 +240,9 @@ class RunCommandTest {
     void testRun_RetrieveModels() throws IOException {
         // Given
         when(cliAgent.getModels()).thenReturn(List.of("model1", "model2", "model3"));
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--retrieve-models");
 
@@ -246,8 +259,9 @@ class RunCommandTest {
     void testRun_RetrieveRepositories() throws IOException {
         // Given
         when(cliAgent.getRepositories()).thenReturn(List.of("repo1", "repo2"));
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--retrieve-repositories");
 
@@ -263,8 +277,9 @@ class RunCommandTest {
     @Test
     void testRun_EmptyWorkflowPath() throws IOException {
         // Given
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--workflow", "");
 
@@ -630,8 +645,9 @@ class RunCommandTest {
     void testRetrieveAndDisplayModels_Success() {
         // Given
         when(cliAgent.getModels()).thenReturn(List.of("model1", "model2", "model3"));
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--retrieve-models");
 
@@ -646,8 +662,9 @@ class RunCommandTest {
     void testRetrieveAndDisplayModels_EmptyList() {
         // Given
         when(cliAgent.getModels()).thenReturn(List.of());
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--retrieve-models");
 
@@ -662,8 +679,9 @@ class RunCommandTest {
     void testRetrieveAndDisplayModels_NullList() {
         // Given
         when(cliAgent.getModels()).thenReturn(null);
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--retrieve-models");
 
@@ -678,8 +696,9 @@ class RunCommandTest {
     void testRetrieveAndDisplayRepositories_Success() {
         // Given
         when(cliAgent.getRepositories()).thenReturn(List.of("repo1", "repo2"));
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--retrieve-repositories");
 
@@ -694,8 +713,9 @@ class RunCommandTest {
     void testRetrieveAndDisplayRepositories_EmptyList() {
         // Given
         when(cliAgent.getRepositories()).thenReturn(List.of());
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--retrieve-repositories");
 
@@ -710,8 +730,9 @@ class RunCommandTest {
     void testRetrieveAndDisplayRepositories_Exception() {
         // Given
         when(cliAgent.getRepositories()).thenThrow(new RuntimeException("API error"));
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--retrieve-repositories");
 
@@ -1082,8 +1103,9 @@ class RunCommandTest {
         when(cliAgent.getConversation("cursor-agent-123")).thenReturn(conversation);
         when(cliAgent.getConversation("cursor-agent-456")).thenReturn(conversation);
 
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--workflow", testJobPath, "--show-logs");
 
@@ -1110,8 +1132,9 @@ class RunCommandTest {
         doNothing().when(jobRepository).deletePromptsByJobId(anyString());
         doNothing().when(jobRepository).deleteById(anyString());
 
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--workflow", testJobPath, "--delete-on-completion");
 
@@ -1136,8 +1159,9 @@ class RunCommandTest {
         doNothing().when(jobRepository).deletePromptsByJobId(anyString());
         doNothing().when(jobRepository).deleteById(anyString());
 
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--workflow", testJobPath, "--delete-on-success-completion");
 
@@ -1148,8 +1172,9 @@ class RunCommandTest {
     @Test
     void testRun_ExceptionDuringExecution() throws IOException {
         // Given
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--workflow", testJobPath);
 
@@ -1168,8 +1193,9 @@ class RunCommandTest {
     void testRetrieveAndDisplayModels_Exception() {
         // Given
         when(cliAgent.getModels()).thenThrow(new RuntimeException("API error"));
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--retrieve-models");
 
@@ -1184,8 +1210,9 @@ class RunCommandTest {
     @Test
     void testValidateWorkflowPath_EmptyString() {
         // Given
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--workflow", "   "); // whitespace only
 
@@ -1199,8 +1226,9 @@ class RunCommandTest {
     @Test
     void testLogPollingInterval_WithOverride() {
         // Given
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--polling-interval", "15", "--retrieve-models");
 
@@ -1214,8 +1242,9 @@ class RunCommandTest {
     @Test
     void testLogPollingInterval_WithoutOverride() {
         // Given
-        runCommand = new RunCommand(jobRepository, jobProcessor, workflowValidator,
-            workflowParser, pmlValidator, DEFAULT_POLLING_INTERVAL, cliAgent);
+        runCommand = new RunCommand(jobRepository, jobProcessor, DEFAULT_POLLING_INTERVAL,
+            cliAgent, jobCreationService, jobDisplayService, jobDeletionService,
+            jobLogDisplayService, completionCheckerFactory);
         CommandLine cmdLine = new CommandLine(runCommand);
         cmdLine.parseArgs("--retrieve-models");
 

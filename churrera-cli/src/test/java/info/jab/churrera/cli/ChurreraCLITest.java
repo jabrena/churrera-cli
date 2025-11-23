@@ -100,19 +100,15 @@ class ChurreraCLITest {
     }
 
     private ChurreraCLI createChurreraCLIWithMocks() {
-        String testApiKey = "test-api-key";
         return new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
             propertyResolver,
             jobRepository,
-            apiClient,
-            defaultApi,
             cliAgent,
             workflowParser,
             jobProcessor,
             workflowValidator,
-            pmlValidator
+            pmlValidator,
+            true  // testConstructor flag
         );
     }
 
@@ -238,90 +234,8 @@ class ChurreraCLITest {
     }
 
 
-    @Test
-    void testCreateRunCommand_WithMocks() {
-        // Given
-        String testApiKey = "test-api-key";
-        when(propertyResolver.getProperty(anyString(), anyString()))
-                .thenReturn(Optional.of("5"));
-
-        ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
-            propertyResolver,
-            jobRepository,
-            apiClient,
-            defaultApi,
-            cliAgent,
-            workflowParser,
-            jobProcessor,
-            workflowValidator,
-            pmlValidator
-        );
-
-        // When
-        RunCommand result = cli.createRunCmd();
-
-        // Then
-        assertThat(result).isNotNull();
-    }
-
-    @Test
-    void testCreateRunCommand_ThrowsExceptionWhenPropertyMissing() {
-        // Given
-        String testApiKey = "test-api-key";
-        when(propertyResolver.getProperty(anyString(), anyString()))
-                .thenReturn(Optional.empty());
-
-        ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
-            propertyResolver,
-            jobRepository,
-            apiClient,
-            defaultApi,
-            cliAgent,
-            workflowParser,
-            jobProcessor,
-            workflowValidator,
-            pmlValidator
-        );
-
-        // When & Then
-        assertThatThrownBy(cli::createRunCmd)
-                .isInstanceOf(RuntimeException.class);
-    }
-
-    @Test
-    void testCreateRunCommand_WithInjectedDependencies() {
-        // Given
-        // This test verifies that the factory can be created with injected dependencies
-        // and that createRunCommand works correctly
-        String testApiKey = "test-api-key";
-        when(propertyResolver.getProperty(anyString(), anyString()))
-                .thenReturn(Optional.of("5"));
-
-        ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
-            propertyResolver,
-            jobRepository,
-            apiClient,
-            defaultApi,
-            cliAgent,
-            workflowParser,
-            jobProcessor,
-            workflowValidator,
-            pmlValidator
-        );
-
-        // When
-        RunCommand result = cli.createRunCmd();
-
-        // Then
-        assertThat(cli).isNotNull();
-        assertThat(result).isNotNull();
-    }
+    // Note: Tests for createRunCmd() removed - RunCommand is now created by Dagger component,
+    // not by ChurreraCLI. The component creation is tested through integration tests.
 
     @Test
     void testChurreraCLI_DefaultConstructor() {
@@ -341,75 +255,20 @@ class ChurreraCLITest {
 
         // When
         ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
             propertyResolver,
             jobRepository,
-            apiClient,
-            defaultApi,
             cliAgent,
             workflowParser,
             jobProcessor,
             workflowValidator,
-            pmlValidator
+            pmlValidator,
+            true  // testConstructor flag
         );
 
         // Then
         assertThat(cli).isNotNull();
     }
 
-    @Test
-    void testCreateRunCommand_WithValidPollingInterval() {
-        // Given
-        String testApiKey = "test-api-key";
-        when(propertyResolver.getProperty("application.properties", "cli.polling.interval.seconds"))
-                .thenReturn(Optional.of("10"));
-
-        ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
-            propertyResolver,
-            jobRepository,
-            apiClient,
-            defaultApi,
-            cliAgent,
-            workflowParser,
-            jobProcessor,
-            workflowValidator,
-            pmlValidator
-        );
-
-        // When
-        RunCommand result = cli.createRunCmd();
-
-        // Then
-        assertThat(result).isNotNull();
-        verify(propertyResolver, atLeastOnce()).getProperty("application.properties", "cli.polling.interval.seconds");
-    }
-
-    @Test
-    void testCreateRunCommand_WithInvalidPollingInterval() {
-        // Given
-        String testApiKey = "test-api-key";
-        when(propertyResolver.getProperty("application.properties", "cli.polling.interval.seconds"))
-                .thenReturn(Optional.of("invalid"));
-
-        ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
-            propertyResolver,
-            jobRepository,
-            apiClient,
-            defaultApi,
-            cliAgent,
-            workflowParser,
-            jobProcessor,
-            workflowValidator,
-            pmlValidator
-        );
-
-        // When & Then
-        assertThatThrownBy(cli::createRunCmd)
-                .isInstanceOf(NumberFormatException.class);
-    }
+    // Note: Tests for createRunCmd() with polling interval removed - RunCommand is now created
+    // by Dagger component. Polling interval validation is tested in CommandModule tests.
 }

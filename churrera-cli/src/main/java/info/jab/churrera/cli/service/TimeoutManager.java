@@ -5,6 +5,7 @@ import info.jab.churrera.cli.model.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
 

@@ -65,6 +65,7 @@ public class ChurreraCLI implements Runnable {
 
     /**
      * Constructor for testing that accepts all dependencies.
+     * Package-private for testing purposes.
      */
     ChurreraCLI(
             PropertyResolver propertyResolver,
@@ -73,7 +74,8 @@ public class ChurreraCLI implements Runnable {
             WorkflowParser workflowParser,
             JobProcessor jobProcessor,
             WorkflowValidator workflowValidator,
-            PmlValidator pmlValidator) {
+            PmlValidator pmlValidator,
+            boolean testConstructor) {
         this.propertyResolver = propertyResolver;
         this.jobRepository = jobRepository;
         this.cliAgent = cliAgent;

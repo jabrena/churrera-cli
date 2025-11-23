@@ -1,7 +1,7 @@
 package info.jab.churrera.cli.di;
 
 import info.jab.churrera.cli.repository.JobRepository;
-import info.jab.churrera.cli.util.PropertyResolver;
+import info.jab.churrera.util.PropertyResolver;
 import info.jab.churrera.util.CursorApiKeyResolver;
 import info.jab.churrera.util.PmlConverter;
 import info.jab.churrera.workflow.PmlValidator;
