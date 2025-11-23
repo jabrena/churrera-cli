@@ -103,11 +103,18 @@ class CliCommandTest {
         Scanner testScanner = new Scanner(inputStream);
         cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
 
-        // When
-        cliCommand.run();
+        // When - run in a separate thread to allow async executor to run
+        Thread runThread = new Thread(() -> cliCommand.run());
+        runThread.start();
+
+        // Wait a bit for the scheduled executor to start and execute
+        Thread.sleep(100);
 
         // Then - verify scheduled executor ran at least once (with timeout to account for async execution)
-        verify(jobProcessor, timeout(1000).atLeastOnce()).processJobs();
+        verify(jobProcessor, timeout(2000).atLeastOnce()).processJobs();
+
+        // Wait for run to complete
+        runThread.join(2000);
     }
 
     @Test
