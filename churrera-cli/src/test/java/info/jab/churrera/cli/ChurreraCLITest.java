@@ -1,10 +1,6 @@
 package info.jab.churrera.cli;
 
-import info.jab.churrera.cli.command.cli.CliCommand;
 import info.jab.churrera.cli.command.run.RunCommand;
-import info.jab.churrera.cli.model.AgentState;
-import info.jab.churrera.cli.model.Job;
-import info.jab.churrera.cli.model.JobWithDetails;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.cli.service.JobProcessor;
 import info.jab.churrera.cli.service.CLIAgent;
@@ -29,17 +25,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import java.util.stream.Stream;
-import java.util.List;
 import java.util.Optional;
-import java.time.LocalDateTime;
-import info.jab.churrera.workflow.WorkflowType;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Scanner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -55,14 +44,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for ChurreraCLI and CliCommand (REPL functionality).
+ * Unit tests for ChurreraCLI.
  * These tests use the public constructor to inject mocked dependencies.
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class ChurreraCLITest {
 
-    // Mocks for CliCommand tests
+    // Mocks for ChurreraCLI tests
     @Mock
     private JobRepository jobRepository;
 
@@ -74,8 +63,6 @@ class ChurreraCLITest {
 
     @Mock
     private CLIAgent cliAgent;
-
-    // Mocks for ChurreraCLI tests
     @Mock
     private CursorApiKeyResolver apiKeyResolver;
 
@@ -94,12 +81,10 @@ class ChurreraCLITest {
     @Mock
     private PmlValidator pmlValidator;
 
-    private CliCommand churreraCLI;
     private ByteArrayOutputStream outputStream;
     private ByteArrayOutputStream errorStream;
     private PrintStream originalOut;
     private PrintStream originalErr;
-    private InputStream originalIn;
 
     @BeforeEach
     void setUp() {
@@ -108,7 +93,6 @@ class ChurreraCLITest {
         errorStream = new ByteArrayOutputStream();
         originalOut = System.out;
         originalErr = System.err;
-        originalIn = System.in;
 
         System.setOut(new PrintStream(outputStream));
         System.setErr(new PrintStream(errorStream));
@@ -119,55 +103,7 @@ class ChurreraCLITest {
         // Restore original streams
         System.setOut(originalOut);
         System.setErr(originalErr);
-        System.setIn(originalIn);
     }
-
-    private CliCommand createCLI(String input) {
-        when(propertyResolver.getProperty("application.properties", "cli.prompt"))
-                .thenReturn(Optional.of("> "));
-        when(propertyResolver.getProperty("application.properties", "cli.polling.interval.seconds"))
-                .thenReturn(Optional.of("5"));
-
-        Scanner scanner = new Scanner(new ByteArrayInputStream(input.getBytes()));
-        return new CliCommand(jobRepository, jobProcessor, propertyResolver, scanner, cliAgent);
-    }
-
-    private CliTestResult runCliWithInput(String input) {
-        churreraCLI = createCLI(input);
-        churreraCLI.run();
-        return captureOutput();
-    }
-
-    private Job createJob(String jobId) {
-        LocalDateTime now = LocalDateTime.now();
-        return new Job(
-                jobId,
-                "/tmp/workflow.xml",
-                null,
-                "gpt-4.1-mini",
-                "https://github.com/jabrena/churrera",
-                AgentState.running(),
-                now,
-                now,
-                null,
-                null,
-                WorkflowType.SEQUENCE,
-                null,
-                null,
-                null,
-                false
-        );
-    }
-
-    private JobWithDetails createJobWithDetails(Job job) {
-        return new JobWithDetails(job, List.of());
-    }
-
-    private CliTestResult captureOutput() {
-        return new CliTestResult(outputStream.toString(), errorStream.toString());
-    }
-
-    private record CliTestResult(String stdout, String stderr) { }
 
     private ChurreraCLI createChurreraCLIWithMocks() {
         String testApiKey = "test-api-key";
@@ -184,552 +120,6 @@ class ChurreraCLITest {
             workflowValidator,
             pmlValidator
         );
-    }
-
-    @Test
-    void should_warn_about_unknown_exit_command() {
-        // When
-        CliTestResult result = runCliWithInput("exit\nquit\n");
-
-        // Then
-        assertThat(result.stdout())
-                .contains("Unknown command: exit")
-                .contains("Goodbye!");
-    }
-
-    @ParameterizedTest(name = "Should exit when using command ''{0}''")
-    @ValueSource(strings = {"quit", "QUIT", "QuIt"})
-    void should_exit_when_quit_command_is_entered_regardless_of_case(String quitCommand) {
-        // When
-        CliTestResult result = runCliWithInput(quitCommand + "\n");
-
-        // Then
-        assertThat(result.stdout()).contains("Goodbye!");
-    }
-
-    @ParameterizedTest(name = "Should ignore blank input ''{0}'' and continue prompting")
-    @ValueSource(strings = {"", "   ", "\t\t", "\n\n"})
-    void should_ignore_blank_inputs(String blankInput) {
-        // When
-        CliTestResult result = runCliWithInput(blankInput + "\nquit\n");
-
-        // Then
-        assertThat(result.stdout()).contains("Goodbye!");
-        assertThat(result.stderr()).isEmpty();
-    }
-
-    @ParameterizedTest(name = "Should list jobs when user types ''{0}''")
-    @ValueSource(strings = {"jobs", "  jobs  ", "jobs\t", "jobs\njobs"})
-    void should_list_jobs_for_command_variations(String jobsCommand) {
-        // When
-        CliTestResult result = runCliWithInput(jobsCommand + "\nquit\n");
-
-        // Then
-        verify(jobRepository, atLeastOnce()).findAll();
-        assertThat(result.stdout()).contains("Goodbye!");
-    }
-
-    @ParameterizedTest(name = "Should display help when input is ''{0}''")
-    @ValueSource(strings = {"help", "  help  ", "help\nhelp"})
-    void should_show_help_information_for_common_variations(String helpCommand) {
-        // When
-        CliTestResult result = runCliWithInput(helpCommand + "\nquit\n");
-
-        // Then
-        assertThat(result.stdout()).contains("Available commands")
-                .contains("Goodbye!");
-    }
-
-    @ParameterizedTest(name = "Should display help for command ''{0}''")
-    @ValueSource(strings = {"help", "  help  ", "help\nhelp\nhelp", "   help   ", "help\n\n\n\n\n"})
-    void testRun_HelpCommand(String helpCommand) {
-        // Given
-        churreraCLI = createCLI(helpCommand + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Available commands");
-    }
-
-    @ParameterizedTest(name = "Should display goodbye for command ''{0}''")
-    @ValueSource(strings = {"clear", "  clear  ", "\n\n", "   \n\t\n\n"})
-    void testRun_ClearCommand(String clearCommand) {
-        // Given
-        churreraCLI = createCLI(clearCommand + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Goodbye!");
-        assertThat(errorStream.toString()).isEmpty();
-    }
-
-    @ParameterizedTest(name = "Should list jobs for command ''{0}''")
-    @ValueSource(strings = {"jobs", "  jobs  ", "jobs\njobs\njobs"})
-    void testRun_JobsCommand(String jobsCommand) {
-        // Given
-        churreraCLI = createCLI(jobsCommand + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        verify(jobRepository, atLeastOnce()).findAll();
-    }
-
-    @ParameterizedTest(name = "Should surface error when executing ''{0}''")
-    @ValueSource(strings = {
-            "jobs new /path/to/workflow.xml",
-            "jobs new /path with spaces/workflow.xml",
-            "jobs new ./workflow.xml",
-            "jobs new /absolute/path/workflow.xml",
-            "jobs\tnew\t/path/to/workflow.xml",
-            "jobs new C:\\\\path\\\\to\\\\workflow.xml",
-            "jobs new ~/workflow.xml",
-            "jobs new \"/path with spaces/workflow.xml\"",
-            "jobs new '/path with spaces/workflow.xml'"
-    })
-    void should_report_error_for_invalid_workflow_paths(String command) {
-        // When
-        CliTestResult result = runCliWithInput(command + "\nquit\n");
-
-        // Then
-        assertThat(result.stderr()).contains("Error: Workflow file does not exist");
-    }
-
-    @Test
-    void testRun_JobsStatusCommand() {
-        // Given
-        String jobId = "test-job-123";
-        Job job = createJob(jobId);
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(job));
-        when(jobRepository.findJobWithDetails(jobId)).thenReturn(Optional.of(createJobWithDetails(job)));
-        churreraCLI = createCLI("jobs status " + jobId + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output)
-                .contains("Job Details:")
-                .contains("Job ID: " + jobId);
-        verify(jobRepository).findJobWithDetails(jobId);
-    }
-
-    @Test
-    void testRun_JobsLogsCommand() {
-        // Given
-        String jobId = "test-job-123";
-        Job job = createJob(jobId);
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(job));
-        when(jobRepository.findJobWithDetails(jobId)).thenReturn(Optional.of(createJobWithDetails(job)));
-        churreraCLI = createCLI("jobs logs " + jobId + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output)
-                .contains("=== Job Logs ===")
-                .contains("Job ID: " + jobId);
-        verify(jobRepository).findJobWithDetails(jobId);
-    }
-
-    @Test
-    void testRun_JobsPrCommand() {
-        // Given
-        String jobId = "test-job-123";
-        Job finishedJob = createJob(jobId)
-                .withStatus(AgentState.finished())
-                .withCursorAgentId("agent-42");
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(finishedJob));
-        churreraCLI = createCLI("jobs pr " + jobId + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output)
-                .contains("Pull Request Review")
-                .contains("agent-42");
-        verify(jobRepository, atLeastOnce()).findById(jobId);
-    }
-
-    @Test
-    void testRun_JobsDeleteCommand() {
-        // Given
-        String jobId = "test-job-123";
-        Job job = createJob(jobId);
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(job));
-        when(jobRepository.findJobsByParentId(jobId)).thenReturn(List.of());
-        churreraCLI = createCLI("jobs delete " + jobId + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Job and all child jobs deleted from Database");
-        verify(jobRepository).deletePromptsByJobId(jobId);
-        verify(jobRepository).deleteById(jobId);
-    }
-
-    @ParameterizedTest(name = "Should handle unknown command: ''{0}''")
-    @MethodSource("unknownCommandTestCases")
-    void testRun_UnknownCommand(String command, String expectedOutput) {
-        // Given
-        churreraCLI = createCLI(command + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains(expectedOutput);
-    }
-
-    private static Stream<Arguments> unknownCommandTestCases() {
-        String veryLongCommand = "x".repeat(1000);
-        return Stream.of(
-                Arguments.of("unknown command", "Unknown command"),
-                Arguments.of("unknown-command-123!@#", "Unknown command: unknown-command-123!@#"),
-                Arguments.of("🚀unknown", "Unknown command: 🚀unknown"),
-                Arguments.of(veryLongCommand, "Unknown command: " + veryLongCommand)
-        );
-    }
-
-
-    @Test
-    void testRun_CommandWithException() {
-        // Given
-        when(jobRepository.findAll()).thenThrow(new RuntimeException("Database error"));
-        churreraCLI = createCLI("jobs\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Error listing jobs: Database error");
-        assertThat(errorStream.toString()).isEmpty();
-    }
-
-
-
-    @ParameterizedTest(name = "Should handle CLI input ''{0}'' and check for ''{1}''")
-    @MethodSource("cliBasicBehaviorTestCases")
-    void testRun_CLIBasicBehavior(String input, String expectedOutput) {
-        // Given
-        churreraCLI = createCLI(input);
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains(expectedOutput);
-    }
-
-    private static Stream<Arguments> cliBasicBehaviorTestCases() {
-        return Stream.of(
-                Arguments.of("quit\n", "Type 'help' for available commands"),
-                Arguments.of("quit\n", ">"),
-                Arguments.of("     \nquit\n", "Goodbye!"),
-                Arguments.of("\t\t\t\nquit\n", "Goodbye!"),
-                Arguments.of("\n\n\n\n\n\n\nquit\n", "Goodbye!")
-        );
-    }
-
-    @Test
-    void testRun_CustomPromptFromProperties() {
-        // Given
-        when(propertyResolver.getProperty("application.properties", "cli.prompt"))
-                .thenReturn(Optional.of("churrera> "));
-        when(propertyResolver.getProperty("application.properties", "cli.polling.interval.seconds"))
-                .thenReturn(Optional.of("5"));
-
-        Scanner scanner = new Scanner(new ByteArrayInputStream("quit\n".getBytes()));
-        churreraCLI = new CliCommand(jobRepository, jobProcessor, propertyResolver, scanner, cliAgent);
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        // The custom prompt should be displayed, or at minimum "Goodbye!" confirms the loop ran
-        assertThat(output).contains("churrera>");
-    }
-
-    @Test
-    void testRun_JobsCommandPattern_WithUUID() {
-        // Given
-        String uuid = "550e8400-e29b-41d4-a716-446655440000";
-        Job job = createJob(uuid);
-        when(jobRepository.findById(uuid)).thenReturn(Optional.of(job));
-        when(jobRepository.findJobWithDetails(uuid)).thenReturn(Optional.of(createJobWithDetails(job)));
-        churreraCLI = createCLI("jobs status " + uuid + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        verify(jobRepository).findJobWithDetails(uuid);
-        String output = outputStream.toString();
-        assertThat(output).contains("Job Details:");
-    }
-
-
-
-
-
-
-    @ParameterizedTest(name = "Should reject job subcommand without argument ''{1}''")
-    @CsvSource({
-            "'jobs new',jobs new",
-            "'jobs new ',jobs new",
-            "'jobs status',jobs status",
-            "'jobs delete',jobs delete",
-            "'jobs logs',jobs logs",
-            "'jobs pr',jobs pr"
-    })
-    void should_warn_when_job_subcommand_argument_missing(String rawInput, String expectedCommand) {
-        // When
-        CliTestResult result = runCliWithInput(rawInput + "\nquit\n");
-
-        // Then
-        assertThat(result.stdout()).contains("Unknown command: " + expectedCommand);
-        assertThat(result.stderr()).isEmpty();
-    }
-
-
-
-
-    @Test
-    void testRun_JobsStatusCommandWithShortId() {
-        // Given
-        String jobId = "abc123";
-        Job job = createJob(jobId);
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(job));
-        when(jobRepository.findJobWithDetails(jobId)).thenReturn(Optional.of(createJobWithDetails(job)));
-        churreraCLI = createCLI("jobs status " + jobId + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        verify(jobRepository).findJobWithDetails(jobId);
-        String output = outputStream.toString();
-        assertThat(output).contains("Job Details:");
-    }
-
-    @Test
-    void testRun_JobsLogsCommandWithLongId() {
-        // Given
-        String longId = "a".repeat(100);
-        Job job = createJob(longId);
-        when(jobRepository.findById(longId)).thenReturn(Optional.of(job));
-        when(jobRepository.findJobWithDetails(longId)).thenReturn(Optional.of(createJobWithDetails(job)));
-        churreraCLI = createCLI("jobs logs " + longId + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        verify(jobRepository).findJobWithDetails(longId);
-        String output = outputStream.toString();
-        assertThat(output).contains("=== Job Logs ===");
-    }
-
-    @Test
-    void testRun_JobsPrCommandWithHyphenatedId() {
-        // Given
-        String jobId = "test-job-id-123";
-        Job finishedJob = createJob(jobId)
-                .withStatus(AgentState.finished())
-                .withCursorAgentId("agent-42");
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(finishedJob));
-        churreraCLI = createCLI("jobs pr " + jobId + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        verify(jobRepository, atLeastOnce()).findById(jobId);
-        String output = outputStream.toString();
-        assertThat(output).contains("Pull Request Review");
-    }
-
-    @Test
-    void testRun_JobsDeleteCommandWithUnderscoreId() {
-        // Given
-        String jobId = "test_job_123";
-        Job job = createJob(jobId);
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(job));
-        when(jobRepository.findJobsByParentId(jobId)).thenReturn(List.of());
-        churreraCLI = createCLI("jobs delete " + jobId + "\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        verify(jobRepository).deletePromptsByJobId(jobId);
-        verify(jobRepository).deleteById(jobId);
-        String output = outputStream.toString();
-        assertThat(output).contains("Job and all child jobs deleted from Database");
-    }
-
-
-
-
-    @Test
-    void testRun_JobsCommandWithExceptionHandling() {
-        // Given
-        when(jobRepository.findAll()).thenThrow(new RuntimeException("Test exception"));
-        churreraCLI = createCLI("jobs\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output).contains("Error listing jobs: Test exception");
-        assertThat(errorStream.toString()).isEmpty();
-    }
-
-    @Test
-    void testRun_JobsStatusCommandWithExceptionHandling() {
-        // Given
-        when(jobRepository.findById(anyString())).thenThrow(new RuntimeException("Database error"));
-        churreraCLI = createCLI("jobs status test-id\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        // Exception should be handled gracefully
-        String errorOutput = errorStream.toString();
-        assertThat(errorOutput).contains("Error retrieving job status: Database error");
-    }
-
-    @Test
-    void testRun_JobsDeleteCommandWithExceptionHandling() {
-        // Given
-        when(jobRepository.findById(anyString())).thenThrow(new RuntimeException("Delete error"));
-        churreraCLI = createCLI("jobs delete test-id\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String errorOutput = errorStream.toString();
-        assertThat(errorOutput).contains("Error deleting job: Delete error");
-        String output = outputStream.toString();
-        assertThat(output).contains("Goodbye!");
-    }
-
-    @Test
-    void testRun_JobsLogsCommandWithExceptionHandling() {
-        // Given
-        when(jobRepository.findById(anyString())).thenThrow(new RuntimeException("Logs error"));
-        churreraCLI = createCLI("jobs logs test-id\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String errorOutput = errorStream.toString();
-        assertThat(errorOutput).contains("Error retrieving job logs: Logs error");
-        String output = outputStream.toString();
-        assertThat(output).contains("Goodbye!");
-    }
-
-    @Test
-    void testRun_JobsPrCommandWithExceptionHandling() {
-        // Given
-        when(jobRepository.findById(anyString())).thenThrow(new RuntimeException("PR error"));
-        churreraCLI = createCLI("jobs pr test-id\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        String output = outputStream.toString();
-        assertThat(output)
-            .contains("Error retrieving job PR info: PR error")
-            .contains("Goodbye!");
-        assertThat(errorStream.toString()).isEmpty();
-    }
-
-    @Test
-    void testRun_JobsNewCommandWithExceptionHandling() {
-        // Given
-        // This will fail during workflow validation/parsing
-        churreraCLI = createCLI("jobs new /nonexistent/path.xml\nquit\n");
-
-        // When
-        churreraCLI.run();
-
-        // Then
-        // Exception should be handled gracefully
-        String errorOutput = errorStream.toString();
-        assertThat(errorOutput).contains("Error: Workflow file does not exist");
-    }
-
-
-
-
-    @ParameterizedTest(name = "Should treat ''{0}'' as unknown due to case sensitivity")
-    @ValueSource(strings = {"JOBS", "HELP", "CLEAR"})
-    void should_enforce_case_sensitive_commands(String upperCommand) {
-        // When
-        CliTestResult result = runCliWithInput(upperCommand + "\nquit\n");
-
-        // Then
-        assertThat(result.stdout()).contains("Unknown command: " + upperCommand);
-    }
-
-
-    @Test
-    void testRun_PropertyResolverReturnsEmptyOptional() {
-        // Given
-        when(propertyResolver.getProperty("application.properties", "cli.prompt"))
-                .thenReturn(Optional.empty());
-        when(propertyResolver.getProperty("application.properties", "cli.polling.interval.seconds"))
-                .thenReturn(Optional.of("5"));
-
-        Scanner scanner = new Scanner(new ByteArrayInputStream("quit\n".getBytes()));
-        CliCommand cmd = new CliCommand(jobRepository, jobProcessor, propertyResolver, scanner, cliAgent);
-
-        // When & Then
-        assertThatThrownBy(cmd::run)
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("cli.prompt");
-    }
-
-    @Test
-    void testRun_PropertyResolverReturnsEmptyPollingInterval() {
-        // Given
-        // Polling interval is checked first, so prompt stub is never reached
-        lenient().when(propertyResolver.getProperty("application.properties", "cli.prompt"))
-                .thenReturn(Optional.of("> "));
-        when(propertyResolver.getProperty("application.properties", "cli.polling.interval.seconds"))
-                .thenReturn(Optional.empty());
-
-        Scanner scanner = new Scanner(new ByteArrayInputStream("quit\n".getBytes()));
-        CliCommand cmd = new CliCommand(jobRepository, jobProcessor, propertyResolver, scanner, cliAgent);
-
-        // When & Then
-        assertThatThrownBy(cmd::run)
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("cli.polling.interval.seconds");
     }
 
     // ============================================
@@ -856,62 +246,6 @@ class ChurreraCLITest {
                 .doesNotThrowAnyException();
     }
 
-    @Test
-    void testCreateCLICommand_WithMocks() {
-        // Given
-        String testApiKey = "test-api-key";
-        InputStream testInputStream = new ByteArrayInputStream("test".getBytes());
-
-        ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
-            propertyResolver,
-            jobRepository,
-            apiClient,
-            defaultApi,
-            cliAgent,
-            workflowParser,
-            jobProcessor,
-            workflowValidator,
-            pmlValidator
-        );
-
-        // When
-        CliCommand result = new CliCommand(cli.jobRepository, cli.jobProcessor, cli.propertyResolver, new Scanner(testInputStream), cli.cliAgent);
-
-        // Then
-        assertThat(result).isNotNull();
-    }
-
-
-    @Test
-    void testCreateCLICommand_WithInjectedDependencies() {
-        // Given
-        // This test verifies that CliCommand can be created with injected dependencies
-        String testApiKey = "test-api-key";
-        InputStream testInputStream = new ByteArrayInputStream("test".getBytes());
-
-        ChurreraCLI cli = new ChurreraCLI(
-            apiKeyResolver,
-            testApiKey,
-            propertyResolver,
-            jobRepository,
-            apiClient,
-            defaultApi,
-            cliAgent,
-            workflowParser,
-            jobProcessor,
-            workflowValidator,
-            pmlValidator
-        );
-
-        // When
-        CliCommand result = new CliCommand(cli.jobRepository, cli.jobProcessor, cli.propertyResolver, new Scanner(testInputStream), cli.cliAgent);
-
-        // Then
-        assertThat(cli).isNotNull();
-        assertThat(result).isNotNull();
-    }
 
     @Test
     void testCreateRunCommand_WithMocks() {

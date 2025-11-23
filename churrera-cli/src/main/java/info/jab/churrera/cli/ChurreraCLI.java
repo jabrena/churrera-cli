@@ -1,6 +1,5 @@
 package info.jab.churrera.cli;
 
-import info.jab.churrera.cli.command.cli.CliCommand;
 import info.jab.churrera.cli.command.run.RunCommand;
 import info.jab.churrera.cli.repository.JobRepository;
 import info.jab.churrera.workflow.WorkflowParser;
@@ -26,7 +25,6 @@ import static com.diogonunes.jcolor.Ansi.colorize;
 import com.github.lalyos.jfiglet.FigletFont;
 
 import java.io.IOException;
-import java.util.Scanner;
 import java.util.function.Supplier;
 
 /**
@@ -161,25 +159,14 @@ public class ChurreraCLI implements Runnable {
             CommandLine commandLine = new CommandLine(cli);
 
             // Create and register subcommands manually
-            logger.info("Initializing Churrera CLI");
-            final CliCommand cliCommand = new CliCommand(cli.jobRepository, cli.jobProcessor, cli.propertyResolver, new Scanner(System.in), cli.cliAgent);
-            logger.info("Churrera CLI initialized successfully");
+            logger.info("Initializing Churrera Run command");
             final RunCommand runCommand = cli.createRunCmd();
 
-            commandLine.addSubcommand("cli", cliCommand);
             commandLine.addSubcommand("run", runCommand);
 
             // Add shutdown hook to ensure proper cleanup
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 logger.info("Shutdown hook triggered");
-                if (cliCommand != null) {
-                    if (cliCommand.getScheduledExecutor() != null) {
-                        cliCommand.getScheduledExecutor().shutdownNow();
-                    }
-                    if (cliCommand.getJobRepository() != null) {
-                        cliCommand.getJobRepository().close();
-                    }
-                }
                 // Cleanup for RunCommand
                 if (runCommand != null && runCommand.getJobRepository() != null) {
                     runCommand.getJobRepository().close();

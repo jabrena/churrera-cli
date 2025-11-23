@@ -1,4 +1,4 @@
-package info.jab.churrera.cli.command.cli;
+package info.jab.churrera.cli.command.run;
 
 import org.junit.jupiter.api.Test;
 
