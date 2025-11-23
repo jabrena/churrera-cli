@@ -83,9 +83,8 @@ class CliCommandTest {
         // When
         cliCommand.run();
 
-        // Then - wait a bit for scheduled executor to run at least once
-        Thread.sleep(100);
-        verify(jobProcessor, atLeastOnce()).processJobs();
+        // Then - verify scheduled executor ran at least once (with timeout to account for async execution)
+        verify(jobProcessor, timeout(1000).atLeastOnce()).processJobs();
     }
 
     @Test
@@ -99,9 +98,8 @@ class CliCommandTest {
         // When
         cliCommand.run();
 
-        // Then - wait a bit for scheduled executor to run at least once
-        Thread.sleep(100);
-        verify(jobProcessor, atLeastOnce()).processJobs();
+        // Then - verify scheduled executor ran at least once (with timeout to account for async execution)
+        verify(jobProcessor, timeout(1000).atLeastOnce()).processJobs();
     }
 
     @Test
@@ -135,7 +133,7 @@ class CliCommandTest {
     }
 
     @Test
-    void testRun_UnknownCommand() {
+    void testRun_UnknownCommand() throws InterruptedException {
         // Given
         String input = "unknown-command\nquit\n";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
@@ -145,8 +143,8 @@ class CliCommandTest {
         // When
         cliCommand.run();
 
-        // Then
-        verify(jobProcessor, atLeastOnce()).processJobs();
+        // Then - verify scheduled executor ran at least once (with timeout to account for async execution)
+        verify(jobProcessor, timeout(1000).atLeastOnce()).processJobs();
     }
 
     @Test
