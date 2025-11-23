@@ -1,5 +1,6 @@
 package info.jab.churrera.workflow;
 
+import info.jab.churrera.util.PropertyResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -32,7 +33,7 @@ class WorkflowValidatorTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        workflowValidator = new WorkflowValidator();
+        workflowValidator = new WorkflowValidator(new PropertyResolver());
 
         // Create a temporary workflow file for testing
         testWorkflowFile = File.createTempFile("test-workflow", ".xml");

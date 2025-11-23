@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
 import info.jab.churrera.cli.util.GitInfo;
@@ -84,15 +83,15 @@ public class ChurreraCLI implements Runnable {
     }
 
 
+    @Inject
+    RunCommand runCommand;
+    
     /**
      * Creates and initializes the Run command with all required dependencies.
      */
-    @Inject
-    Instance<RunCommand> runCommandInstance;
-    
     RunCommand createRunCmd() {
         logger.debug("JobRepository initialized");
-        return runCommandInstance.get();
+        return runCommand;
     }
 
     @Override
@@ -112,12 +111,11 @@ public class ChurreraCLI implements Runnable {
 
         try {
             // Initialize Quarkus Arc container
-            io.quarkus.arc.ArcContainer container = io.quarkus.arc.Arc.initialize();
+            io.quarkus.arc.Arc.initialize();
             
             try {
                 // Get ChurreraCLI instance from CDI container
-                Instance<ChurreraCLI> cliInstance = container.instance(ChurreraCLI.class);
-                final ChurreraCLI cli = cliInstance.get();
+                final ChurreraCLI cli = io.quarkus.arc.Arc.container().instance(ChurreraCLI.class).get();
 
                 // Create CommandLine with root command
                 CommandLine commandLine = new CommandLine(cli);
@@ -135,7 +133,7 @@ public class ChurreraCLI implements Runnable {
                         runCommand.getJobRepository().close();
                     }
                     // Shutdown Arc container
-                    container.shutdown();
+                    io.quarkus.arc.Arc.shutdown();
                 }));
 
                 int exitCode = commandLine.execute(args);
@@ -143,7 +141,7 @@ public class ChurreraCLI implements Runnable {
                 System.exit(exitCode);
             } finally {
                 // Shutdown Arc container
-                container.shutdown();
+                io.quarkus.arc.Arc.shutdown();
             }
 
         } catch (Exception e) {

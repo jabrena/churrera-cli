@@ -1,5 +1,6 @@
 package info.jab.churrera.workflow;
 
+import info.jab.churrera.util.PropertyResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -28,7 +29,7 @@ class PmlValidatorTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        pmlValidator = new PmlValidator();
+        pmlValidator = new PmlValidator(new PropertyResolver());
 
         // Create a temporary PML file for testing
         testPmlFile = File.createTempFile("test-pml", ".xml");
