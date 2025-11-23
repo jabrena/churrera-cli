@@ -11,6 +11,7 @@ import info.jab.churrera.workflow.WorkflowData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -30,7 +31,28 @@ public class JobProcessor {
     private final ParallelWorkflowHandler parallelWorkflowHandler;
     private final ChildWorkflowHandler childWorkflowHandler;
 
-    // Public constructor for dependency injection
+    /**
+     * Constructor for Dagger injection with all dependencies provided.
+     */
+    @Inject
+    public JobProcessor(
+            JobRepository jobRepository,
+            WorkflowFileService workflowFileService,
+            SequenceWorkflowHandler sequenceWorkflowHandler,
+            ParallelWorkflowHandler parallelWorkflowHandler,
+            ChildWorkflowHandler childWorkflowHandler) {
+        this.jobRepository = jobRepository;
+        this.workflowFileService = workflowFileService;
+        this.sequenceWorkflowHandler = sequenceWorkflowHandler;
+        this.parallelWorkflowHandler = parallelWorkflowHandler;
+        this.childWorkflowHandler = childWorkflowHandler;
+    }
+
+    /**
+     * Legacy constructor for backward compatibility (creates dependencies internally).
+     * @deprecated Use constructor with injected dependencies instead.
+     */
+    @Deprecated
     public JobProcessor(JobRepository jobRepository, CLIAgent cliAgent, WorkflowParser workflowParser) {
         this.jobRepository = jobRepository;
 

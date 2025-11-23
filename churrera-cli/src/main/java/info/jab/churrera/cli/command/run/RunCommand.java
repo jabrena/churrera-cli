@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -83,23 +85,28 @@ public class RunCommand implements Callable<Integer> {
     private final CompletionCheckerFactory completionCheckerFactory;
 
     /**
-     * Constructor with dependency injection.
+     * Constructor with Dagger dependency injection.
      */
-    public RunCommand(JobRepository jobRepository, JobProcessor jobProcessor,
-                     WorkflowValidator workflowValidator, WorkflowParser workflowParser,
-                     PmlValidator pmlValidator, int pollingIntervalSeconds, CLIAgent cliAgent) {
+    @Inject
+    public RunCommand(
+            JobRepository jobRepository,
+            JobProcessor jobProcessor,
+            @Named("pollingIntervalSeconds") int pollingIntervalSeconds,
+            CLIAgent cliAgent,
+            JobCreationService jobCreationService,
+            JobDisplayService jobDisplayService,
+            JobDeletionService jobDeletionService,
+            JobLogDisplayService jobLogDisplayService,
+            CompletionCheckerFactory completionCheckerFactory) {
         this.jobRepository = jobRepository;
         this.jobProcessor = jobProcessor;
         this.pollingIntervalSeconds = pollingIntervalSeconds;
         this.cliAgent = cliAgent;
-
-        // Initialize services
-        this.jobCreationService = new JobCreationService(jobRepository, workflowValidator,
-            workflowParser, pmlValidator, cliAgent);
-        this.jobDisplayService = new JobDisplayService(jobRepository);
-        this.jobDeletionService = new JobDeletionService(jobRepository, cliAgent);
-        this.jobLogDisplayService = new JobLogDisplayService(jobRepository, cliAgent);
-        this.completionCheckerFactory = new CompletionCheckerFactory(jobRepository);
+        this.jobCreationService = jobCreationService;
+        this.jobDisplayService = jobDisplayService;
+        this.jobDeletionService = jobDeletionService;
+        this.jobLogDisplayService = jobLogDisplayService;
+        this.completionCheckerFactory = completionCheckerFactory;
     }
 
     /**

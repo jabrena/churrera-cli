@@ -8,6 +8,7 @@ import info.jab.churrera.workflow.ParallelWorkflowData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ public class FallbackExecutor {
     private final JobRepository jobRepository;
     private final WorkflowFileService workflowFileService;
 
+    @Inject
     public FallbackExecutor(CLIAgent cliAgent, JobRepository jobRepository, 
                            WorkflowFileService workflowFileService) {
         this.cliAgent = cliAgent;

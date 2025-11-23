@@ -17,6 +17,7 @@ public class TimeoutManager {
 
     private final JobRepository jobRepository;
 
+    @Inject
     public TimeoutManager(JobRepository jobRepository) {
         this.jobRepository = jobRepository;
     }

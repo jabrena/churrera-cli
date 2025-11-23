@@ -1,27 +1,22 @@
 package info.jab.churrera.cli;
 
 import info.jab.churrera.cli.command.run.RunCommand;
+import info.jab.churrera.cli.di.ChurreraComponent;
+import info.jab.churrera.cli.di.DaggerChurreraComponent;
 import info.jab.churrera.cli.repository.JobRepository;
-import info.jab.churrera.workflow.WorkflowParser;
 import info.jab.churrera.cli.service.JobProcessor;
 import info.jab.churrera.cli.service.CLIAgent;
-import info.jab.churrera.util.CursorApiKeyResolver;
 import info.jab.churrera.util.PropertyResolver;
-import info.jab.churrera.util.PmlConverter;
+import info.jab.churrera.workflow.WorkflowParser;
 import info.jab.churrera.workflow.WorkflowValidator;
 import info.jab.churrera.workflow.PmlValidator;
-import info.jab.cursor.client.impl.CursorAgentManagementImpl;
-import info.jab.cursor.client.impl.CursorAgentInformationImpl;
-import info.jab.cursor.client.impl.CursorAgentGeneralEndpointsImpl;
-import info.jab.cursor.generated.client.ApiClient;
-import info.jab.cursor.generated.client.api.DefaultApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import info.jab.churrera.cli.util.GitInfo;
 
-import java.io.IOException;
+import javax.inject.Inject;
 import java.util.function.Supplier;
 
 /**
@@ -38,95 +33,54 @@ public class ChurreraCLI implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(ChurreraCLI.class);
 
     // Dependencies
-    private final CursorApiKeyResolver apiKeyResolver;
     final PropertyResolver propertyResolver;
     final JobRepository jobRepository;
-    private final ApiClient apiClient;
-    private final DefaultApi defaultApi;
     final CLIAgent cliAgent;
     private final WorkflowParser workflowParser;
     final JobProcessor jobProcessor;
     final WorkflowValidator workflowValidator;
     final PmlValidator pmlValidator;
-    private final String apiKey;
 
     /**
-     * Default constructor that initializes all dependencies.
+     * Constructor with Dagger dependency injection.
      */
-    public ChurreraCLI() throws IOException {
-        // Validate API key at startup
-        this.apiKeyResolver = new CursorApiKeyResolver();
-        this.apiKey = apiKeyResolver.resolveApiKey();
-        logger.debug("CURSOR_API_KEY validated");
-
-        this.propertyResolver = new PropertyResolver();
-        this.jobRepository = new JobRepository(propertyResolver);
-        logger.debug("JobRepository initialized");
-
-        // Create CLIAgent with dependencies
-        String apiBaseUrl = "https://api.cursor.com";
-        this.apiClient = new ApiClient();
-        this.apiClient.updateBaseUri(apiBaseUrl);
-        this.defaultApi = new DefaultApi(apiClient);
-        this.cliAgent = new CLIAgent(
-            jobRepository,
-            new CursorAgentManagementImpl(apiKey, defaultApi),
-            new CursorAgentInformationImpl(apiKey, defaultApi),
-            new CursorAgentGeneralEndpointsImpl(apiKey, defaultApi),
-            new PmlConverter()
-        );
-
-        // Create WorkflowParser
-        this.workflowParser = new WorkflowParser();
-
-        this.jobProcessor = new JobProcessor(jobRepository, cliAgent, workflowParser);
-
-        // Create validators
-        this.workflowValidator = new WorkflowValidator();
-        this.pmlValidator = new PmlValidator();
+    @Inject
+    public ChurreraCLI(
+            PropertyResolver propertyResolver,
+            JobRepository jobRepository,
+            CLIAgent cliAgent,
+            WorkflowParser workflowParser,
+            JobProcessor jobProcessor,
+            WorkflowValidator workflowValidator,
+            PmlValidator pmlValidator) {
+        this.propertyResolver = propertyResolver;
+        this.jobRepository = jobRepository;
+        this.cliAgent = cliAgent;
+        this.workflowParser = workflowParser;
+        this.jobProcessor = jobProcessor;
+        this.workflowValidator = workflowValidator;
+        this.pmlValidator = pmlValidator;
+        logger.debug("ChurreraCLI initialized with Dagger");
     }
 
     /**
      * Constructor for testing that accepts all dependencies.
      */
     ChurreraCLI(
-            CursorApiKeyResolver apiKeyResolver,
-            String apiKey,
             PropertyResolver propertyResolver,
             JobRepository jobRepository,
-            ApiClient apiClient,
-            DefaultApi defaultApi,
             CLIAgent cliAgent,
             WorkflowParser workflowParser,
             JobProcessor jobProcessor,
             WorkflowValidator workflowValidator,
             PmlValidator pmlValidator) {
-        this.apiKeyResolver = apiKeyResolver;
-        this.apiKey = apiKey;
         this.propertyResolver = propertyResolver;
         this.jobRepository = jobRepository;
-        this.apiClient = apiClient;
-        this.defaultApi = defaultApi;
         this.cliAgent = cliAgent;
         this.workflowParser = workflowParser;
         this.jobProcessor = jobProcessor;
         this.workflowValidator = workflowValidator;
         this.pmlValidator = pmlValidator;
-    }
-
-
-    /**
-     * Creates and initializes the Run command with all required dependencies.
-     */
-    RunCommand createRunCmd() {
-        logger.debug("JobRepository initialized");
-
-        // Read polling interval from properties
-        int pollingIntervalSeconds = propertyResolver.getProperty("application.properties", "cli.polling.interval.seconds")
-                .map(Integer::parseInt)
-                .orElseThrow(() -> new RuntimeException("Required property 'cli.polling.interval.seconds' not found in application.properties"));
-
-        return new RunCommand(jobRepository, jobProcessor, workflowValidator, workflowParser, pmlValidator, pollingIntervalSeconds, cliAgent);
     }
 
     @Override
@@ -145,14 +99,18 @@ public class ChurreraCLI implements Runnable {
         printBanner(GitInfo::new);
 
         try {
-            // Create ChurreraCLI instance with dependencies initialized
-            final ChurreraCLI cli = new ChurreraCLI();
+            // Create Dagger component
+            ChurreraComponent component = DaggerChurreraComponent.builder()
+                    .build();
+
+            // Get ChurreraCLI instance from Dagger
+            final ChurreraCLI cli = component.churreraCLI();
 
             // Create CommandLine with root command
             CommandLine commandLine = new CommandLine(cli);
 
-            // Create and register subcommands manually
-            final RunCommand runCommand = cli.createRunCmd();
+            // Get RunCommand from Dagger and register as subcommand
+            final RunCommand runCommand = component.runCommand();
 
             commandLine.addSubcommand("run", runCommand);
 

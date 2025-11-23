@@ -18,6 +18,8 @@ import info.jab.churrera.workflow.ExpressionEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 /**
  * CLI-specific agent service that provides methods for launching, monitoring,
  * and managing Cursor agents with database integration.
@@ -33,6 +35,7 @@ public class CLIAgent {
     private final JobRepository jobRepository;
     private final PmlConverter pmlConverter;
 
+    @Inject
     public CLIAgent(JobRepository jobRepository, CursorAgentManagement cursorAgentManagement, CursorAgentInformation cursorAgentInformation, CursorAgentGeneralEndpoints cursorAgentGeneralEndpoints, PmlConverter pmlConverter) {
         this.cursorAgentManagement = cursorAgentManagement;
         this.cursorAgentInformation = cursorAgentInformation;

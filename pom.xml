@@ -46,6 +46,7 @@
         <basex.version>12.0</basex.version>
         <picocli.version>4.7.7</picocli.version>
         <logback.version>1.5.21</logback.version>
+        <dagger.version>2.51.1</dagger.version>
 
         <!-- Maven plugin versions -->
         <maven-plugin-compiler.version>3.14.1</maven-plugin-compiler.version>
@@ -147,6 +148,17 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.dagger</groupId>
+                <artifactId>dagger</artifactId>
+                <version>${dagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.dagger</groupId>
+                <artifactId>dagger-compiler</artifactId>
+                <version>${dagger.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- Testing -->

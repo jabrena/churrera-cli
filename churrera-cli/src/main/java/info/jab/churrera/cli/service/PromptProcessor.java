@@ -8,6 +8,7 @@ import info.jab.churrera.workflow.PromptInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -20,6 +21,7 @@ public class PromptProcessor {
     private final CLIAgent cliAgent;
     private final WorkflowFileService workflowFileService;
 
+    @Inject
     public PromptProcessor(CLIAgent cliAgent, WorkflowFileService workflowFileService) {
         this.cliAgent = cliAgent;
         this.workflowFileService = workflowFileService;

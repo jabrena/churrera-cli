@@ -9,6 +9,7 @@ import info.jab.churrera.workflow.WorkflowData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -25,6 +26,7 @@ public class SequenceWorkflowHandler {
     private final TimeoutManager timeoutManager;
     private final FallbackExecutor fallbackExecutor;
 
+    @Inject
     public SequenceWorkflowHandler(JobRepository jobRepository, CLIAgent cliAgent,
                                    AgentLauncher agentLauncher, PromptProcessor promptProcessor,
                                    TimeoutManager timeoutManager, FallbackExecutor fallbackExecutor) {

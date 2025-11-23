@@ -10,6 +10,7 @@ import info.jab.churrera.workflow.SequenceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +29,7 @@ public class ParallelWorkflowHandler {
     private final FallbackExecutor fallbackExecutor;
     private final ResultExtractor resultExtractor;
 
+    @Inject
     public ParallelWorkflowHandler(JobRepository jobRepository, CLIAgent cliAgent,
                                   AgentLauncher agentLauncher, TimeoutManager timeoutManager,
                                   FallbackExecutor fallbackExecutor, ResultExtractor resultExtractor) {

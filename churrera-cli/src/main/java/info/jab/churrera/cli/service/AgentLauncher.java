@@ -21,6 +21,7 @@ public class AgentLauncher {
     private final JobRepository jobRepository;
     private final WorkflowFileService workflowFileService;
 
+    @Inject
     public AgentLauncher(CLIAgent cliAgent, JobRepository jobRepository,
                         WorkflowFileService workflowFileService) {
         this.cliAgent = cliAgent;

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,7 @@ public class ResultExtractor {
     private final CLIAgent cliAgent;
     private final JobRepository jobRepository;
 
+    @Inject
     public ResultExtractor(CLIAgent cliAgent, JobRepository jobRepository) {
         this.cliAgent = cliAgent;
         this.jobRepository = jobRepository;
