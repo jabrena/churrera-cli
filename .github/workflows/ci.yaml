@@ -30,7 +30,7 @@ jobs:
         run: |
           java -jar churrera-cli/target/churrera-cli-${{ steps.get_version.outputs.VERSION }}.jar run \
           --workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml \
-          --delete-on-success-completion --polling-interval 10
+          --show-logs --delete-on-success-completion --polling-interval 10
 
       - name: Upload jar
         uses: actions/upload-artifact@v5
@@ -38,3 +38,4 @@ jobs:
           name: churrera-cli-${{ steps.get_version.outputs.VERSION }}.jar
           path: |
             ./churrera-cli/target/churrera-cli-${{ steps.get_version.outputs.VERSION }}.jar
+

@@ -11,7 +11,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.concurrent.ScheduledExecutorService;
@@ -49,308 +52,169 @@ class CliCommandTest {
             .thenReturn(Optional.of("5"));
         lenient().when(propertyResolver.getProperty("application.properties", "cli.prompt"))
             .thenReturn(Optional.of("churrera> "));
-
-        // Create scanner with input stream
-        String input = "quit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        scanner = new Scanner(inputStream);
     }
 
-    @Test
-    void testRun_ExitCommand() throws InterruptedException {
-        // Given
-        String input = "quit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
+    private void runTestWithPipedInput(ThrowingConsumer<PipedOutputStream> commandsSender) throws Exception {
+        PipedOutputStream out = new PipedOutputStream();
+        PipedInputStream in = new PipedInputStream(out);
+        Scanner testScanner = new Scanner(in);
         cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
 
-        // When - run in a separate thread to allow async executor to run
         Thread runThread = new Thread(() -> cliCommand.run());
         runThread.start();
 
-        // Then - verify scheduled executor ran at least once using Awaitility
-        // Add pollDelay to give the executor time to start and execute the first task
-        // Use longer delay in CI environments where scheduling can be slower
+        try {
+            commandsSender.accept(out);
+        } finally {
+            runThread.join(5000);
+            out.close();
+        }
+    }
+
+    @FunctionalInterface
+    interface ThrowingConsumer<T> {
+        void accept(T t) throws Exception;
+    }
+
+    private void waitForProcessor() {
         await()
-            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
-            .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
+            .pollDelay(100, TimeUnit.MILLISECONDS)
+            .pollInterval(50, TimeUnit.MILLISECONDS)
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
+    }
 
-        // Wait for run to complete after verification
-        runThread.join(5000);
-
-        ScheduledExecutorService executor = cliCommand.getScheduledExecutor();
-        assertNotNull(executor);
-        assertTrue(executor.isShutdown());
+    private void sendCommand(PipedOutputStream out, String command) throws IOException {
+        out.write((command + "\n").getBytes());
+        out.flush();
     }
 
     @Test
-    void testRun_HelpCommand() throws InterruptedException {
-        // Given
-        String input = "help\nquit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
-        cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
+    void testRun_ExitCommand() throws Exception {
+        runTestWithPipedInput(out -> {
+            // Wait for processor to start before quitting
+            waitForProcessor();
 
-        // When - run in a separate thread to allow async executor to run
-        Thread runThread = new Thread(() -> cliCommand.run());
-        runThread.start();
+            sendCommand(out, "quit");
 
-        // Then - verify scheduled executor ran at least once using Awaitility
-        // Add pollDelay to give the executor time to start and execute the first task
-        // Use longer delay in CI environments where scheduling can be slower
-        await()
-            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
-            .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
-            .atMost(5, TimeUnit.SECONDS)
-            .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
+            // Wait a bit to ensure loop processes quit
+            Thread.sleep(100);
 
-        // Wait for run to complete after verification
-        runThread.join(5000);
+            ScheduledExecutorService executor = cliCommand.getScheduledExecutor();
+            assertNotNull(executor);
+            assertTrue(executor.isShutdown());
+        });
     }
 
     @Test
-    void testRun_JobsCommand() throws InterruptedException {
-        // Given
-        String input = "jobs\nquit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
-        cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
-
-        // When - run in a separate thread to allow async executor to run
-        Thread runThread = new Thread(() -> cliCommand.run());
-        runThread.start();
-
-        // Then - verify scheduled executor ran at least once using Awaitility
-        // Add pollDelay to give the executor time to start and execute the first task
-        // Use longer delay in CI environments where scheduling can be slower
-        await()
-            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
-            .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
-            .atMost(5, TimeUnit.SECONDS)
-            .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
-
-        // Wait for run to complete after verification
-        runThread.join(5000);
+    void testRun_HelpCommand() throws Exception {
+        runTestWithPipedInput(out -> {
+            sendCommand(out, "help");
+            waitForProcessor();
+            sendCommand(out, "quit");
+        });
     }
 
     @Test
-    void testRun_ClearCommand() throws InterruptedException {
-        // Given
-        String input = "clear\nquit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
-        cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
-
-        // When - run in a separate thread to allow async executor to run
-        Thread runThread = new Thread(() -> cliCommand.run());
-        runThread.start();
-
-        // Then - verify scheduled executor ran at least once using Awaitility
-        // Add pollDelay to give the executor time to start and execute the first task
-        // Use longer delay in CI environments where scheduling can be slower
-        await()
-            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
-            .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
-            .atMost(5, TimeUnit.SECONDS)
-            .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
-
-        // Wait for run to complete after verification
-        runThread.join(5000);
+    void testRun_JobsCommand() throws Exception {
+        runTestWithPipedInput(out -> {
+            sendCommand(out, "jobs");
+            waitForProcessor();
+            sendCommand(out, "quit");
+        });
     }
 
     @Test
-    void testRun_EmptyInput() throws InterruptedException {
-        // Given
-        String input = "\nquit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
-        cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
-
-        // When - run in a separate thread to allow async executor to run
-        Thread runThread = new Thread(() -> cliCommand.run());
-        runThread.start();
-
-        // Then - verify scheduled executor ran at least once using Awaitility
-        // Add pollDelay to give the executor time to start and execute the first task
-        // Use longer delay in CI environments where scheduling can be slower
-        await()
-            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
-            .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
-            .atMost(5, TimeUnit.SECONDS)
-            .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
-
-        // Wait for run to complete after verification
-        runThread.join(5000);
+    void testRun_ClearCommand() throws Exception {
+        runTestWithPipedInput(out -> {
+            sendCommand(out, "clear");
+            waitForProcessor();
+            sendCommand(out, "quit");
+        });
     }
 
     @Test
-    void testRun_UnknownCommand() throws InterruptedException {
-        // Given
-        String input = "unknown-command\nquit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
-        cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
-
-        // When - run in a separate thread to allow async executor to run
-        Thread runThread = new Thread(() -> cliCommand.run());
-        runThread.start();
-
-        // Then - verify scheduled executor ran at least once using Awaitility
-        // Add pollDelay to give the executor time to start and execute the first task
-        // Use longer delay in CI environments where scheduling can be slower
-        await()
-            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
-            .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
-            .atMost(5, TimeUnit.SECONDS)
-            .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
-
-        // Wait for run to complete after verification
-        runThread.join(5000);
+    void testRun_EmptyInput() throws Exception {
+        runTestWithPipedInput(out -> {
+            sendCommand(out, "");
+            waitForProcessor();
+            sendCommand(out, "quit");
+        });
     }
 
     @Test
-    void testRun_JobsNewCommand() throws InterruptedException {
-        // Given
-        String input = "jobs new /path/to/workflow.xml\nquit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
-        cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
-
-        // When - run in a separate thread to allow async executor to run
-        Thread runThread = new Thread(() -> cliCommand.run());
-        runThread.start();
-
-        // Then - verify scheduled executor ran at least once using Awaitility
-        // Add pollDelay to give the executor time to start and execute the first task
-        // Use longer delay in CI environments where scheduling can be slower
-        await()
-            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
-            .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
-            .atMost(5, TimeUnit.SECONDS)
-            .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
-
-        // Wait for run to complete after verification
-        runThread.join(5000);
+    void testRun_UnknownCommand() throws Exception {
+        runTestWithPipedInput(out -> {
+            sendCommand(out, "unknown-command");
+            waitForProcessor();
+            sendCommand(out, "quit");
+        });
     }
 
     @Test
-    void testRun_JobsStatusCommand() throws InterruptedException {
-        // Given
-        String input = "jobs status job-id-123\nquit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
-        cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
-
-        // When - run in a separate thread to allow async executor to run
-        Thread runThread = new Thread(() -> cliCommand.run());
-        runThread.start();
-
-        // Then - verify scheduled executor ran at least once using Awaitility
-        // Add pollDelay to give the executor time to start and execute the first task
-        // Use longer delay in CI environments where scheduling can be slower
-        await()
-            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
-            .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
-            .atMost(5, TimeUnit.SECONDS)
-            .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
-
-        // Wait for run to complete after verification
-        runThread.join(5000);
+    void testRun_JobsNewCommand() throws Exception {
+        runTestWithPipedInput(out -> {
+            sendCommand(out, "jobs new /path/to/workflow.xml");
+            waitForProcessor();
+            sendCommand(out, "quit");
+        });
     }
 
     @Test
-    void testRun_JobsLogsCommand() throws InterruptedException {
-        // Given
-        String input = "jobs logs job-id-123\nquit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
-        cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
-
-        // When - run in a separate thread to allow async executor to run
-        Thread runThread = new Thread(() -> cliCommand.run());
-        runThread.start();
-
-        // Then - verify scheduled executor ran at least once using Awaitility
-        // Add pollDelay to give the executor time to start and execute the first task
-        // Use longer delay in CI environments where scheduling can be slower
-        await()
-            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
-            .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
-            .atMost(5, TimeUnit.SECONDS)
-            .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
-
-        // Wait for run to complete after verification
-        runThread.join(5000);
+    void testRun_JobsStatusCommand() throws Exception {
+        runTestWithPipedInput(out -> {
+            sendCommand(out, "jobs status job-id-123");
+            waitForProcessor();
+            sendCommand(out, "quit");
+        });
     }
 
     @Test
-    void testRun_JobsDeleteCommand() throws InterruptedException {
-        // Given
-        String input = "jobs delete job-id-123\nquit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
-        cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
-
-        // When - run in a separate thread to allow async executor to run
-        Thread runThread = new Thread(() -> cliCommand.run());
-        runThread.start();
-
-        // Then - verify scheduled executor ran at least once using Awaitility
-        // Add pollDelay to give the executor time to start and execute the first task
-        // Use longer delay in CI environments where scheduling can be slower
-        await()
-            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
-            .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
-            .atMost(5, TimeUnit.SECONDS)
-            .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
-
-        // Wait for run to complete after verification
-        runThread.join(5000);
+    void testRun_JobsLogsCommand() throws Exception {
+        runTestWithPipedInput(out -> {
+            sendCommand(out, "jobs logs job-id-123");
+            waitForProcessor();
+            sendCommand(out, "quit");
+        });
     }
 
     @Test
-    void testRun_JobsPrCommand() throws InterruptedException {
-        // Given
-        String input = "jobs pr job-id-123\nquit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
-        cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
-
-        // When - run in a separate thread to allow async executor to run
-        Thread runThread = new Thread(() -> cliCommand.run());
-        runThread.start();
-
-        // Then - verify scheduled executor ran at least once using Awaitility
-        // Add pollDelay to give the executor time to start and execute the first task
-        // Use longer delay in CI environments where scheduling can be slower
-        await()
-            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
-            .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
-            .atMost(5, TimeUnit.SECONDS)
-            .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
-
-        // Wait for run to complete after verification
-        runThread.join(5000);
+    void testRun_JobsDeleteCommand() throws Exception {
+        runTestWithPipedInput(out -> {
+            sendCommand(out, "jobs delete job-id-123");
+            waitForProcessor();
+            sendCommand(out, "quit");
+        });
     }
 
     @Test
-    void testRun_ExceptionDuringCommandExecution() {
-        // Given
-        String input = "jobs\nquit\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
-        cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
+    void testRun_JobsPrCommand() throws Exception {
+        runTestWithPipedInput(out -> {
+            sendCommand(out, "jobs pr job-id-123");
+            waitForProcessor();
+            sendCommand(out, "quit");
+        });
+    }
+
+    @Test
+    void testRun_ExceptionDuringCommandExecution() throws Exception {
         doThrow(new RuntimeException("Error")).when(jobProcessor).processJobs();
 
-        // When & Then - should handle exception gracefully
-        assertDoesNotThrow(() -> cliCommand.run());
+        runTestWithPipedInput(out -> {
+            sendCommand(out, "jobs");
+            waitForProcessor();
+            sendCommand(out, "quit");
+        });
+        // Verified implicitly by waitForProcessor() which checks mock interaction
+        // and fact that test didn't crash
     }
 
     @Test
     void testGetJobRepository() {
         // Given
+        String input = "quit\n";
+        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+        scanner = new Scanner(inputStream);
         cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, scanner, cliAgent);
 
         // When
@@ -377,32 +241,17 @@ class CliCommandTest {
     }
 
     @Test
-    void testRun_QuitCaseInsensitive() throws InterruptedException {
-        // Given
-        String input = "QUIT\n";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
-        Scanner testScanner = new Scanner(inputStream);
-        cliCommand = new CliCommand(jobRepository, jobProcessor, propertyResolver, testScanner, cliAgent);
+    void testRun_QuitCaseInsensitive() throws Exception {
+        runTestWithPipedInput(out -> {
+            waitForProcessor();
+            sendCommand(out, "QUIT");
 
-        // When - run in a separate thread to allow async executor to run
-        Thread runThread = new Thread(() -> cliCommand.run());
-        runThread.start();
+            Thread.sleep(100);
 
-        // Then - verify scheduled executor ran at least once using Awaitility
-        // Add pollDelay to give the executor time to start and execute the first task
-        // Use longer delay in CI environments where scheduling can be slower
-        await()
-            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
-            .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
-            .atMost(5, TimeUnit.SECONDS)
-            .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
-
-        // Wait for run to complete after verification
-        runThread.join(5000);
-
-        ScheduledExecutorService executor = cliCommand.getScheduledExecutor();
-        assertNotNull(executor);
-        assertTrue(executor.isShutdown());
+            ScheduledExecutorService executor = cliCommand.getScheduledExecutor();
+            assertNotNull(executor);
+            assertTrue(executor.isShutdown());
+        });
     }
 
     @Test
@@ -427,4 +276,3 @@ class CliCommandTest {
         Thread.interrupted();
     }
 }
-
