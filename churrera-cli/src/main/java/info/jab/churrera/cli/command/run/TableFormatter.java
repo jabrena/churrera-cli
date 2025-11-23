@@ -1,4 +1,4 @@
-package info.jab.churrera.cli.command.cli;
+package info.jab.churrera.cli.command.run;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

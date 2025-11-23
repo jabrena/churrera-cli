@@ -1,6 +1,5 @@
 package info.jab.churrera.cli.command.run;
 
-import info.jab.churrera.cli.command.cli.TableFormatter;
 import info.jab.churrera.cli.model.Job;
 import info.jab.churrera.cli.model.Prompt;
 import info.jab.churrera.cli.repository.JobRepository;

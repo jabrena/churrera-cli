@@ -185,19 +185,6 @@ jbang churrera@jabrena run --help
 jbang churrera@jabrena run --workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml
 jbang churrera@jabrena run --workflow churrera-cli/src/test/resources/examples/hello-world/workflow-hello-world.xml --show-logs
 jbang churrera@jabrena run --workflow churrera-cli/src/test/resources/examples/euler-problems/workflow-euler.xml
-
-# Run REPL (Ideal for long lived sessions in local)
-jbang churrera@jabrena cli
-
-jobs                    # List all jobs
-jobs new    churrera-cli/src/test/resources/examples/hello-world/workflow-hello-world.xml
-jobs new    churrera-cli/src/test/resources/examples/cis194/workflow-cis194.xml
-jobs new    churrera-cli/src/test/resources/examples/euler-problems/workflow-euler.xml
-jobs new    churrera-cli/src/test/resources/examples/aoc/workflow-aoc.xml
-jobs status <job-id>    # Check job status
-jobs logs   <job-id>    # View job logs and conversation
-jobs delete <job-id>    # Delete job and associated Cursor agent
-jobs pr     <job-id>    # Show PR link
 ```
 
 ## Build in local
