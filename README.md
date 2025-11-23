@@ -204,14 +204,14 @@ jobs pr     <job-id>    # Show PR link
 
 ```bash
 ./mvnw clean package -DskipTests
-java -jar churrera-cli/target/churrera-cli-0.2.0.jar run --help
-java -jar churrera-cli/target/churrera-cli-0.2.0.jar run --workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml --delete-on-success-completion --polling-interval 10
-java -jar churrera-cli/target/churrera-cli-0.2.0.jar run --workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml --delete-on-completion
-java -jar churrera-cli/target/churrera-cli-0.2.0.jar run --workflow churrera-cli/src/test/resources/examples/hello-world/workflow-hello-world.xml --delete-on-success-completion --show-logs
-java -jar churrera-cli/target/churrera-cli-0.2.0.jar run --workflow churrera-cli/src/test/resources/examples/euler-problems/workflow-euler.xml --delete-on-success-completion --polling-interval 5 --show-logs
-java -jar churrera-cli/target/churrera-cli-0.2.0.jar run --retrieve-models
-java -jar churrera-cli/target/churrera-cli-0.2.0.jar run --retrieve-repositories
-java -jar churrera-cli/target/churrera-cli-0.2.0.jar run --workflow churrera-cli/src/test/resources/examples/failed-job/workflow.xml --delete-on-completion --show-logs
+java -jar churrera-cli/target/churrera-cli-0.3.0-SNAPSHOT.jar run --help
+java -jar churrera-cli/target/churrera-cli-0.3.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml --delete-on-success-completion --polling-interval 10
+java -jar churrera-cli/target/churrera-cli-0.3.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/hello-world-bash/workflow-hello-world.xml --delete-on-completion
+java -jar churrera-cli/target/churrera-cli-0.3.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/hello-world/workflow-hello-world.xml --delete-on-success-completion --show-logs
+java -jar churrera-cli/target/churrera-cli-0.3.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/euler-problems/workflow-euler.xml --delete-on-success-completion --polling-interval 5 --show-logs
+java -jar churrera-cli/target/churrera-cli-0.3.0-SNAPSHOT.jar run --retrieve-models
+java -jar churrera-cli/target/churrera-cli-0.3.0-SNAPSHOT.jar run --retrieve-repositories
+java -jar churrera-cli/target/churrera-cli-0.3.0-SNAPSHOT.jar run --workflow churrera-cli/src/test/resources/examples/failed-job/workflow.xml --delete-on-completion --show-logs
 ```
 
 ## Changelog
