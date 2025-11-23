@@ -168,46 +168,6 @@ jbang churrera@jabrena run --retrieve-models
 jbang churrera@jabrena run --retrieve-repositories
 ```
 
-Follow the output from the tool:
-
-```bash
-
-   ____ _                                      ____ _     ___
-  / ___| |__  _   _ _ __ _ __ ___ _ __ __ _   / ___| |   |_ _|
- | |   | '_ \| | | | '__| '__/ _ \ '__/ _` | | |   | |    | |
- | |___| | | | |_| | |  | | |  __/ | | (_| | | |___| |___ | |
-  \____|_| |_|\__,_|_|  |_|  \___|_|  \__,_|  \____|_____|___|
-
-
-A CLI tool designed to orchestrate Cursor Cloud Agents REST API.
-
-Version: 0.2.0
-Commit: 1ccefe4
-
-✓ CURSOR_API_KEY validated
-
-Job registered
-
-| Job ID   | Parent Job | Type     | Prompts | Status   | Last update    | Completed      |
-+----------+------------+----------+---------+----------+----------------+----------------+
-| 492f5d67 | NA         | SEQUENCE | 0/1     | CREATING | 11/18/25 19:20 | Started 4s ago |
-
-| Job ID   | Parent Job | Type     | Prompts | Status  | Last update    | Completed       |
-+----------+------------+----------+---------+---------+----------------+-----------------+
-| 492f5d67 | NA         | SEQUENCE | 0/1     | RUNNING | 11/18/25 19:20 | Started 10s ago |
-
-| Job ID   | Parent Job | Type     | Prompts | Status   | Last update    | Completed |
-+----------+------------+----------+---------+----------+----------------+-----------+
-| 492f5d67 | NA         | SEQUENCE | 1/1     | FINISHED | 11/18/25 19:20 | 15 secs   |
-
-
-Job completed with status: FINISHED
-Deleting job and all child jobs...
-Job and all child jobs deleted successfully
-
-Thanks for using Churrera! ✨
-```
-
 ## Using the tool
 
 ```bash
