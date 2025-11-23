@@ -85,6 +85,9 @@ class CliCommandTest {
         Thread runThread = new Thread(() -> cliCommand.run());
         runThread.start();
 
+        // Give the executor time to start and schedule the task
+        Thread.sleep(50);
+
         // Then - verify scheduled executor ran at least once BEFORE the thread completes
         // Use a longer timeout to ensure the scheduled task executes
         verify(jobProcessor, timeout(5000).atLeastOnce()).processJobs();
@@ -104,6 +107,9 @@ class CliCommandTest {
         // When - run in a separate thread to allow async executor to run
         Thread runThread = new Thread(() -> cliCommand.run());
         runThread.start();
+
+        // Give the executor time to start and schedule the task
+        Thread.sleep(50);
 
         // Then - verify scheduled executor ran at least once BEFORE the thread completes
         // Use a longer timeout to ensure the scheduled task executes
@@ -125,6 +131,9 @@ class CliCommandTest {
         Thread runThread = new Thread(() -> cliCommand.run());
         runThread.start();
 
+        // Give the executor time to start and schedule the task
+        Thread.sleep(50);
+
         // Then - verify scheduled executor ran at least once BEFORE the thread completes
         // Use a longer timeout to ensure the scheduled task executes
         verify(jobProcessor, timeout(5000).atLeastOnce()).processJobs();
@@ -144,6 +153,9 @@ class CliCommandTest {
         // When - run in a separate thread to allow async executor to run
         Thread runThread = new Thread(() -> cliCommand.run());
         runThread.start();
+
+        // Give the executor time to start and schedule the task
+        Thread.sleep(50);
 
         // Then - verify scheduled executor ran at least once BEFORE the thread completes
         // Use a longer timeout to ensure the scheduled task executes
@@ -165,6 +177,9 @@ class CliCommandTest {
         Thread runThread = new Thread(() -> cliCommand.run());
         runThread.start();
 
+        // Give the executor time to start and schedule the task
+        Thread.sleep(50);
+
         // Then - verify scheduled executor ran at least once BEFORE the thread completes
         // Use a longer timeout to ensure the scheduled task executes
         verify(jobProcessor, timeout(5000).atLeastOnce()).processJobs();
@@ -184,6 +199,9 @@ class CliCommandTest {
         // When - run in a separate thread to allow async executor to run
         Thread runThread = new Thread(() -> cliCommand.run());
         runThread.start();
+
+        // Give the executor time to start and schedule the task
+        Thread.sleep(50);
 
         // Then - verify scheduled executor ran at least once BEFORE the thread completes
         // Use a longer timeout to ensure the scheduled task executes
@@ -205,6 +223,9 @@ class CliCommandTest {
         Thread runThread = new Thread(() -> cliCommand.run());
         runThread.start();
 
+        // Give the executor time to start and schedule the task
+        Thread.sleep(50);
+
         // Then - verify scheduled executor ran at least once BEFORE the thread completes
         // Use a longer timeout to ensure the scheduled task executes
         verify(jobProcessor, timeout(5000).atLeastOnce()).processJobs();
@@ -224,6 +245,9 @@ class CliCommandTest {
         // When - run in a separate thread to allow async executor to run
         Thread runThread = new Thread(() -> cliCommand.run());
         runThread.start();
+
+        // Give the executor time to start and schedule the task
+        Thread.sleep(50);
 
         // Then - verify scheduled executor ran at least once BEFORE the thread completes
         // Use a longer timeout to ensure the scheduled task executes
@@ -245,6 +269,9 @@ class CliCommandTest {
         Thread runThread = new Thread(() -> cliCommand.run());
         runThread.start();
 
+        // Give the executor time to start and schedule the task
+        Thread.sleep(50);
+
         // Then - verify scheduled executor ran at least once BEFORE the thread completes
         // Use a longer timeout to ensure the scheduled task executes
         verify(jobProcessor, timeout(5000).atLeastOnce()).processJobs();
@@ -264,6 +291,9 @@ class CliCommandTest {
         // When - run in a separate thread to allow async executor to run
         Thread runThread = new Thread(() -> cliCommand.run());
         runThread.start();
+
+        // Give the executor time to start and schedule the task
+        Thread.sleep(50);
 
         // Then - verify scheduled executor ran at least once BEFORE the thread completes
         // Use a longer timeout to ensure the scheduled task executes
@@ -325,6 +355,9 @@ class CliCommandTest {
         // When - run in a separate thread to allow async executor to run
         Thread runThread = new Thread(() -> cliCommand.run());
         runThread.start();
+
+        // Give the executor time to start and schedule the task
+        Thread.sleep(50);
 
         // Then - verify scheduled executor ran at least once BEFORE the thread completes
         // Use a longer timeout to ensure the scheduled task executes
