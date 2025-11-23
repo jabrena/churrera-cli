@@ -50,7 +50,12 @@ Cursor Cloud Agents REST API (Beta) allows you to programmatically create and ma
 </pml-workflow>
 ```
 
-**Note:** [Review examples to get inspiration](./churrera-cli/src/test/resources/examples/).
+## Churrera recipes
+
+Examples using Churrera with PML-Workflow:
+
+- [Continous documentation](./churrera-recipes/continous-diagrams/)
+- [Fix Sonar issues](./churrera-recipes/fix-sonar-issues/)
 
 ## Getting started
 
