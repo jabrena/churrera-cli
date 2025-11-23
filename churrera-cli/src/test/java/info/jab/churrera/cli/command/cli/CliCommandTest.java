@@ -70,8 +70,9 @@ class CliCommandTest {
 
         // Then - verify scheduled executor ran at least once using Awaitility
         // Add pollDelay to give the executor time to start and execute the first task
+        // Use longer delay in CI environments where scheduling can be slower
         await()
-            .pollDelay(100, TimeUnit.MILLISECONDS)  // Give executor time to start
+            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
             .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
@@ -98,8 +99,9 @@ class CliCommandTest {
 
         // Then - verify scheduled executor ran at least once using Awaitility
         // Add pollDelay to give the executor time to start and execute the first task
+        // Use longer delay in CI environments where scheduling can be slower
         await()
-            .pollDelay(100, TimeUnit.MILLISECONDS)  // Give executor time to start
+            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
             .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
@@ -122,8 +124,9 @@ class CliCommandTest {
 
         // Then - verify scheduled executor ran at least once using Awaitility
         // Add pollDelay to give the executor time to start and execute the first task
+        // Use longer delay in CI environments where scheduling can be slower
         await()
-            .pollDelay(100, TimeUnit.MILLISECONDS)  // Give executor time to start
+            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
             .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
@@ -146,8 +149,9 @@ class CliCommandTest {
 
         // Then - verify scheduled executor ran at least once using Awaitility
         // Add pollDelay to give the executor time to start and execute the first task
+        // Use longer delay in CI environments where scheduling can be slower
         await()
-            .pollDelay(100, TimeUnit.MILLISECONDS)  // Give executor time to start
+            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
             .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
@@ -170,8 +174,9 @@ class CliCommandTest {
 
         // Then - verify scheduled executor ran at least once using Awaitility
         // Add pollDelay to give the executor time to start and execute the first task
+        // Use longer delay in CI environments where scheduling can be slower
         await()
-            .pollDelay(100, TimeUnit.MILLISECONDS)  // Give executor time to start
+            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
             .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
@@ -194,8 +199,9 @@ class CliCommandTest {
 
         // Then - verify scheduled executor ran at least once using Awaitility
         // Add pollDelay to give the executor time to start and execute the first task
+        // Use longer delay in CI environments where scheduling can be slower
         await()
-            .pollDelay(100, TimeUnit.MILLISECONDS)  // Give executor time to start
+            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
             .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
@@ -218,8 +224,9 @@ class CliCommandTest {
 
         // Then - verify scheduled executor ran at least once using Awaitility
         // Add pollDelay to give the executor time to start and execute the first task
+        // Use longer delay in CI environments where scheduling can be slower
         await()
-            .pollDelay(100, TimeUnit.MILLISECONDS)  // Give executor time to start
+            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
             .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
@@ -242,8 +249,9 @@ class CliCommandTest {
 
         // Then - verify scheduled executor ran at least once using Awaitility
         // Add pollDelay to give the executor time to start and execute the first task
+        // Use longer delay in CI environments where scheduling can be slower
         await()
-            .pollDelay(100, TimeUnit.MILLISECONDS)  // Give executor time to start
+            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
             .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
@@ -266,8 +274,9 @@ class CliCommandTest {
 
         // Then - verify scheduled executor ran at least once using Awaitility
         // Add pollDelay to give the executor time to start and execute the first task
+        // Use longer delay in CI environments where scheduling can be slower
         await()
-            .pollDelay(100, TimeUnit.MILLISECONDS)  // Give executor time to start
+            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
             .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
@@ -290,8 +299,9 @@ class CliCommandTest {
 
         // Then - verify scheduled executor ran at least once using Awaitility
         // Add pollDelay to give the executor time to start and execute the first task
+        // Use longer delay in CI environments where scheduling can be slower
         await()
-            .pollDelay(100, TimeUnit.MILLISECONDS)  // Give executor time to start
+            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
             .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
@@ -314,8 +324,9 @@ class CliCommandTest {
 
         // Then - verify scheduled executor ran at least once using Awaitility
         // Add pollDelay to give the executor time to start and execute the first task
+        // Use longer delay in CI environments where scheduling can be slower
         await()
-            .pollDelay(100, TimeUnit.MILLISECONDS)  // Give executor time to start
+            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
             .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
@@ -379,8 +390,9 @@ class CliCommandTest {
 
         // Then - verify scheduled executor ran at least once using Awaitility
         // Add pollDelay to give the executor time to start and execute the first task
+        // Use longer delay in CI environments where scheduling can be slower
         await()
-            .pollDelay(100, TimeUnit.MILLISECONDS)  // Give executor time to start
+            .pollDelay(300, TimeUnit.MILLISECONDS)  // Give executor time to start and execute
             .pollInterval(50, TimeUnit.MILLISECONDS)  // Check frequently
             .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() -> verify(jobProcessor, atLeastOnce()).processJobs());
