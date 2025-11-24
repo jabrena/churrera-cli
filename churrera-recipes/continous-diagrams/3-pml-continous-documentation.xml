@@ -66,6 +66,8 @@
                 - 1 diagram for the cursor-cloud-agents-openapi module.
                 - 1 diagram for the sequence workflow when a user uses the cli tool to execute a
                 sequence workflow.
+                - 1 diagram for the parallel workflow when a user uses the cli tool to execute a
+                parallel workflow.
 
                 The document located in the path: ./documentation/uml/README.md should show
                 a diagram per maven module and a complete diagram from all modules.
