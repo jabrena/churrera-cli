@@ -54,6 +54,24 @@
                 Review that png files show all elements from the .puml files. In other case, make chages in the .puml files.
             </step-content>
         </step>
+        <step number="2">
+            <step-title>Update the README.md for UML Sequence Diagrams</step-title>
+            <step-content>
+                Add or update the document located in the path: ./documentation/uml/README.md
+                with the title "UML Sequence Diagrams" when a user uses the cli tool to execute a
+                sequence workflow.
+
+                `Create UML sequence diagrams for the churrera-cli module when a user uses the cli tool to execute a sequence workflow.`
+
+                Fetch the rule from the following URL:
+                https://github.com/jabrena/cursor-rules-java/blob/main/.cursor/rules/171-java-diagrams.md
+                put the diagrams in the path: ./documentation/uml/ and move the .puml files to the
+                path: ./documentation/uml/puml/
+
+                with the new diagram is  created add/update the document at the end of the file with the section
+                visualizting the sequence diagram.
+            </step-content>
+        </step>
     </steps>
 
     <acceptance-criteria>
